@@ -1,4 +1,25 @@
 # main
+- New program:      eclipseFactor2GriddedData.cpp: returns a global grid with eclipse factors.
+- New program:      orbit2EarhFixedOrbit: Rotate an orbit into a rotation earth fixed frame.
+- New program:      GriddedDataTimeSeries2PotentialCoefficients.
+- New class:        In Gravityfield/Tides/MiscAccelerations: Group.
+- New option:       GriddedData2PotentialCoefficients: Handle multiple input data columns at once.
+- New option:       GriddedDataReduceSampling: tesseroid volume conserving for digital elevation models.
+- Removed program:  NetCdf2PotentialCoefficients: Use NetCdf2GriddedDataTimeSeries and GriddedDataTimeSeries2PotentialCoefficients instead.
+- Bugfix:           ObservationDeflections: fixed index bug.
+- Bugfix:           NormalEquationFile: corrected contribution computation.
+- Bugfix:           NetCdf: in some cases the data has been swapped.
+- Other:            EarthRotation::rotaryAxis: if EOP time series is too short, use simplified equations.
+- Other:            Gravityfield2Deflections: Computation based now on normal gravity.
+- Other:            SimulateStarCamera: new optional nadir pointing mode.
+- Other:            SimulateOrbit: Improved temporal numerical precision.
+- Other:            GnssRinexNavigation2OrbitClock: add SBAS support.
+- Other:            Updated documentation to explain parameter names.
+- Other:            GriddedData: reworked area computations.
+
+# Release 2023-08-25
+- New program:      FileMove.
+- New program:      FileTextCreate.
 - New program:      InstrumentRemoveEpochsThruster.
 - New program:      InstrumentApplyTimeOffset.
 - New program:      InstrumentAccelerometerEstimateParameters (replaces InstrumentAccelerometerEstimateBiasScale).
@@ -9,21 +30,34 @@
 - New program:      ObservationEquations2Files.
 - New program:      Variational2OrbitAndStarCamera (renamed Variational2Orbit): added possibility to also extract Earth rotation.
 - New program:      PlatformCreate: replaces gnssStationInfoCreate.
+- New program:      Tle2Orbit: Orbit from Two Line Elements (TLE).
+- New program:      GriddedData2NetCdf, GriddedDataTimeSeries2NetCdf (replaces GridRectangular2NectCdf).
+- New program:      NetCdf2GriddedData, NetCdf2GriddedDataTimeSeries (replaces NectCdf2DridRectangular).
+- New program:      DoodsonAdmittance2SupplementaryFiles: for publication of ocean tide models.
+- New program:      Gravityfield2TrendPotentialCoefficients: Estimate trend, annual, ...
+- New class:        In Loop: DirectoryListing.
+- New class:        In Loop: FileLines.
 - New class:        In InstrumentResample/interpolatorTimeSeries: FillGapsLeastSquaresPolynomialFit.
 - New class:        In MiscAccelerations: AtmosphericDragFromDensityFile.
 - New class:        In MiscAccelerations: RadiationPressure, replaces SolarRadiatinPressure, Albedo
 - New class:        In Loop: PlatformEquipment (replaces FileGnssStationInfo).
+- Bugfix:           Gravityfield2Deflections: fixed initialization bug.
 - Bugfix:           GnssRinexNavigation2OrbitClock: updated to be usable for rinex4 and fixes for rinex3.
 - Bugfix:           Plot: various fixes for GMT Versions >6.1.
 - Bugfix:           GriddedData: unwrap longitude before computing area elements.
 - Bugfix:           InstrumentResample/polynomial: corrected interpolation vs. extrapolation.
 - Bugfix:           GnssResiduals2Skyplot: consider also the PRN in type.
 - Bugfix:           GssProcessingStepDisableTransmitterShadowEpochs.
+- Bugfix:           Sinex2StationPositions: Correct sign for approx. positions.
 - Other:            Reworked of GRACE-(FO) L1A conversion.
 - Other:            GnssReceiver: Improved preprocessing (initial clock and cycleslip detection).
 - Other:            GnssParametrizationStaticPositions: better selection of noNet stations.
+- Other:            GnssParametrizationLeoDynamicOrbits: handling of mutliple arcs.
+- Other:            GnssRinexNavigation2OrbitClock: works also for glonass.
 - Other:            PlotMisc: set minimum size of points in legend to 3p.
 - Other:            Preparation to replace GnssStationInfo file format by the more general Platform file format.
+- Other:            Text parser: new {text/regex/replace}.
+- Other:            GUI: added new multi-line comment elements, revised code.
 
 # Release 2022-07-28
 - New programs:     GriddedData2GriddedDataTimeSeries and GriddedDataTimeSeries2GriddedData.
