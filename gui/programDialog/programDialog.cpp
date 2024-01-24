@@ -218,7 +218,11 @@ void ProgramListWidget::filterChanged(QString text)
     itemsFound.append(treeWidget->findItems(filterStrings.at(0), Qt::MatchContains | Qt::MatchRecursive, 0));
     itemsFound.append(treeWidget->findItems(filterStrings.at(0), Qt::MatchContains | Qt::MatchRecursive, 1));
     itemsFound.append(treeWidget->findItems(filterStrings.at(0), Qt::MatchContains | Qt::MatchRecursive, 2));
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    itemsFound = QSet<QTreeWidgetItem*>::fromList(itemsFound).values();
+#else
     itemsFound = QSet<QTreeWidgetItem*>(itemsFound.begin(), itemsFound.end()).values();
+#endif
 
     // remove items that don't contain further filter strings
     for(int i=1; i<filterStrings.size(); i++)
