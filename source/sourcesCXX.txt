@@ -21,6 +21,8 @@ base/time.cpp
 base/transform3d.cpp
 base/wavelets.cpp
 
+external/sgp4/SGP4.cpp
+
 parser/dataVariables.cpp
 parser/expressionParser.cpp
 parser/stringParser.cpp
@@ -91,6 +93,7 @@ classes/gravityfield/gravityfield.cpp
 classes/gravityfield/gravityfieldEarthquakeOscillation.cpp
 classes/gravityfield/gravityfieldFilter.cpp
 classes/gravityfield/gravityfieldFromParametrization.cpp
+classes/gravityfield/gravityfieldGroup.cpp
 classes/gravityfield/gravityfieldInInterval.cpp
 classes/gravityfield/gravityfieldOscillation.cpp
 classes/gravityfield/gravityfieldPotentialCoefficients.cpp
@@ -170,12 +173,14 @@ classes/tides/tidesAstronomical.cpp
 classes/tides/tidesCentrifugal.cpp
 classes/tides/tidesDoodsonHarmonic.cpp
 classes/tides/tidesEarth.cpp
+classes/tides/tidesGroup.cpp
 classes/tides/tidesOceanPole.cpp
 classes/tides/tidesPole.cpp
 classes/tides/tidesSolidMoon.cpp
 classes/timeSeries/timeSeries.cpp
 classes/troposphere/troposphere.cpp
 classes/troposphere/troposphereGpt.cpp
+classes/troposphere/troposphereHopfield.cpp
 classes/troposphere/troposphereSaastamoinen.cpp
 classes/troposphere/troposphereViennaMapping.cpp
 
@@ -296,6 +301,7 @@ programs/gravityfield/gravityfield2PotentialCoefficients.cpp
 programs/gravityfield/gravityfield2PotentialCoefficientsTimeSeries.cpp
 programs/gravityfield/gravityfield2SphericalHarmonicsVector.cpp
 programs/gravityfield/gravityfield2TimeSplines.cpp
+programs/gravityfield/gravityfield2TrendPotentialCoefficients.cpp
 programs/gravityfield/gravityfieldCovariancesPropagation2GriddedData.cpp
 programs/gravityfield/gravityfieldReplacePotentialCoefficients.cpp
 programs/gravityfield/gravityfieldVariancesPropagation2GriddedData.cpp
@@ -312,6 +318,7 @@ programs/griddedData/griddedDataCreate.cpp
 programs/griddedData/griddedDataInterpolate.cpp
 programs/griddedData/griddedDataReduceSampling.cpp
 programs/griddedData/griddedDataTimeSeries2GriddedData.cpp
+programs/griddedData/griddedDataTimeSeries2PotentialCoefficients.cpp
 programs/griddedData/griddedTopography2AtmospherePotentialCoefficients.cpp
 programs/griddedData/griddedTopography2PotentialCoefficients.cpp
 programs/griddedData/griddedTopographyEllipsoidal2Radial.cpp
@@ -367,6 +374,7 @@ programs/misc/digitalFilter2FrequencyResponse.cpp
 programs/misc/digitalFilter2ImpulseResponse.cpp
 programs/misc/earthOrientationParameterTimeSeries.cpp
 programs/misc/earthRotaryVectorTimeSeries.cpp
+programs/misc/eclipseFactor2GriddedData.cpp
 programs/misc/filterMatrixWindowedPotentialCoefficients.cpp
 programs/misc/functionsCalculate.cpp
 programs/misc/grs2PotentialCoefficients.cpp
@@ -403,6 +411,7 @@ programs/normals/parameterNamesCreate.cpp
 programs/normals/parameterSelection2IndexVector.cpp
 programs/orbit/orbit2ArgumentOfLatitude.cpp
 programs/orbit/orbit2BetaPrimeAngle.cpp
+programs/orbit/orbit2EarthFixedOrbit.cpp
 programs/orbit/orbit2EclipseFactor.cpp
 programs/orbit/orbit2Groundtracks.cpp
 programs/orbit/orbit2Kepler.cpp
@@ -442,12 +451,15 @@ programs/simulation/simulateStarCameraGrace.cpp
 programs/simulation/simulateStarCameraSentinel1.cpp
 programs/system/fileConvert.cpp
 programs/system/fileCreateDirectories.cpp
+programs/system/fileMove.cpp
 programs/system/fileRemove.cpp
+programs/system/fileTextCreate.cpp
 programs/system/groupPrograms.cpp
 programs/system/ifPrograms.cpp
 programs/system/loopPrograms.cpp
 programs/system/runCommand.cpp
 
+programs/conversion/doodsonHarmonics/doodsonAdmittance2SupplementaryFiles.cpp
 programs/conversion/doodsonHarmonics/doodsonHarmonics2IersPotential.cpp
 programs/conversion/doodsonHarmonics/doodsonHarmonics2IersWaterHeight.cpp
 programs/conversion/doodsonHarmonics/graceAod2DoodsonHarmonics.cpp
@@ -508,9 +520,10 @@ programs/conversion/grace/graceSequenceOfEvents.cpp
 programs/conversion/grail/grailCdr2Orbit.cpp
 programs/conversion/grail/grailCdr2SatelliteTracking.cpp
 programs/conversion/grail/grailCdr2StarCamera.cpp
-programs/conversion/grid/gridRectangular2NetCdf.cpp
-programs/conversion/grid/netCdf2GridRectangular.cpp
-programs/conversion/grid/netCdf2PotentialCoefficients.cpp
+programs/conversion/grid/griddedData2NetCdf.cpp
+programs/conversion/grid/griddedDataTimeSeries2NetCdf.cpp
+programs/conversion/grid/netCdf2GriddedData.cpp
+programs/conversion/grid/netCdf2GriddedDataTimeSeries.cpp
 programs/conversion/grid/netCdfInfo.cpp
 programs/conversion/satellites/champ2AccStar.cpp
 programs/conversion/satellites/champ2Orbit.cpp
@@ -537,9 +550,12 @@ programs/conversion/potentialCoefficients2Icgem.cpp
 programs/conversion/psmslOceanBottomPressure2TimeSeries.cpp
 programs/conversion/sinex2Normals.cpp
 programs/conversion/sp3Format2Orbit.cpp
+programs/conversion/tle2Orbit.cpp
 programs/conversion/viennaMappingFunctionGrid2File.cpp
 programs/conversion/viennaMappingFunctionStation2File.cpp
 
+programs/deprecated/gridRectangular2NetCdf.cpp
+programs/deprecated/netCdf2GridRectangular.cpp
 programs/deprecated/sinex2StationPosition.cpp
 programs/deprecated/sinex2StationPostSeismicDeformation.cpp
 

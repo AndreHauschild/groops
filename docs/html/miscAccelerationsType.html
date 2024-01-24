@@ -76,7 +76,7 @@ This class gives the non conservative forces acting on satellites.
 
 <h2 id="relativisticEffect">Relativistic effect</h2><p>
 The relativistic effect to the acceleration of an artificial Earth satellite
-according to IERS2010 conventions.
+according to IERS2010 conventions.</p><p>The macro model and the attitude of the satellite is not needed.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
@@ -175,6 +175,15 @@ one with number <strong class="groops-config-element">rightSide</strong> (counti
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">indexStart</div></div></td><td>uint</td><td>position in the solution vector</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">rightSide</div></div></td><td>uint</td><td>if solution contains several right hand sides, select one</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">factor</div></div></td><td>double</td><td>the result is multiplied by this factor, set -1 to subtract the field</td></tr>
+</table>
+
+<h2 id="group">Group</h2><p>
+Groups a set of <a class="groops-class" href="miscAccelerationsType.html">miscAccelerations</a> and has no further effect itself.
+</p>
+<table class="table table-hover">
+<tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">miscAccelerations</div></div></td><td><a href="miscAccelerationsType.html">miscAccelerations</a></td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">factor</div></div></td><td>double</td><td>the result is multiplied by this factor</td></tr>
 </table>
 
 <h2 id="solarRadiationPressure">SolarRadiationPressure</h2><p>

@@ -45,7 +45,7 @@ static void positionVelocityTime(const GnssReceiver &receiver, const GnssTransmi
 
     // line of sight from transmitter to receiver
     k              = normalize(posRecv - posTrans);
-    kRecv          = receiver.local2antennaFrame(idEpoch).transform(receiver.global2localFrame(idEpoch).transform(rotCrf2Trf.rotate(-k))); // line of sight in receiver antenna system (north, east, up)
+    kRecv          = receiver.global2antennaFrame(idEpoch).transform(rotCrf2Trf.rotate(-k)); // line of sight in receiver antenna system (north, east, up)
     azimutRecv     = kRecv.lambda();
     elevationRecv  = kRecv.phi();
     kTrans         = transmitter.celestial2antennaFrame(idEpoch, timeTrans).transform(k);
@@ -100,14 +100,16 @@ Bool GnssObservation::init(const GnssReceiver &receiver, const GnssTransmitter &
     // ------------------------------------
     const Vector sigma0   = receiver.accuracy(timeRecv, azimutRecv, elevationRecv, types);
     const Vector acvRecv  = receiver.antennaVariations(timeRecv, azimutRecv, elevationRecv, types);
+    const Vector biasRecv = receiver.signalBiases(types);
     const Vector acvTrans = transmitter.antennaVariations(timeTrans, azimutTrans, elevationTrans, typesTransmitted);
+    const Vector biasTrans= transmitter.signalBiases(typesTransmitted);
     for(UInt i=0; i<size(); i++)
     {
       at(i).sigma0 = sigma0(i);
-      at(i).sigma  = acvRecv(i); // temporarily misuse sigma for ACV pattern nan check
+      at(i).sigma  = acvRecv(i)+biasRecv(i); // temporarily misuse sigma for ACV pattern nan check
       for(UInt k=0; k<T.columns(); k++)
         if(T(i,k))
-          at(i).sigma  += T(i,k) * acvTrans(k);
+          at(i).sigma  += T(i,k) * (acvTrans(k) + biasTrans(k));
     }
     obs.erase(std::remove_if(obs.begin(), obs.end(), [](const auto &x)
     {
@@ -128,7 +130,7 @@ Bool GnssObservation::init(const GnssReceiver &receiver, const GnssTransmitter &
     // phase wind-up
     // Carrier phase wind-up in GPS reflectometry, Georg Beyerle, Springer Verlag 2008
     // -------------------------------------------------------------------------------
-    const Transform3d crf2arfRecv  = receiver.local2antennaFrame(idEpoch) * receiver.global2localFrame(idEpoch) * rotCrf2Trf;
+    const Transform3d crf2arfRecv  = receiver.global2antennaFrame(idEpoch) * rotCrf2Trf;
     const Transform3d crf2arfTrans = transmitter.celestial2antennaFrame(idEpoch, timeTrans);
     const Vector3d Tx = crf2arfRecv.transform(crossProduct(crossProduct(k, crf2arfTrans.inverseTransform(Vector3d(1,0,0))), k));
     const Vector3d Ty = crf2arfRecv.transform(crossProduct(crossProduct(k, crf2arfTrans.inverseTransform(Vector3d(0,1,0))), k));
@@ -142,23 +144,6 @@ Bool GnssObservation::init(const GnssReceiver &receiver, const GnssTransmitter &
     for(UInt i=0; i<size(); i++)
       if(at(i).type == GnssType::PHASE)
         at(i).observation -= phaseWindup/(2*PI) * (at(i).type.wavelength());
-
-    // Simple C/N0 model
-    // Zenith-angle dependent quadratic model
-    // --------------------------------------
-
-    const Double zen_min = 80.0*DEG2RAD;  // [rad]
-    const Double cn0_min = 30.0;          // [dB-Hz]
-    const Double cn0_max = 45.0;          // [dB-Hz]
-
-    Double cn0 = cn0_max + pow((PI/2-elevationRecv)/zen_min,2)*(cn0_min-cn0_max);
-
-    for(UInt i=0; i<size(); i++) {
-      if(at(i).type == GnssType::SNR) {
-        // Reduce C/N0 for GPS P(Y) signal
-        at(i).observation = cn0 - (at(i).type == GnssType::W? 10.0 : 0);
-      };
-    };
 
     return TRUE;
   }
@@ -316,7 +301,7 @@ void GnssObservationEquation::compute(const GnssObservation &observation, const 
                          k, kRecvAnt, kTrans);
     const Double   rDotTrans  = inner(k, velocityTrans)/LIGHT_VELOCITY;
     const Double   rDotRecv   = inner(k, velocityRecv) /LIGHT_VELOCITY;
-    const Vector3d kRecvLocal = receiver_.local2antennaFrame(idEpoch).inverseTransform(kRecvAnt);
+    const Vector3d kRecvLocal = receiver_.global2localFrame(idEpoch).transform(rotCrf2Trf.rotate(-k));
     azimutRecvLocal    = kRecvLocal.lambda();
     elevationRecvLocal = kRecvLocal.phi();
 
@@ -367,7 +352,9 @@ void GnssObservationEquation::compute(const GnssObservation &observation, const 
     // antenna correction and other corrections
     // ----------------------------------------
     l -= receiver->antennaVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt,  types);
+    l -= receiver->signalBiases(types);
     l -= T * transmitter->antennaVariations(timeTrans, azimutTrans, elevationTrans, typesTransmitted);
+    l -= T * transmitter->signalBiases(typesTransmitted);
     if(track && track->ambiguity)
       l -= track->ambiguity->ambiguities(types);     // reduce ambiguities
     if(reduceModels)

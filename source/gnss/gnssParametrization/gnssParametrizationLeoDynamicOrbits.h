@@ -25,6 +25,24 @@ The \configClass{parametrizationAcceleration}{parametrizationAccelerationType} m
 parameters that were estimated in \program{PreprocessingVariationalEquationOrbitFit}.
 Additional \configClass{stochasticPulse}{timeSeriesType} parameters can be set up to reduce orbit mismodeling.
 If not enough epochs with observations are available (\config{minEstimableEpochsRatio}) the LEO satellite is disabled.
+
+The parameters and \file{parameter names}{parameterName} are divided into global
+\begin{itemize}
+\item \verb|<station>:<parametrizationAcceleration>:*:*|,
+\item \verb|<station>:stochasticPulse.x::<time>|,
+\item \verb|<station>:stochasticPulse.y::<time>|,
+\item \verb|<station>:stochasticPulse.z::<time>|,
+\end{itemize}
+and arc related parameters
+\begin{itemize}
+\item \verb|<station>:arc<no>.<parametrizationAcceleration>:*:*|,
+\item \verb|<station>:arc<no>.position0.x::|,
+\item \verb|<station>:arc<no>.position0.y::|,
+\item \verb|<station>:arc<no>.position0.z::|.
+\item \verb|<station>:arc<no>.velocity0.x::|,
+\item \verb|<station>:arc<no>.velocity0.y::|,
+\item \verb|<station>:arc<no>.velocity0.z::|.
+\end{itemize}
 )";
 #endif
 
@@ -48,14 +66,16 @@ class GnssParametrizationLeoDynamicOrbits : public GnssParametrizationBase
   class Parameter
   {
   public:
-    GnssReceiverPtr            recv;
-    GnssParameterIndex         index;
-    std::vector<ParameterName> parameterNames;
-    std::vector<Time>          times;
-    Matrix                     PosDesign, VelDesign;
-    Vector                     pos, vel;
-    Vector                     x;
-    Polynomial                 polynomial;
+    GnssReceiverPtr                recv;
+    GnssParameterIndex             index;
+    std::vector<ParameterName>     parameterNames;
+    Vector                         x;
+    // for each arc:
+    std::vector<UInt>              startEpoch, endEpoch;
+    std::vector<std::vector<Time>> times;
+    std::vector<Matrix>            PosDesign, VelDesign;
+    std::vector<Vector>            pos, vel;
+    std::vector<Polynomial>        polynomial;
   };
 
   Gnss                          *gnss;
@@ -67,7 +87,7 @@ class GnssParametrizationLeoDynamicOrbits : public GnssParametrizationBase
   EphemeridesPtr                 ephemerides;
   Double                         minEstimableEpochsRatio;
   UInt                           integrationDegree, interpolationDegree;
-  std::vector<Parameter*>        parameters;
+  std::vector<Parameter*>        parameters; // for each receiver
 
 public:
   GnssParametrizationLeoDynamicOrbits(Config &config);
