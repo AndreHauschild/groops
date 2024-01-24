@@ -64,7 +64,11 @@ QWidget *TreeElementTime::createEditor()
     // create DateTime-Editor
     dateTimeEdit = new QDateTimeEdit();
     dateTimeEdit-> setDisplayFormat("yyyy-MM-dd hh:mm:ss");
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+    dateTimeEdit->setMinimumDateTime(QDateTime(QDate(1858, 11, 17), QTime(0, 0, 0))); // (mjd = 0)
+#else
     dateTimeEdit->setMinimumDateTime(QDate(1858, 11, 17).startOfDay()); // (mjd = 0)
+#endif
     dateTimeEdit->setDateTime(mjd2date(mjd));
     layout->addWidget(dateTimeEdit);
     connect(dateTimeEdit, SIGNAL(dateTimeChanged(const QDateTime &)), this, SLOT(dateTimeChanged(const QDateTime &)));

@@ -109,11 +109,19 @@ XsdElementPtr Schema::readElement(XmlNodePtr xmlNode, const std::map<QString, QS
       {
         if(info->getText().startsWith("rename:")) // format: "rename: oldName = newName"
         {
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+          QStringList splits = info->getText().split(" ", QString::SkipEmptyParts);
+#else
           QStringList splits = info->getText().split(" ", Qt::SkipEmptyParts);
+#endif
           childRenames[splits[1]] = splits[3];
         }
         else if(info->getText().startsWith("tag:"))
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+          element->tags.append(info->getText().split(" ", QString::SkipEmptyParts)[1]);
+#else
           element->tags.append(info->getText().split(" ", Qt::SkipEmptyParts)[1]);
+#endif
       }
     }
 
