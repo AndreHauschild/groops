@@ -751,10 +751,8 @@ void GnssReceiver::simulateObservations(const std::vector<GnssType> &types, Bool
     for(auto &track : tracks)
     {
       Vector value(track->types.size());
-      for(UInt i=0; i<value.size(); i++) {
-      //value(i) = wavelengthFactor*track->types.at(i).wavelength() * ambiguityRandom(generator); // cycles to meter
-        value(i) = 0.0;
-      };
+      for(UInt i=0; i<value.size(); i++)
+        value(i) = wavelengthFactor*track->types.at(i).wavelength() * ambiguityRandom(generator); // cycles to meter
       new Ambiguity(track.get(), value); // track is owner of ambiguity
     }
 

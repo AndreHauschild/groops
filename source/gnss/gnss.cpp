@@ -28,8 +28,7 @@
 /***********************************************/
 
 void Gnss::init(const std::vector<Time> &times, const Time &timeMargin,
-                GnssTransmitterGeneratorPtr transmitterGenerator,
-                GnssReceiverGeneratorPtr receiverGenerator,
+                GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,
                 EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization,
                 Bool substituteTrackingMode, Parallel::CommunicatorPtr comm)
 {
