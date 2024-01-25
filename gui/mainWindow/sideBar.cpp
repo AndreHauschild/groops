@@ -37,7 +37,11 @@ SideBar::SideBar(QWidget *parent) : QWidget(parent)
     _lastWidth = settings.value("sideBar/width", parentWidget()->width()/5).toInt();
 
     buttonGroup.setExclusive(false);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    connect(&buttonGroup, qOverload<int>(&QButtonGroup::buttonClicked), this, qOverload<int>(&SideBar::buttonClicked));
+#else
     connect(&buttonGroup, &QButtonGroup::idClicked, this, &SideBar::buttonClicked);
+#endif
   }
   catch(std::exception &e)
   {
