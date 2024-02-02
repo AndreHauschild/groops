@@ -65,7 +65,8 @@ void Gnss::init(const std::vector<Time> &times, const Time &timeMargin,
     if(parametrization)
     {
       parametrization->init(this, comm);
-      funcReduceModels = std::bind(&GnssParametrization::observationCorrections, parametrization, std::placeholders::_1);
+      funcReduceModels    = std::bind(&GnssParametrization::observationCorrections,    parametrization, std::placeholders::_1);
+      funcReduceModelsIsl = std::bind(&GnssParametrization::observationCorrectionsIsl, parametrization, std::placeholders::_1);
     }
   }
   catch(std::exception &e)
@@ -364,12 +365,45 @@ Bool Gnss::basicObservationEquations(const GnssNormalEquationInfo &/*normalEquat
 
 /***********************************************/
 
+Bool Gnss::basicObservationEquationsIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, UInt idRecv, UInt idTrans, UInt idEpoch, GnssObservationEquationIsl &eqn) const
+{
+  try
+  {
+    if(!transmitters.at(idRecv)->observationIsl(idTrans, idEpoch))
+      return FALSE;
+    eqn.compute(*transmitters.at(idRecv)->observationIsl(idTrans, idEpoch), *transmitters.at(idRecv), *transmitters.at(idTrans),
+                funcReduceModelsIsl, idEpoch, TRUE);
+    return TRUE;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void Gnss::designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const
 {
   try
   {
     if(eqn.l.rows())
       parametrization->designMatrix(normalEquationInfo, eqn, A);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void Gnss::designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    if(eqn.l.rows())
+      parametrization->designMatrixIsl(normalEquationInfo, eqn, A);
   }
   catch(std::exception &e)
   {

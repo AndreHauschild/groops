@@ -66,6 +66,7 @@ See also \program{GnssProcessing}.
 #include "parallel/matrixDistributed.h"
 #include "gnss/gnss.h"
 #include "gnss/gnssObservation.h"
+#include "gnss/gnssObservationIsl.h"
 #include "gnss/gnssDesignMatrix.h"
 #include "gnss/gnssNormalEquationInfo.h"
 
@@ -111,11 +112,17 @@ public:
   /** @brief Correct observation equations/apply models. */
   void observationCorrections(GnssObservationEquation &eqn) const;
 
+  /** @brief Correct observation equations/apply models. */
+  void observationCorrectionsIsl(GnssObservationEquationIsl &eqn) const;
+
   /** @brief Total parameter vector used as priori Taylor point. */
   Vector aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo) const;
 
   /** @brief Design matrix for the basic observation equations @p eqn. */
   void designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const;
+
+  /** @brief Design matrix for the basic observation equations @p eqn. */
+  void designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const;
 
   /** @brief Add additional (pseudo-) observations equations to the normals for @p idEpoch. */
   void constraintsEpoch(const GnssNormalEquationInfo &normalEquationInfo, UInt idEpoch, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const;
@@ -171,8 +178,10 @@ public:
                               std::vector<UInt> &/*recvCount*/, std::vector<UInt> &/*recvCountEpoch*/) {}
   virtual void   initParameter(GnssNormalEquationInfo &/*normalEquationInfo*/) {}
   virtual void   observationCorrections(GnssObservationEquation &/*eqn*/) const {}
+  virtual void   observationCorrectionsIsl(GnssObservationEquationIsl &/*eqn*/) const {}
   virtual void   aprioriParameter(const GnssNormalEquationInfo &/*normalEquationInfo*/, MatrixSliceRef /*x0*/) const {}
   virtual void   designMatrix(const GnssNormalEquationInfo &/*normalEquationInfo*/, const GnssObservationEquation &/*eqn*/, GnssDesignMatrix &/*A*/) const {}
+  virtual void   designMatrixIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, const GnssObservationEquationIsl &/*eqn*/, GnssDesignMatrix &/*A*/) const {}
   virtual void   constraintsEpoch(const GnssNormalEquationInfo &/*normalEquationInfo*/, UInt /*idEpoch*/, MatrixDistributed &/*normals*/, std::vector<Matrix> &/*n*/, Double &/*lPl*/, UInt &/*obsCount*/) const {}
   virtual void   constraints(const GnssNormalEquationInfo &/*normalEquationInfo*/, MatrixDistributed &/*normals*/, std::vector<Matrix> &/*n*/, Double &/*lPl*/, UInt &/*obsCount*/) const {}
   virtual Double ambiguityResolve(const GnssNormalEquationInfo &/*normalEquationInfo*/, MatrixDistributed &/*normals*/, std::vector<Matrix> &/*n*/, Double &/*lPl*/, UInt &/*obsCount*/,
