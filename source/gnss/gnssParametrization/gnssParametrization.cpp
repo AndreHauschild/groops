@@ -162,6 +162,21 @@ void GnssParametrization::observationCorrections(GnssObservationEquation &eqn) c
 
 /***********************************************/
 
+void GnssParametrization::observationCorrectionsIsl(GnssObservationEquationIsl &eqn) const
+{
+  try
+  {
+    for(auto b : base)
+      b->observationCorrectionsIsl(eqn);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void GnssParametrization::requirements(GnssNormalEquationInfo &normalEquationInfo,
                                        std::vector<UInt> &transCount, std::vector<UInt> &transCountEpoch,
                                        std::vector<UInt> &recvCount, std::vector<UInt> &recvCountEpoch)
@@ -217,6 +232,21 @@ void GnssParametrization::designMatrix(const GnssNormalEquationInfo &normalEquat
   {
     for(auto b : base)
       b->designMatrix(normalEquationInfo, eqn, A);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void GnssParametrization::designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    for(auto b : base)
+      b->designMatrixIsl(normalEquationInfo, eqn, A);
   }
   catch(std::exception &e)
   {

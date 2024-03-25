@@ -212,7 +212,9 @@ gnss/gnssDesignMatrix.cpp
 gnss/gnssLambda.cpp
 gnss/gnssNormalEquationInfo.cpp
 gnss/gnssObservation.cpp
+gnss/gnssObservationIsl.cpp
 gnss/gnssReceiver.cpp
+gnss/gnssTransmitter.cpp
 
 misc/grace/graceKBandGeometry.cpp
 misc/observation/covariancePod.cpp
