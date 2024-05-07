@@ -337,6 +337,21 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
             }
          } // for(idRecv)
 
+      // inter satellite links
+      // ---------------------
+      for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
+      {
+        // all observation equations for this epoch
+        GnssObservationEquationIsl eqn;
+        for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+          if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
+          {
+            A.init(eqn.l);
+            gnss->designMatrixIsl(normalEquationInfo, eqn, A);
+            A.accumulateNormals(normals, n, lPl(0), obsCount);
+          }
+      }
+
       // perform following steps not every epoch
       blockCount += normalEquationInfo.blockCountEpoch(idEpoch);
       if((blockCount < normalEquationInfo.defaultBlockCountReduction) && (idEpoch != normalEquationInfo.idEpochs.back()))
@@ -496,6 +511,7 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
         timer.loopStep(idLoop++);
 
         // loop over all receivers
+        // -----------------------
         GnssObservationEquation eqn;
         for(UInt idRecv=0; idRecv<gnss->receivers.size(); idRecv++)
           if(normalEquationInfo.estimateReceiver.at(idRecv) && gnss->receivers.at(idRecv)->isMyRank())
@@ -508,6 +524,21 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
                 A.transMult(eqn.l-A.mult(n, blockStart, normalEquationInfo.blockCount()-blockStart), n, 0, blockStart);
                 A.transMult(-A.mult(monteCarlo, blockStart, blockCount), monteCarlo, 0, blockStart);
               }
+
+        // inter satellite links
+        // ---------------------
+        {
+          GnssObservationEquationIsl eqn;
+          for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
+            for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+              if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
+              {
+                A.init(eqn.l);
+                gnss->designMatrixIsl(normalEquationInfo, eqn, A);
+                A.transMult(eqn.l-A.mult(n, blockStart, normalEquationInfo.blockCount()-blockStart), n, 0, blockStart);
+                A.transMult(-A.mult(monteCarlo, blockStart, blockCount), monteCarlo, 0, blockStart);
+              }
+        }
       } // for(idEpoch)
       Parallel::barrier(normalEquationInfo.comm);
       timer.loopEnd();
@@ -682,6 +713,48 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
     Parallel::barrier(normalEquationInfo.comm);
     timer.loopEnd();
 
+    // Residual tracking (inter satellite links)
+    // -----------------------------------------
+    Gnss::InfoParameterChange infosResidualsIsl("mm");
+    {
+      Parallel::barrier(normalEquationInfo.comm);
+      logStatus<<"Compute residuals (inter satellite links)"<<Log::endl;
+      UInt idLoop = 0;
+      Log::Timer timer(normalEquationInfo.idEpochs.size());
+      for(UInt idEpoch : normalEquationInfo.idEpochs)
+      {
+        timer.loopStep(idLoop++);
+
+        GnssObservationEquationIsl eqn;
+        for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
+          for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+            if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
+            {
+              // setup observation equations
+              A.init(eqn.l);
+              gnss->designMatrixIsl(normalEquationInfo, eqn, A);
+              Vector We  = eqn.l - A.mult(x); // decorrelated residuals
+              Matrix AWz = A.mult(Wz);        // redundancies
+
+              // redundancies
+              // ------------
+              Vector r(We.rows());
+              for(UInt i=0; i<We.rows(); i++)
+                r(i) = 1. - quadsum(AWz.row(i));
+
+              // find max. residual (for statistics)
+              // -----------------------------------
+              if(norm(eqn.sigma-eqn.sigma0) < 1e-8) // without outlier
+                for(UInt i=0; i<We.rows(); i++)
+                  if(infosResidualsIsl.update(1e3*(We(0)*eqn.sigma(0) - gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->residual)))
+                    infosResidualsIsl.info = "("+eqn.receiver->name()+"->"+ eqn.transmitter->name()+")";
+                      gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->setDecorrelatedResiduals(We(0), r(0));
+              } // for(idTrans)
+      } // for(idEpoch)
+      Parallel::barrier(normalEquationInfo.comm);
+      timer.loopEnd();
+    }
+
     // new weights
     // -----------
     if(computeWeights || adjustSigma0)
@@ -807,6 +880,8 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
     Double maxChange = 0;
     for(auto &info : infosResiduals)
       info.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
+    maxChange = 0;
+    infosResidualsIsl.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
 
     logInfo<<"Parameter changes"<<Log::endl;
 
