@@ -30,12 +30,18 @@ add_library(groopscore OBJECT ${SOURCES})
 # IGRF      International Geomagnetic Reference Field (https://doi.org/10.1186/s40623-015-0228-9)
 # IERS      International Earth Rotation and Reference Systems Service (IERS) Conventions software collection (https://iers-conventions.obspm.fr/)
 
-find_package(BLAS   REQUIRED)
-find_package(LAPACK REQUIRED)
+# Specify the full paths to the custom BLAS and LAPACK libraries
+set(HOME_DIR $ENV{HOME})
+set(LAPACK_DIR "${HOME_DIR}/Software/lapack-3.12.0")
+set(BLAS_LIBRARIES "${LAPACK_DIR}/librefblas.a")
+set(LAPACK_LIBRARIES "${LAPACK_DIR}/liblapack.a;-lm;-ldl")
+
+#find_package(BLAS   REQUIRED)
+#find_package(LAPACK REQUIRED)
 find_package(EXPAT  REQUIRED)
 include_directories(${EXPAT_INCLUDE_DIRS})
 
-set(BASE_LIBRARIES ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${EXPAT_LIBRARIES} stdc++fs)
+set(BASE_LIBRARIES ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} ${EXPAT_LIBRARIES} stdc++fs)
 
 find_library(LIB_ERFA erfa)
 if(LIB_ERFA AND ((NOT ${DISABLE_ERFA}) OR (NOT DEFINED DISABLE_ERFA)))
