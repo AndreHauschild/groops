@@ -67,7 +67,7 @@ public:
   Vector antennaVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
   /** @brief Direction (and other parameters) dependent standard deviation.
-  * @a azmiut and @a elevation must be given in the antenna frame (left-handed). */
+  * @a azimuth and @a elevation must be given in the antenna frame (left-handed). */
   Vector accuracy(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
   void save(OutArchive &oa) const;
