@@ -20,10 +20,10 @@
 
 /***** CLASS ***********************************/
 
-/** @brief Mathematcial Expression
+/** @brief Mathematical Expression
  * @ingroup parserGroup
  * Represented as a tree.
- * Can be created by the standard mathemtical operators.
+ * Can be created by the standard mathematical operators.
  * Example:
  * @code ExpressionPtr expr = exprValue(5)+(sin(exprVar(x))^2); @endcode
  * expr->string() results in "5+sin(x)^2" */
@@ -50,10 +50,10 @@ public:
    * @return Simplified expression. */
   virtual ExpressionPtr simplify(VariableList &varList, Bool &resolved) const = 0;
 
-  /** @brief Calculate thep result of an expression.
+  /** @brief Calculate the result of an expression.
    * Example: "5*x" results in 10 if variable x=5 is given.
    * @param varList values of the variables contained in the expression. */
-  virtual Double evaluate(const VariableList &varList) const = 0;
+  virtual LongDouble evaluate(const VariableList &varList) const = 0;
 
   /** @brief Derivative of an expression.
    * @param var derivative with respect to this variable. */
@@ -133,19 +133,19 @@ static FuncList##_name funcList##_name;
 
 class ExpressionValue : public Expression
 {
-  Double value;
+  LongDouble value;
 
 public:
-  explicit ExpressionValue(Double v) : value(v) {}
+  explicit ExpressionValue(LongDouble v) : value(v) {}
   std::string   string() const override;
   ExpressionPtr simplify(VariableList &/*varList*/, Bool &resolved) const override {resolved = TRUE; return clone();}
-  Double        evaluate(const VariableList &/*varList*/) const override {return value;}
+  LongDouble    evaluate(const VariableList &/*varList*/) const override {return value;}
   ExpressionPtr derivative(const std::string &/*var*/) const override {return std::make_shared<ExpressionValue>(0);}
   ExpressionPtr clone() const override {return std::make_shared<ExpressionValue>(value);}
   UInt          priority() const override {return Expression::Priority::VALUE;}
 };
 
-inline ExpressionPtr exprValue(Double v) {return std::make_shared<ExpressionValue>(v);}
+inline ExpressionPtr exprValue(LongDouble v) {return std::make_shared<ExpressionValue>(v);}
 
 /***********************************************/
 
@@ -157,7 +157,7 @@ public:
   explicit ExpressionVar(const std::string &_name) : name(_name) {}
   std::string   string() const override {return name;}
   ExpressionPtr simplify(VariableList &varList, Bool &resolved) const override;
-  Double        evaluate(const VariableList &varList) const override;
+  LongDouble    evaluate(const VariableList &varList) const override;
   ExpressionPtr derivative(const std::string &var) const override  {return exprValue((var == this->name) ? 1 : 0);}
   ExpressionPtr clone() const override {return std::make_shared<ExpressionVar>(name);}
   UInt          priority() const override {return Expression::Priority::VALUE;}
@@ -172,8 +172,8 @@ inline ExpressionPtr exprVar(const std::string &name) {return std::make_shared<E
 class ExpressionFunction0 : public Expression
 {
 protected:
-  Double value;
-  ExpressionFunction0(Double v=0) : value(v) {}
+  LongDouble value;
+  ExpressionFunction0(LongDouble v=0) : value(v) {}
 
 public:
   virtual ~ExpressionFunction0() {}
@@ -181,7 +181,7 @@ public:
   std::string   string() const override {return name()+"()";}
   virtual ExpressionPtr create() const = 0;
   ExpressionPtr simplify(VariableList &/*varList*/, Bool &resolved) const override {resolved = TRUE; return clone();}
-  Double        evaluate(const VariableList &/*varList*/) const override {return value;}
+  LongDouble    evaluate(const VariableList &/*varList*/) const override {return value;}
   ExpressionPtr derivative(const std::string &/*var*/) const override {return exprValue(0);}
   ExpressionPtr clone()  const override {return create();}
   UInt          priority() const override {return Expression::Priority::FUNCTION;}
@@ -342,7 +342,7 @@ public:
   explicit ExpressionNegative(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   string() const override {return "-"+operand->string(priority());}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionNegative>(ob);}
-  Double        evaluate(const VariableList &v) const override {return -operand->evaluate(v);}
+  LongDouble    evaluate(const VariableList &v) const override {return -operand->evaluate(v);}
   ExpressionPtr derivative(const std::string &var) const override {return -operand->derivative(var);}
   UInt priority() const override {return Expression::Priority::UNARY;}
 };
@@ -358,7 +358,7 @@ public:
   std::string   string() const override {return left->string(priority()) + " + " + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionAdd>(l, r);}
   ExpressionPtr simplify(VariableList &varList, Bool &resolved) const override;
-  Double        evaluate(const VariableList &v) const override {return left->evaluate(v) + right->evaluate(v);}
+  LongDouble    evaluate(const VariableList &v) const override {return left->evaluate(v) + right->evaluate(v);}
   ExpressionPtr derivative(const std::string &var) const override {return left->derivative(var) + right->derivative(var);}
   UInt priority() const override {return Expression::Priority::ADDITIVE;}
 };
@@ -386,7 +386,7 @@ public:
   std::string   string() const override {return left->string(priority()) + " - " + right->string(priority()+1);}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionSub>(l, r);}
   ExpressionPtr simplify(VariableList &varList, Bool &resolved) const override;
-  Double        evaluate(const VariableList &v) const override {return left->evaluate(v) - right->evaluate(v);}
+  LongDouble    evaluate(const VariableList &v) const override {return left->evaluate(v) - right->evaluate(v);}
   ExpressionPtr derivative(const std::string &var) const override {return left->derivative(var) - right->derivative(var);}
   UInt priority() const override {return Expression::Priority::ADDITIVE;}
 };
@@ -414,7 +414,7 @@ public:
   std::string   string() const override {return left->string(priority()) + "*" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionMult>(l, r);}
   ExpressionPtr simplify(VariableList &varList, Bool &resolved) const override;
-  Double        evaluate(const VariableList &v) const override {return left->evaluate(v) * right->evaluate(v);}
+  LongDouble    evaluate(const VariableList &v) const override {return left->evaluate(v) * right->evaluate(v);}
   ExpressionPtr derivative(const std::string &var) const override {return left->derivative(var)*right->clone() + left->clone()*right->derivative(var);}
   UInt priority() const override {return Expression::Priority::MULTIPLICATIVE;}
 };
@@ -444,7 +444,7 @@ public:
   std::string   string() const override {return left->string(priority()) + "/" + right->string(priority()+1);}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionDiv>(l, r);}
   ExpressionPtr simplify(VariableList &varList, Bool &resolved) const override;
-  Double        evaluate(const VariableList &v) const override {return left->evaluate(v) / right->evaluate(v);}
+  LongDouble    evaluate(const VariableList &v) const override {return left->evaluate(v) / right->evaluate(v);}
   ExpressionPtr derivative(const std::string &var) const override {return (left->derivative(var)*right->clone() - left->clone()*right->derivative(var))/(right->clone()^exprValue(2));}
   UInt priority() const override {return Expression::Priority::MULTIPLICATIVE;}
 };
@@ -472,7 +472,7 @@ public:
   std::string   string() const override {return left->string(priority()) + "^" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionPow>(l, r);}
   ExpressionPtr simplify(VariableList &varList, Bool &resolved) const override;
-  Double        evaluate(const VariableList &v) const override {return pow(left->evaluate(v),right->evaluate(v));}
+  LongDouble    evaluate(const VariableList &v) const override {return pow(left->evaluate(v),right->evaluate(v));}
   ExpressionPtr derivative(const std::string &var) const override {return left->derivative(var)*right->clone()/left->clone() * (left->clone()^(right->clone()-exprValue(1)));} // this derivative is not completly correct!!!!
   UInt priority() const override {return Expression::Priority::EXPONENTIAL;}
 };
@@ -502,7 +502,7 @@ public:
   std::string   name()   const override {return "operator<";}
   std::string   string() const override {return left->string(priority()) + "<" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionLessThan>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return left->evaluate(varList) < right->evaluate(varList) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return left->evaluate(varList) < right->evaluate(varList) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::RELATION;}
 };
 
@@ -515,7 +515,7 @@ public:
   std::string   name()   const override {return "operator<=";}
   std::string   string() const override {return left->string(priority()) + "<=" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionLessEqualThan>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return left->evaluate(varList) <= right->evaluate(varList) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return left->evaluate(varList) <= right->evaluate(varList) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::RELATION;}
 };
 
@@ -528,7 +528,7 @@ public:
   std::string   name()   const override {return "operator>";}
   std::string   string() const override {return left->string(priority()) + ">" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionGreaterThan>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return left->evaluate(varList) > right->evaluate(varList) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return left->evaluate(varList) > right->evaluate(varList) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::RELATION;}
 };
 
@@ -541,7 +541,7 @@ public:
   std::string   name()   const override {return "operator>=";}
   std::string   string() const override {return left->string(priority()) + ">=" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionGreaterEqualThan>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return left->evaluate(varList) >= right->evaluate(varList) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return left->evaluate(varList) >= right->evaluate(varList) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::RELATION;}
 };
 
@@ -554,7 +554,7 @@ public:
   std::string   name()   const override {return "operator==";}
   std::string   string() const override {return left->string(priority()) + "==" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionEqual>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return left->evaluate(varList) == right->evaluate(varList) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return left->evaluate(varList) == right->evaluate(varList) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::EQUALITY;}
 };
 
@@ -567,7 +567,7 @@ public:
   std::string   name()   const override {return "operator!=";}
   std::string   string() const override {return left->string(priority()) + "!=" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionNotEqual>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return left->evaluate(varList) != right->evaluate(varList) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return left->evaluate(varList) != right->evaluate(varList) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::EQUALITY;}
 };
 
@@ -582,7 +582,7 @@ public:
   std::string   name()   const override {return "operator!";}
   std::string   string() const override {return "!"+operand->string(priority());}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionLogicalNot>(ob);}
-  Double        evaluate(const VariableList &v) const override {return operand->evaluate(v) == 0.0 ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &v) const override {return operand->evaluate(v) == 0.0 ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::UNARY;}
 };
 
@@ -595,7 +595,7 @@ public:
   std::string   name()   const override {return "operator&&";}
   std::string   string() const override {return left->string(priority()) + "&&" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionLogicalAnd>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return (left->evaluate(varList)!=0.0 &&  right->evaluate(varList)!=0.0) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return (left->evaluate(varList)!=0.0 &&  right->evaluate(varList)!=0.0) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::LOGICAL_AND;}
 };
 
@@ -608,7 +608,7 @@ public:
   std::string   name()   const override {return "operator||";}
   std::string   string() const override {return left->string(priority()) + "||" + right->string(priority());}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionLogicalOr>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return (left->evaluate(varList)!=0.0 || right->evaluate(varList)!=0.0) ? 1.0 : 0.0;}
+  LongDouble    evaluate(const VariableList &varList) const override {return (left->evaluate(varList)!=0.0 || right->evaluate(varList)!=0.0) ? 1.0 : 0.0;}
   UInt priority() const override {return Expression::Priority::LOGICAL_OR;}
 };
 
@@ -620,7 +620,7 @@ public:
   ExpressionIfThenElse(const ExpressionPtr &a1, const ExpressionPtr &a2, const ExpressionPtr &a3) : ExpressionFunction3(a1,a2,a3) {}
   std::string   name() const override {return "if";}
   ExpressionPtr create(const ExpressionPtr &a1, const ExpressionPtr &a2, const ExpressionPtr &a3) const override {return std::make_shared<ExpressionIfThenElse>(a1, a2, a3);}
-  Double        evaluate(const VariableList &varList) const override {return arg1->evaluate(varList) != 0.0 ? arg2->evaluate(varList) : arg3->evaluate(varList);}
+  LongDouble    evaluate(const VariableList &varList) const override {return arg1->evaluate(varList) != 0.0 ? arg2->evaluate(varList) : arg3->evaluate(varList);}
 };
 FUNCLIST3(ExpressionIfThenElse)
 
@@ -632,7 +632,7 @@ public:
   explicit ExpressionIsNan(const ExpressionPtr &a1) : ExpressionFunction1(a1) {}
   std::string   name() const override {return "isnan";}
   ExpressionPtr create(const ExpressionPtr &a1) const override {return std::make_shared<ExpressionIsNan>(a1);}
-  Double        evaluate(const VariableList &varList) const override {return std::isnan(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::isnan(operand->evaluate(varList));}
 };
 FUNCLIST1(ExpressionIsNan)
 
@@ -646,7 +646,7 @@ public:
   explicit ExpressionSqrt(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "sqrt";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionSqrt>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::sqrt(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::sqrt(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return operand->derivative(var)/(exprValue(2.0)*sqrt(operand->clone()));}
 };
 FUNCLIST1(ExpressionSqrt)
@@ -661,7 +661,7 @@ public:
   explicit ExpressionExp(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "exp";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionExp>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::exp(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::exp(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return operand->derivative(var)*exp(operand->clone());}
 };
 FUNCLIST1(ExpressionExp)
@@ -676,7 +676,7 @@ public:
   explicit ExpressionLog(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "log";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionExp>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::log(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::log(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return operand->derivative(var)^exprValue(-1);}
 };
 FUNCLIST1(ExpressionLog)
@@ -691,7 +691,7 @@ public:
   explicit ExpressionSin(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "sin";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionSin>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::sin(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::sin(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return operand->derivative(var)*cos(operand->clone());}
 };
 FUNCLIST1(ExpressionSin)
@@ -706,7 +706,7 @@ public:
   explicit ExpressionCos(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "cos";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionCos>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::cos(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::cos(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return -operand->derivative(var)*sin(operand->clone());}
 };
 FUNCLIST1(ExpressionCos)
@@ -721,7 +721,7 @@ public:
   explicit ExpressionTan(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "tan";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionTan>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::tan(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::tan(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return operand->derivative(var)/(cos(operand->clone())^exprValue(2));}
 };
 FUNCLIST1(ExpressionTan)
@@ -736,7 +736,7 @@ public:
   explicit ExpressionAsin(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "asin";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionAsin>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::asin(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::asin(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return operand->derivative(var)/sqrt(exprValue(1) - ((operand->clone())^exprValue(2)));}
 };
 FUNCLIST1(ExpressionAsin)
@@ -751,7 +751,7 @@ public:
   explicit ExpressionAcos(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "acos";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionAcos>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::acos(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::acos(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return -operand->derivative(var)/sqrt(exprValue(1) - ((operand->clone())^exprValue(2)));}
 };
 FUNCLIST1(ExpressionAcos)
@@ -766,7 +766,7 @@ public:
   explicit ExpressionAtan(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "atan";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionAtan>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::atan(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::atan(operand->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return operand->derivative(var)/(exprValue(1) + ((operand->clone())^exprValue(2)));}
 };
 FUNCLIST1(ExpressionAtan)
@@ -781,7 +781,7 @@ public:
   explicit ExpressionAbs(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "abs";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionAbs>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::fabs(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::fabs(operand->evaluate(varList));}
 };
 FUNCLIST1(ExpressionAbs)
 
@@ -793,7 +793,7 @@ public:
   explicit ExpressionRound(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "round";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionRound>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::round(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::round(operand->evaluate(varList));}
 };
 FUNCLIST1(ExpressionRound)
 
@@ -805,7 +805,7 @@ public:
   explicit ExpressionCeil(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "ceil";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionCeil>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::ceil(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::ceil(operand->evaluate(varList));}
 };
 FUNCLIST1(ExpressionCeil)
 
@@ -817,7 +817,7 @@ public:
   explicit ExpressionFloor(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "floor";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionFloor>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return std::floor(operand->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::floor(operand->evaluate(varList));}
 };
 FUNCLIST1(ExpressionFloor)
 
@@ -829,7 +829,7 @@ public:
   explicit ExpressionDeg2Rad(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "deg2rad";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionDeg2Rad>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return DEG2RAD * operand->evaluate(varList);}
+  LongDouble    evaluate(const VariableList &varList) const override {return DEG2RAD * operand->evaluate(varList);}
 };
 FUNCLIST1(ExpressionDeg2Rad)
 
@@ -841,7 +841,7 @@ public:
   explicit ExpressionRad2Deg(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "rad2deg";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionRad2Deg>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return RAD2DEG * operand->evaluate(varList);}
+  LongDouble    evaluate(const VariableList &varList) const override {return RAD2DEG * operand->evaluate(varList);}
 };
 FUNCLIST1(ExpressionRad2Deg)
 
@@ -854,7 +854,7 @@ public:
   ExpressionAtan2(const ExpressionPtr &l, const ExpressionPtr &r) : ExpressionFunction2(l,r) {}
   std::string   name() const override {return "atan2";}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionAtan2>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return std::atan2(left->evaluate(varList), right->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::atan2(left->evaluate(varList), right->evaluate(varList));}
   ExpressionPtr derivative(const std::string &var) const override {return (left->derivative(var)*right->clone() - left->clone()*right->derivative(var))/((left->clone()^exprValue(2))+(right->clone()^exprValue(2)));}
 };
 FUNCLIST2(ExpressionAtan2)
@@ -867,7 +867,7 @@ public:
   ExpressionMin(const ExpressionPtr &l, const ExpressionPtr &r) : ExpressionFunction2(l,r) {}
   std::string   name() const override {return "min";}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionMin>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return std::min(left->evaluate(varList), right->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::min(left->evaluate(varList), right->evaluate(varList));}
 };
 FUNCLIST2(ExpressionMin)
 
@@ -879,7 +879,7 @@ public:
   ExpressionMax(const ExpressionPtr &l, const ExpressionPtr &r) : ExpressionFunction2(l,r) {}
   std::string   name() const override {return "max";}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionMax>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return std::max(left->evaluate(varList), right->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::max(left->evaluate(varList), right->evaluate(varList));}
 };
 FUNCLIST2(ExpressionMax)
 
@@ -891,7 +891,7 @@ public:
   ExpressionMod(const ExpressionPtr &l, const ExpressionPtr &r) : ExpressionFunction2(l,r) {}
   std::string   name() const override {return "mod";}
   ExpressionPtr create(const ExpressionPtr &l, const ExpressionPtr &r) const override {return std::make_shared<ExpressionMod>(l, r);}
-  Double        evaluate(const VariableList &varList) const override {return std::fmod(left->evaluate(varList), right->evaluate(varList));}
+  LongDouble    evaluate(const VariableList &varList) const override {return std::fmod(left->evaluate(varList), right->evaluate(varList));}
 };
 FUNCLIST2(ExpressionMod)
 
@@ -921,7 +921,7 @@ public:
   ExpressionDate2mjd(const ExpressionPtr &a1, const ExpressionPtr &a2, const ExpressionPtr &a3) : ExpressionFunction3(a1,a2,a3) {}
   std::string   name() const override {return "date2mjd";}
   ExpressionPtr create(const ExpressionPtr &a1, const ExpressionPtr &a2, const ExpressionPtr &a3) const override {return std::make_shared<ExpressionDate2mjd>(a1, a2, a3);}
-  Double        evaluate(const VariableList &varList) const override {return date2time(static_cast<UInt>(arg1->evaluate(varList)), static_cast<UInt>(arg2->evaluate(varList)), static_cast<UInt>(arg3->evaluate(varList))).mjd();}
+  LongDouble    evaluate(const VariableList &varList) const override {return date2time(static_cast<UInt>(arg1->evaluate(varList)), static_cast<UInt>(arg2->evaluate(varList)), static_cast<UInt>(arg3->evaluate(varList))).mjd();}
 };
 FUNCLIST3(ExpressionDate2mjd)
 
@@ -933,7 +933,7 @@ public:
   explicit ExpressionGps2Utc(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "gps2utc";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionGps2Utc>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return timeGPS2UTC(mjd2time(operand->evaluate(varList))).mjd();}
+  LongDouble    evaluate(const VariableList &varList) const override {return timeGPS2UTC(mjd2time(operand->evaluate(varList))).mjd();}
 };
 FUNCLIST1(ExpressionGps2Utc)
 
@@ -945,7 +945,7 @@ public:
   explicit ExpressionUtc2Gps(const ExpressionPtr &ob) : ExpressionFunction1(ob) {}
   std::string   name() const override {return "utc2gps";}
   ExpressionPtr create(const ExpressionPtr &ob) const override {return std::make_shared<ExpressionUtc2Gps>(ob);}
-  Double        evaluate(const VariableList &varList) const override {return timeUTC2GPS(mjd2time(operand->evaluate(varList))).mjd();}
+  LongDouble    evaluate(const VariableList &varList) const override {return timeUTC2GPS(mjd2time(operand->evaluate(varList))).mjd();}
 };
 FUNCLIST1(ExpressionUtc2Gps)
 
@@ -957,7 +957,7 @@ public:
   explicit ExpressionDayOfYear(const ExpressionPtr &a1) : ExpressionFunction1(a1) {}
   std::string   name() const override {return "dayofyear";}
   ExpressionPtr create(const ExpressionPtr &a1) const override {return std::make_shared<ExpressionDayOfYear>(a1);}
-  Double        evaluate(const VariableList &varList) const override {return static_cast<Double>(mjd2time(operand->evaluate(varList)).dayOfYear());}
+  LongDouble    evaluate(const VariableList &varList) const override {return static_cast<LongDouble>(mjd2time(operand->evaluate(varList)).dayOfYear());}
 };
 FUNCLIST1(ExpressionDayOfYear)
 
@@ -969,7 +969,7 @@ public:
   explicit ExpressionDecimalYear(const ExpressionPtr &a1) : ExpressionFunction1(a1) {}
   std::string   name() const override {return "decimalyear";}
   ExpressionPtr create(const ExpressionPtr &a1) const override {return std::make_shared<ExpressionDecimalYear>(a1);}
-  Double        evaluate(const VariableList &varList) const override {return mjd2time(operand->evaluate(varList)).decimalYear();}
+  LongDouble    evaluate(const VariableList &varList) const override {return mjd2time(operand->evaluate(varList)).decimalYear();}
 };
 FUNCLIST1(ExpressionDecimalYear)
 
@@ -993,7 +993,7 @@ std::string Expression::string(UInt aprio) const
 
 /***********************************************/
 
-Double ExpressionVar::evaluate(const VariableList &varList) const
+LongDouble ExpressionVar::evaluate(const VariableList &varList) const
 {
   auto variable = varList.find(name);
   if(!variable)
@@ -1086,7 +1086,7 @@ public:
   Type        type;
   OperatorType opType;
   char        c;
-  Double      value;
+  LongDouble  value;
   std::string name;
 
   explicit Tokenizer(const std::string &text);
@@ -1438,7 +1438,7 @@ ExpressionPtr Expression::parse(const std::string &text)
 /***********************************************/
 /***********************************************/
 
-Double ExpressionVariable::parse(const std::string &text, const VariableList &varList)
+LongDouble ExpressionVariable::parse(const std::string &text, const VariableList &varList)
 {
   try
   {
@@ -1455,7 +1455,7 @@ Double ExpressionVariable::parse(const std::string &text, const VariableList &va
 ExpressionVariable::ExpressionVariable(const std::string &name)
   : _name(name), status(UNDEFINED), isSimplified(FALSE) {}
 
-ExpressionVariable::ExpressionVariable(const std::string &name, Double _value)
+ExpressionVariable::ExpressionVariable(const std::string &name, LongDouble _value)
   : _name(name), status(VALUE), value(_value), isSimplified(FALSE) {}
 
 ExpressionVariable::ExpressionVariable(const std::string &name, const std::string &_text)
@@ -1633,7 +1633,7 @@ ExpressionVariablePtr ExpressionVariable::derivative(const std::string &varName,
 
 /***********************************************/
 
-Double ExpressionVariable::evaluate(const VariableList &varList) const
+LongDouble ExpressionVariable::evaluate(const VariableList &varList) const
 {
   try
   {
@@ -1670,7 +1670,7 @@ Double ExpressionVariable::evaluate(const VariableList &varList) const
 
       const Status stat = status;
       status = CIRCULAR;  // prevent endless searching
-      Double d = Expression::parse(text_)->evaluate(varList2);
+      LongDouble d = Expression::parse(text_)->evaluate(varList2);
       status = stat;
       return d;
     }
@@ -1818,7 +1818,7 @@ ExpressionVariablePtr VariableList::getVariable(const std::string &name)
 
 /***********************************************/
 
-void VariableList::setVariable(const std::string &name, Double value)            {getVariable(name)->setValue(value);}
+void VariableList::setVariable(const std::string &name, LongDouble value)        {getVariable(name)->setValue(value);}
 void VariableList::setVariable(const std::string &name, const std::string &text) {getVariable(name)->setValue(text);}
 void VariableList::undefineVariable(const std::string &name)                     {getVariable(name)->setUndefined();}
 

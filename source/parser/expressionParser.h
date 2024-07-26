@@ -55,7 +55,7 @@ typedef std::shared_ptr<ExpressionVariable> ExpressionVariablePtr;
 /***** CLASS ***********************************/
 
 /** @brief List of variables for expressions
-* With smart memmory management. The variables are only copied if needed (copy on write, late copy).
+* With smart memory management. The variables are only copied if needed (copy on write, late copy).
 * This is not threat save.
 * @ingroup parserGroup
 * @see ExpressionVariable */
@@ -78,7 +78,7 @@ public:
   void addVariable(ExpressionVariablePtr var);
 
   /** @brief Set @a value of a variable with @a name. The variable is created when needed.*/
-  void setVariable(const std::string &name, Double value);
+  void setVariable(const std::string &name, LongDouble value);
 
   /** @brief Set @a text of a variable with @a name. The variable is created when needed.*/
   void setVariable(const std::string &name, const std::string &text);
@@ -118,7 +118,7 @@ private:
   std::string    _name;
   mutable Status status;
   std::string    text;
-  mutable Double value;
+  mutable LongDouble value;
   ExpressionPtr  expr;
   VariableList   varList;
   mutable std::shared_ptr<Func> func;
@@ -132,7 +132,7 @@ public:
   ExpressionVariable(const std::string &name);
 
   /** @brief Constructor: variable with value. */
-  ExpressionVariable(const std::string &name, Double value);
+  ExpressionVariable(const std::string &name, LongDouble value);
 
   /** @brief Constructor: variable with parseable expression text. */
   ExpressionVariable(const std::string &name, const std::string &text);
@@ -154,13 +154,13 @@ public:
 
   /** @brief Parse an expression given as string.
    * Example: "3+5*sin(1.0)+x^2". */
-  static Double parse(const std::string &text, const VariableList &varList);
+  static LongDouble parse(const std::string &text, const VariableList &varList);
 
   /** @brief Name of the variable. */
   const std::string &name() const {return _name;}
 
   /** @brief set value of this variable. */
-  void setValue(Double value_) {status = VALUE; value = value_;}
+  void setValue(LongDouble value_) {status = VALUE; value = value_;}
 
   /** @brief set parseable expression text. */
   void setValue(const std::string &text_) {status = TEXT; text = text_;}
@@ -188,12 +188,12 @@ public:
   * if not all variables {names} can be resolved an exception is thrown. */
   ExpressionVariablePtr derivative(const std::string &varName, const VariableList &varList) const;
 
-  /** @brief Calculate thep result of an expression.
+  /** @brief Calculate the result of an expression.
   * Example: "5*x" results in 10 if variable x=5 is given.
   * The @a StringParser with the @a varList is called before and
   * if not all variables {names} can be resolved an exception is thrown.
   * @param varList values of the variables contained in the expression. */
-  Double evaluate(const VariableList &varList) const;
+  LongDouble evaluate(const VariableList &varList) const;
 
   /** @brief Returns the result of the @a StringParser.
   * @a resolved is set to FALSE if not all variables defined. Untouched by success. */

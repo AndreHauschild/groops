@@ -50,7 +50,7 @@ public:
                      const std::string &defaultValue, const std::string &annotation, Bool parse, std::string &text);
 
   /** @brief Gives the parsed content of the node with @a name. */
-  Bool getConfigValue(const std::string &name, const std::string &type, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation, Double &v);
+  Bool getConfigValue(const std::string &name, const std::string &type, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation, LongDouble &v);
 
   /** @brief Removes the node with @a name from @a config and stores it in @a conf. */
   Bool getConfig(const std::string &name, Config::Appearance mustSet, Config &conf);

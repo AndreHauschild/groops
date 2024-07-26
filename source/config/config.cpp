@@ -311,7 +311,7 @@ Bool Config::getConfigText(const std::string &name, const std::string &type, Con
 
 /***********************************************/
 
-Bool Config::getConfigValue(const std::string &name, const std::string &type, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation, Double &v)
+Bool Config::getConfigValue(const std::string &name, const std::string &type, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation, LongDouble &v)
 {
   std::string text;
   try
@@ -702,7 +702,7 @@ void ProgramConfig::run(VariableList &variableList, Parallel::CommunicatorPtr co
         {
           std::string comment;
           StackNode top = config.stack.top();
-          config.stack.pop(); // coment is given in <program> not in <choiceElement>
+          config.stack.pop(); // comment is given in <program> not in <choiceElement>
           XmlAttrPtr attr = config.stack.top().xmlNode->getAttribute("comment");
           if(attr)
             comment = attr->getText();
@@ -920,7 +920,7 @@ void endChoice(Config &config)
 // read Int
 template<> Bool readConfig(Config &config, const std::string &name, Int &var, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation)
 {
-  Double v;
+  LongDouble v;
   Bool   found = config.getConfigValue(name, "int", mustSet, defaultValue, annotation, v);
   if(found)
     var = static_cast<Int>(round(v));
@@ -932,7 +932,7 @@ template<> Bool readConfig(Config &config, const std::string &name, Int &var, Co
 // read UInt
 template<> Bool readConfig(Config &config, const std::string &name, UInt &var, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation)
 {
-  Double v;
+  LongDouble v;
   Bool   found = config.getConfigValue(name, "uint", mustSet, defaultValue, annotation, v);
   if(found)
     var = static_cast<UInt>(round(v));
@@ -944,7 +944,7 @@ template<> Bool readConfig(Config &config, const std::string &name, UInt &var, C
 // read Double
 template<> Bool readConfig(Config &config, const std::string &name, Double &var, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation)
 {
-  Double v;
+  LongDouble v;
   Bool   found = config.getConfigValue(name, "double", mustSet, defaultValue, annotation, v);
   if(found)
     var = v;
@@ -968,7 +968,7 @@ template<> Bool readConfig(Config &config, const std::string &name, std::string 
 // read Bool
 template<> Bool readConfig(Config &config, const std::string &name, Bool &var, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation)
 {
-  Double v;
+  LongDouble v;
   Bool   found = config.getConfigValue(name, "boolean", mustSet, defaultValue, annotation, v);
   if(found)
     var = static_cast<Bool>(v);
@@ -980,7 +980,7 @@ template<> Bool readConfig(Config &config, const std::string &name, Bool &var, C
 // read Angle
 template<> Bool readConfig(Config &config, const std::string &name, Angle &var, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation)
 {
-  Double v;
+  LongDouble v;
   Bool   found = config.getConfigValue(name, "angle", mustSet, defaultValue, annotation, v);
   if(found)
     var = Angle(v*DEG2RAD);
@@ -992,8 +992,8 @@ template<> Bool readConfig(Config &config, const std::string &name, Angle &var, 
 // read Time
 template<> Bool readConfig(Config &config, const std::string &name, Time &var, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation)
 {
-  Double v;
-  Bool   found = config.getConfigValue(name, "time", mustSet, defaultValue, annotation, v);
+  LongDouble v;
+  Bool found = config.getConfigValue(name, "time", mustSet, defaultValue, annotation, v);
   if(found)
     var = mjd2time(v);
   return found;
