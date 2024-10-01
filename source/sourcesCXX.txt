@@ -290,6 +290,7 @@ programs/gnss/gnssReceiverDefinitionCreate.cpp
 programs/gnss/gnssResiduals2AccuracyDefinition.cpp
 programs/gnss/gnssResiduals2Skyplot.cpp
 programs/gnss/gnssSignalBias2Matrix.cpp
+programs/gnss/gnssSimulateIsl.cpp
 programs/gnss/gnssSimulateReceiver.cpp
 programs/gnss/gnssStationInfoCreate.cpp
 programs/gnss/instrumentGnssReceiver2TimeSeries.cpp
