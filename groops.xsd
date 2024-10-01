@@ -1928,6 +1928,31 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="islBiases">
+				<xs:annotation>
+					<xs:documentation>biases of inter satellite links</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="name" type="string" minOccurs="0" default="parameter.islBiases">
+							<xs:annotation>
+								<xs:documentation>used for parameter selection</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="selectTransmitters" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="nameConstraint" type="string" minOccurs="0" default="constraint.islBiases">
+							<xs:annotation>
+								<xs:documentation>used for parameter selection</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="sigmaZeroMeanConstraint" type="double" minOccurs="0" default="0.0001">
+							<xs:annotation>
+								<xs:documentation>(0 = unconstrained) sigma [m] for null space constraint</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="staticPositions">
 				<xs:annotation>
 					<xs:documentation>static positions with no-net constraints</xs:documentation>
@@ -11836,7 +11861,12 @@
 								<xs:documentation>apriori earth rotation</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="parametrization" type="gnssParametrizationType" maxOccurs="unbounded">
+						<xs:element name="inputfileObservationsIsl" type="filename" minOccurs="0" default="gnssReceiver_{loopTime:%D}.{prn}.dat">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="parametrization" type="gnssParametrizationType" maxOccurs="unbounded" default="1">
 							<xs:annotation>
 								<xs:documentation>models and parameters</xs:documentation>
 							</xs:annotation>
