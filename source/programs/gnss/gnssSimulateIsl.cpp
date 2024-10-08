@@ -185,7 +185,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                 arc.push_back(epoch);
             } // for(idEpoch)
 
-          fileNameVariableList.setVariable("station", recv->name());
+          fileNameVariableList.setVariable("station", recv->markerNumber());
           InstrumentFile::write(fileNameIsl(fileNameVariableList), arc);
         } // for(recv)
     } // if(fileNameReceiver)
@@ -211,7 +211,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
               epoch.value = recv->clockError(idEpoch);
               arc.push_back(epoch);
             }
-          fileNameVariableList.setVariable("station", recv->name());
+          fileNameVariableList.setVariable("station", recv->markerNumber());
           InstrumentFile::write(fileNameClock(fileNameVariableList), arc);
         } // for(recv)
     } // if(fileNameClock)

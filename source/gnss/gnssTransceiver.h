@@ -50,6 +50,9 @@ public:
   /** @brief name. */
   std::string name() const {return platform.name;}
 
+  /** @brief marker number. */
+  std::string markerNumber() const {return platform.markerNumber;}
+
   /** @brief Is the platform usable at given epoch (or all epochs). */
   Bool useable(UInt idEpoch=NULLINDEX) const {return countUseableEpochs && ((idEpoch == NULLINDEX) || useableEpochs(idEpoch));}
 

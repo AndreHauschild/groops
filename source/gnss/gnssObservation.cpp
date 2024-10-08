@@ -68,6 +68,11 @@ Bool GnssObservation::init(const GnssReceiver &receiver, const GnssTransmitter &
   {
     if((!receiver.useable(idEpoch)) || (!transmitter.useable(idEpoch)))
       return FALSE;
+	
+	// avoid using the same satellite as receiver and transmitter
+	//
+    if (receiver.markerNumber()==transmitter.markerNumber())
+      return FALSE;
 
     // position, time of transmitter & receiver
     // ----------------------------------------
