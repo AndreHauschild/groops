@@ -68,7 +68,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     readConfig(config, "transmitter",             transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
     readConfig(config, "receiver",                receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
     readConfig(config, "earthRotation",           earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
-    readConfig(config, "parametrization",         gnssParametrization,  Config::DEFAULT,  R"(["islBiases"])", "models and parameters");
+    readConfig(config, "parametrization",         gnssParametrization,  Config::DEFAULT,  R"(["signalBiasesIsl"])", "models and parameters");
     readConfig(config, "observationType",         obsTypes,             Config::MUSTSET,  "",    "simulated observation types");
     readConfig(config, "noiseObservation",        noiseObs,             Config::DEFAULT,  "",    "[-] noise is multiplied with type accuracy pattern of receiver");
     readConfig(config, "noiseClockReceiver",      noiseClock,           Config::DEFAULT,  "",    "[m] noise added to the simulated receiver clock");
@@ -192,7 +192,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 
     // ============================
 
-    // write clock errors
+    // write clock errors (TODO: remove this?)
     // ------------------
     if(!fileNameClock.empty())
     {

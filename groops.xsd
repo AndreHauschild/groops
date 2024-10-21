@@ -1803,6 +1803,42 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="signalBiasesIsl">
+				<xs:annotation>
+					<xs:documentation>apriori values of ISL signal biases</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="name" type="string" minOccurs="0" default="parameter.signalBiasesIsl">
+							<xs:annotation>
+								<xs:documentation>used for parameter selection</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="selectTransmitters" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectReceivers" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="outputfileSignalBiasTransmitter" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="outputfileSignalBiasReceiver" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {station} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileSignalBiasTransmitter" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileSignalBiasReceiver" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {station} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="ambiguities">
 				<xs:annotation>
 					<xs:documentation>integer and float ambiguities</xs:documentation>
