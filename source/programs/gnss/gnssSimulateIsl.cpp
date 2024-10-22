@@ -69,12 +69,27 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     readConfig(config, "receiver",                receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
     readConfig(config, "earthRotation",           earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
     readConfig(config, "parametrization",         gnssParametrization,  Config::DEFAULT,  R"(["signalBiasesIsl"])", "models and parameters");
-    readConfig(config, "observationType",         obsTypes,             Config::MUSTSET,  "",    "simulated observation types");
     readConfig(config, "noiseObservation",        noiseObs,             Config::DEFAULT,  "",    "[-] noise is multiplied with type accuracy pattern of receiver");
     readConfig(config, "noiseClockReceiver",      noiseClock,           Config::DEFAULT,  "",    "[m] noise added to the simulated receiver clock");
     if(isCreateSchema(config)) return;
 
     // ============================
+
+    // Set fixed list of observation types for all simulated GNSSs.
+    //
+    // NOTE: only C1X and X1X will alter be returned as observations, the rest
+    //       is required internally for validation checks and is filtered prior
+    //       to output.
+    //
+    // TODO: check if the X-type is the best choice due to the bias handling of
+    //       combined observation types!
+    // -----------------------
+
+    obsTypes.push_back(GnssType::RANGE   + GnssType::E1  + GnssType::X);
+    obsTypes.push_back(GnssType::RANGE   + GnssType::E5a + GnssType::X);
+    obsTypes.push_back(GnssType::PHASE   + GnssType::E1  + GnssType::X);
+    obsTypes.push_back(GnssType::PHASE   + GnssType::E5a + GnssType::X);
+    obsTypes.push_back(GnssType::CHANNEL + GnssType::E1  + GnssType::X);
 
     // init the GNSS system
     // --------------------
@@ -155,8 +170,15 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
               for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
                 if(recv->observation(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch))
                   for(UInt idType=0; idType<recv->observation(idTrans, idEpoch)->size(); idType++)
+                  {
+                    // Filter all observation types except for C1X and X1X (works for all GNSSs!)
+                    GnssType obsType = recv->observation(idTrans, idEpoch)->at(idType).type;
+                    if(obsType != GnssType(GnssType::RANGE   + GnssType::E1 + GnssType::X) &&
+                       obsType != GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::X))
+                      continue;
                     if(!recv->observation(idTrans, idEpoch)->at(idType).type.isInList(epoch.obsType))
                       epoch.obsType.push_back(recv->observation(idTrans, idEpoch)->at(idType).type & ~(GnssType::PRN+GnssType::FREQ_NO));
+                  }
               std::sort(epoch.obsType.begin(), epoch.obsType.end());
               if(!epoch.obsType.size())
                 continue;
