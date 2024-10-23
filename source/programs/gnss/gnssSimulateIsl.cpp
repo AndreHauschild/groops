@@ -169,6 +169,12 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 
           GnssReceiverArc scheduleIsl;
           readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
+          if(!scheduleIsl.size())
+          {
+            recv->disable("no scheduled ISLs found");
+            logWarning<<"no scheduled ISLs found"<<Log::endl;
+            continue;
+          }
 
           GnssReceiverArc arc;
           for(UInt idEpoch=0; idEpoch<gnss.times.size(); idEpoch++)
@@ -273,19 +279,21 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
   {
     InFile file(fileName);
 
-    GnssReceiverArc arc;
+    scheduleIsl = GnssReceiverArc();
 
     // read data
     // ---------
-    std::string line;
+    GnssReceiverArc arc;
+    std::string     line, prn_, cha_;
     while(std::getline(file, line))
     {
+
       UInt   mjdInt = String::toInt(line.substr(0, 5));
       Double mjdMod = String::toDouble("0"+line.substr(5, 21));
       Time   time   = Time(mjdInt,mjdMod);
 
-      GnssType prn = GnssType("***"+line.substr(44, 3));
-      Double   cha = String::toInt(line.substr(48, 1));
+      std::stringstream ss(line.substr(27));
+      ss>>prn_>>cha_;
 
       if(arc.size() && (time<arc.back().time))
         throw(Exception("epochs not in increasing order"));
@@ -296,13 +304,15 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
         epoch.time = time;
         arc.push_back(epoch);
       }
-      arc.back().satellite.push_back(prn);
+      arc.back().satellite.push_back(GnssType("***"+prn_));
       arc.back().obsType.push_back(GnssType::CHANNEL + GnssType::E1 + GnssType::X);
-      arc.back().observation.push_back(cha);
+      arc.back().observation.push_back(String::toDouble(cha_));
     }
+    if(!arc.size())
+      return;
 
     // Generate lists consistent with the epochs in input time series
-
+    // --------------------------------------------------------------
     UInt idEpoch = 0;
     for(UInt arcEpoch=0; arcEpoch<arc.size(); arcEpoch++)
     {
