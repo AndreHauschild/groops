@@ -137,6 +137,11 @@ void GnssReceiverGeneratorLowEarthOrbiter::init(const std::vector<Time> &times, 
         MiscValueArc  clock      = InstrumentFile::read(fileNameClock);
         Arc::checkSynchronized({orbit, starCamera, clock});
 
+        // FIXME: time series and orbit must have the same sampling!!
+        // -------------------------
+        if (medianSampling(times) - medianSampling(orbit.times())>timeMargin)
+          recv->disable("Mismatch of sampling rates for observation and orbit/attitude!");
+
         UInt idEpoch = 0;
         for(UInt i=0; i<orbit.size(); i++)
         {
