@@ -80,19 +80,16 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 
     // Set fixed list of observation types for all simulated GNSSs.
     //
-    // NOTE: only C1X and X1X will alter be returned as observations, the rest
+    // NOTE: only C1C and X1C will later be returned as observations, the rest
     //       is required internally for validation checks and is filtered prior
     //       to output.
-    //
-    // TODO: check if the X-type is the best choice due to the bias handling of
-    //       combined observation types!
     // -------------------------------------------------------------------------
 
-    obsTypes.push_back(GnssType::RANGE   + GnssType::E1  + GnssType::X);
-    obsTypes.push_back(GnssType::RANGE   + GnssType::E5a + GnssType::X);
-    obsTypes.push_back(GnssType::PHASE   + GnssType::E1  + GnssType::X);
-    obsTypes.push_back(GnssType::PHASE   + GnssType::E5a + GnssType::X);
-    obsTypes.push_back(GnssType::CHANNEL + GnssType::E1  + GnssType::X);
+    obsTypes.push_back(GnssType::RANGE   + GnssType::E1  + GnssType::C);
+    obsTypes.push_back(GnssType::RANGE   + GnssType::E5a + GnssType::Q);
+    obsTypes.push_back(GnssType::PHASE   + GnssType::E1  + GnssType::C);
+    obsTypes.push_back(GnssType::PHASE   + GnssType::E5a + GnssType::Q);
+    obsTypes.push_back(GnssType::CHANNEL + GnssType::E1  + GnssType::C);
 
     // init the GNSS system
     // --------------------
@@ -189,10 +186,10 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                 if(recv->observation(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch))
                   for(UInt idType=0; idType<recv->observation(idTrans, idEpoch)->size(); idType++)
                   {
-                    // Filter all observation types except for C1X and X1X (works for all GNSSs!)
+                    // Filter all observation types except for C1C and X1C (works for all GNSSs!)
                     GnssType obsType = recv->observation(idTrans, idEpoch)->at(idType).type;
-                    if(obsType != GnssType(GnssType::RANGE   + GnssType::E1 + GnssType::X) &&
-                       obsType != GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::X))
+                    if(obsType != GnssType(GnssType::RANGE   + GnssType::E1 + GnssType::C) &&
+                       obsType != GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::C))
                       continue;
                     if(!recv->observation(idTrans, idEpoch)->at(idType).type.isInList(epoch.obsType))
                       epoch.obsType.push_back(recv->observation(idTrans, idEpoch)->at(idType).type & ~(GnssType::PRN+GnssType::FREQ_NO));
