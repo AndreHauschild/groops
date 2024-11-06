@@ -198,20 +198,21 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
               if(!epoch.obsType.size())
                 continue;
 
+              GnssReceiverEpoch epochSchedule = scheduleIsl.at(idEpoch);
               for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
               {
 
                 // Filter for transmitter PRN from the ISL schedule
                 // ------------------------------------------------
-                if (!gnss.transmitters.at(idTrans)->PRN().isInList(scheduleIsl.at(idEpoch).satellite)) {
+                if(!gnss.transmitters.at(idTrans)->PRN().isInList(scheduleIsl.at(idEpoch).satellite))
                   continue;
-                }
 
                 if(recv->observation(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch))
                 {
                   const GnssObservation &obs = *recv->observation(idTrans, idEpoch);
                   const GnssType prn = obs.at(0).type & (GnssType::SYSTEM + GnssType::PRN + GnssType::FREQ_NO);
                   UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), prn));
+                  UInt idChan = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(), prn));
 
                   epoch.satellite.push_back(prn);
                   for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType++)
@@ -220,7 +221,12 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                     for(UInt i=0; i<obs.size(); i++)
                       if(obs.at(i).type == epoch.obsType.at(idType))
                       {
-                        epoch.observation.back() = obs.at(i).observation;
+                        // Set the transmitter channel number from scheduler file
+                        // ------------------------------------------------------
+                        if(obs.at(i).type == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::C))
+                          epoch.observation.back() = epochSchedule.observation.at(idChan);
+                        else
+                          epoch.observation.back() = obs.at(i).observation;
                         break;
                       }
                   }
@@ -284,7 +290,6 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
     std::string     line, prn_, cha_;
     while(std::getline(file, line))
     {
-
       // skip comment lines
       // ------------------
       if (line[0]=='#')
@@ -307,13 +312,13 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
         arc.push_back(epoch);
       }
       arc.back().satellite.push_back(GnssType("***"+prn_));
-      arc.back().obsType.push_back(GnssType::CHANNEL + GnssType::E1 + GnssType::X);
+      arc.back().obsType.push_back(GnssType("X1C"+prn_));
       arc.back().observation.push_back(String::toDouble(cha_));
     }
     if(!arc.size())
       return;
 
-    // Generate lists consistent with the epochs in input time series
+    // generate lists consistent with the epochs in input time series
     // --------------------------------------------------------------
     UInt idEpoch = 0;
     for(UInt arcEpoch=0; arcEpoch<arc.size(); arcEpoch++)
@@ -329,6 +334,8 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
         }
         else
         {
+          // fill-in epochs missing in scheduler file
+          // ----------------------------------------
           GnssReceiverEpoch epoch;
           epoch.time        = times.at(idEpoch++);
           epoch.satellite   = arc.at(arcEpoch).satellite;
