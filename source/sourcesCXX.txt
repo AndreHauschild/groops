@@ -458,6 +458,7 @@ programs/simulation/noiseOrbit.cpp
 programs/simulation/noiseSatelliteTracking.cpp
 programs/simulation/noiseStarCamera.cpp
 programs/simulation/noiseTimeSeries.cpp
+programs/simulation/offsetOrbit.cpp
 programs/simulation/simulateAccelerometerCoMOffset.cpp
 programs/simulation/simulateAccelerometer.cpp
 programs/simulation/simulateGradiometer.cpp

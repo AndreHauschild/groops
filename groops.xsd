@@ -20638,6 +20638,35 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="OffsetOrbit">
+				<xs:annotation>
+					<xs:documentation>add offsets to orbit positions</xs:documentation>
+					<xs:appinfo>tag: Simulation</xs:appinfo>
+					<xs:appinfo>tag: Orbit</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileOrbit" type="filename"/>
+						<xs:element name="inputfileOrbit" type="filename"/>
+						<xs:element name="offsetPositionAlong" type="double" minOccurs="0" default="0.0">
+							<xs:annotation>
+								<xs:documentation>along [m]</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="offsetPositionCross" type="double" minOccurs="0" default="0.0">
+							<xs:annotation>
+								<xs:documentation>cross [m]</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="offsetPositionRadial" type="double" minOccurs="0" default="0.0">
+							<xs:annotation>
+								<xs:documentation>radial [m]</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="SimulateAccelerometer">
 				<xs:annotation>
 					<xs:documentation>simulate accelerometer data</xs:documentation>
