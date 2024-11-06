@@ -285,6 +285,11 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
     while(std::getline(file, line))
     {
 
+      // skip comment lines
+      // ------------------
+      if (line[0]=='#')
+          continue;
+
       UInt   mjdInt = String::toInt(line.substr(0, 5));
       Double mjdMod = String::toDouble("0"+line.substr(5, 21));
       Time   time   = Time(mjdInt,mjdMod);
