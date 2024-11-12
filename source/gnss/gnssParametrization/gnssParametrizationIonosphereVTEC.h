@@ -45,6 +45,7 @@ The \file{parameter names}{parameterName} are \verb|<station>:VTEC::<time>|.
 
 #include "base/import.h"
 #include "config/config.h"
+#include "classes/parametrizationTemporal/parametrizationTemporal.h"
 #include "classes/platformSelector/platformSelector.h"
 #include "gnss/gnss.h"
 #include "gnss/gnssParametrization/gnssParametrization.h"
@@ -66,7 +67,13 @@ class GnssParametrizationIonosphereVTEC : public GnssParametrizationBase
   std::vector<std::vector<Double>>             VTEC;
   Double                                       VTEC0;
 
+  ParametrizationTemporalPtr                   parametrizationGradient;
+  std::vector<GnssParameterIndex>              indexGradient; // for each receiver, for each epoch
+  std::vector<Vector>                          xGradient;
+  std::vector<std::vector<Double>>             gradientX, gradientY;
+
   Double mapping(Angle elevation) const;
+  void   mappingGradient(const GnssObservationEquation &eqn, Double &dx, Double &dy) const;
 
 public:
   GnssParametrizationIonosphereVTEC(Config &config);
