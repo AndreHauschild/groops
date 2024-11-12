@@ -68,7 +68,7 @@ class GnssParametrizationIonosphereVTEC : public GnssParametrizationBase
   Double                                       VTEC0;
 
   ParametrizationTemporalPtr                   parametrizationGradient;
-  std::vector<GnssParameterIndex>              indexGradient; // for each receiver, for each epoch
+  std::vector<GnssParameterIndex>              indexGradient; // for each receiver
   std::vector<Vector>                          xGradient;
   std::vector<std::vector<Double>>             gradientX, gradientY;
 

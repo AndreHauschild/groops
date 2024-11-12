@@ -174,9 +174,9 @@ void GnssParametrizationIonosphereVTEC::mappingGradient(const GnssObservationEqu
     const     Vector3d k           = normalize(eqn.posRecv-eqn.posTrans);   // direction from transmitter
     const     Double   rk          = inner(eqn.posRecv, k);
     const     Vector3d piercePoint = eqn.posRecv - (std::sqrt(rk*rk+radiusIono*radiusIono-rRecv*rRecv)+rk) * k;
-    // TODO: check if angles are normalized and in degree!
-    dx = (piercePoint - eqn.posRecv).lambda();
-    dy = (piercePoint - eqn.posRecv).phi();
+    // TODO: check if angles are normalized!
+    dx = RAD2DEG*(piercePoint - eqn.posRecv).lambda();
+    dy = RAD2DEG*(piercePoint - eqn.posRecv).phi();
   }
   catch(std::exception &e)
   {
@@ -243,7 +243,7 @@ void GnssParametrizationIonosphereVTEC::designMatrix(const GnssNormalEquationInf
 }
 
 /***********************************************/
-// TODO: add gradients!
+
 Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef /*Wz*/)
 {
   try
@@ -300,9 +300,54 @@ Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquati
     Parallel::broadCast(infoStr, 0, normalEquationInfo.comm);
     info.info += infoStr;
 
+    // Gradient update
+
     Double maxChange = 0;
     info.synchronizeAndPrint(normalEquationInfo.comm, 0, maxChange);
+
+    // update VTEC gradient
+    Gnss::InfoParameterChange infoGradient("tec");
+    for(auto recv : gnss->receivers)
+      if(recv->isMyRank())
+      {
+        const UInt idRecv = recv->idRecv();
+        if(indexGradient.at(idRecv))
+        {
+          xGradient.at(idRecv) += x.row(normalEquationInfo.index(indexGradient.at(idRecv)), 2*parametrizationGradient->parameterCount());
+          std::vector<UInt>   index;
+          std::vector<Double> factor;
+          for(UInt idEpoch=0; idEpoch<gnss->times.size(); idEpoch++)
+          {
+            parametrizationGradient->factors(std::max(recv->timeCorrected(idEpoch), gnss->times.at(0)), index, factor);
+            Double gx=0, gy=0;
+            for(UInt k=0; k<factor.size(); k++)
+            {
+              gx += factor.at(k) * xGradient.at(idRecv)(2*index.at(k)+0);
+              gy += factor.at(k) * xGradient.at(idRecv)(2*index.at(k)+1);
+            }
+            const Double dx = gx - gradientX.at(idRecv).at(idEpoch);
+            const Double dy = gy - gradientY.at(idRecv).at(idEpoch);
+            gradientX.at(idRecv).at(idEpoch) = gx;
+            gradientY.at(idRecv).at(idEpoch) = gy;
+            const Double dxdy = std::sqrt(dx*dx+dy*dy);
+            if(infoGradient.update(dxdy))
+              infoGradient.info = "VTEC gradient ("+recv->name()+", "+gnss->times.at(idEpoch).dateTimeStr()+")";
+
+            // update STEC
+            for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
+              if(recv->observation(idTrans, idEpoch))
+              {
+                GnssObservationEquation eqn(*recv->observation(idTrans, idEpoch), *recv, *gnss->transmitters.at(idTrans), gnss->funcRotationCrf2Trf,
+                    nullptr/*reduceModels*/, idEpoch, FALSE/*decorrelate*/, {}/*types*/);
+                recv->observation(idTrans, idEpoch)->STEC += mapping(eqn.elevationRecvLocal) * \
+                    (dx * gradientX.at(idRecv).at(eqn.idEpoch) + dy * gradientY.at(idRecv).at(eqn.idEpoch));
+              }
+          }
+        }
+      }
+    infoGradient.synchronizeAndPrint(normalEquationInfo.comm, 0, maxChange);
     return maxChange;
+
   }
   catch(std::exception &e)
   {
@@ -311,7 +356,7 @@ Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquati
 }
 
 /***********************************************/
-
+// TODO: add VTEC output!
 void GnssParametrizationIonosphereVTEC::writeResults(const GnssNormalEquationInfo &normalEquationInfo, const std::string &suffix) const
 {
   try
