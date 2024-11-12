@@ -10,6 +10,7 @@
 #
 #   2022/12/09  AHA  Created
 #   2024/11/12  AHA  Add build target for documentation
+#   2024/11/12  AHA  Remove and re-create xsd schema file
 #
 #-------------------------------------------------------------------------------
 
@@ -66,6 +67,8 @@ init:
 	
 groops_:
 	cd $(GROOPS_bld); cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../..; $(PMAKE); make install
+	rm groops.xsd; groops --xsd groops.xsd
+	
 
 groopsgui_:
 	cd $(GROOPS_gui); $(QMAKE); $(PMAKE)
