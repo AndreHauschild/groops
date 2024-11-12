@@ -56,6 +56,18 @@ void GnssParametrizationIonosphereVTEC::init(Gnss *gnss, Parallel::CommunicatorP
     gradientX.resize(gnss->receivers.size());
     gradientY.resize(gnss->receivers.size());
 
+    for(auto recv : gnss->receivers)
+    {
+      const UInt idRecv = recv->idRecv();
+      if(recv->useable() && recv->isMyRank())
+      {
+        VTEC.at(idRecv).resize(gnss->times.size(), VTEC0);
+        xGradient.at(idRecv) = Vector(2*parametrizationGradient->parameterCount());
+        gradientX.at(idRecv).resize(gnss->times.size(), 0);
+        gradientY.at(idRecv).resize(gnss->times.size(), 0);
+      }
+    }
+
   }
   catch(std::exception &e)
   {
@@ -83,8 +95,6 @@ void GnssParametrizationIonosphereVTEC::initParameter(GnssNormalEquationInfo &no
       if(recv->useable() && normalEquationInfo.estimateReceiver.at(idRecv) && selectedReceivers.at(idRecv))
       {
         index.at(idRecv).resize(gnss->times.size());
-        if(recv->isMyRank())
-          VTEC.at(idRecv).resize(gnss->times.size(), VTEC0);
         for(UInt idEpoch : normalEquationInfo.idEpochs)
           if(recv->useable(idEpoch))
           {
@@ -104,20 +114,11 @@ void GnssParametrizationIonosphereVTEC::initParameter(GnssNormalEquationInfo &no
         const UInt idRecv = recv->idRecv();
         if(recv->useable() && normalEquationInfo.estimateReceiver.at(idRecv) && selectedReceivers.at(idRecv))
         {
-          if(recv->isMyRank())
-          {
-            xGradient.at(idRecv) = Vector(2*parametrizationGradient->parameterCount());
-            gradientX.at(idRecv).resize(gnss->times.size(), 0);
-            gradientY.at(idRecv).resize(gnss->times.size(), 0);
-          }
-          if(recv->useable() && normalEquationInfo.estimateReceiver.at(idRecv))
-          {
-            std::vector<ParameterName> parameterNames;
-            std::vector<ParameterName> name({{gnss->receivers.at(idRecv)->name(), "vtecGradient.x"}, {gnss->receivers.at(idRecv)->name(), "vtecGradient.y"}});
-            parametrizationGradient->parameterName(name, parameterNames);
-            indexGradient.at(idRecv) = normalEquationInfo.parameterNamesReceiver(idRecv, parameterNames);
-            countParaGradient += parameterNames.size();
-          }
+          std::vector<ParameterName> parameterNames;
+          std::vector<ParameterName> name({{gnss->receivers.at(idRecv)->name(), "vtecGradient.x"}, {gnss->receivers.at(idRecv)->name(), "vtecGradient.y"}});
+          parametrizationGradient->parameterName(name, parameterNames);
+          indexGradient.at(idRecv) = normalEquationInfo.parameterNamesReceiver(idRecv, parameterNames);
+          countParaGradient += parameterNames.size();
         }
       }
     if(countParaGradient)
@@ -193,7 +194,7 @@ void GnssParametrizationIonosphereVTEC::observationCorrections(GnssObservationEq
     UInt   idRecv = eqn.receiver->idRecv();
     mappingGradient(eqn, dx, dy);
     eqn.STEC += mapping(eqn.elevationRecvLocal) * \
-        (VTEC0 + dx * gradientX.at(idRecv).at(eqn.idEpoch) + dy * gradientY.at(idRecv).at(eqn.idEpoch));
+        (VTEC.at(idRecv).at(eqn.idEpoch) + dx * gradientX.at(idRecv).at(eqn.idEpoch) + dy * gradientY.at(idRecv).at(eqn.idEpoch));
   }
   catch(std::exception &e)
   {
@@ -242,7 +243,7 @@ void GnssParametrizationIonosphereVTEC::designMatrix(const GnssNormalEquationInf
 }
 
 /***********************************************/
-
+// TODO: add gradients!
 Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef /*Wz*/)
 {
   try
