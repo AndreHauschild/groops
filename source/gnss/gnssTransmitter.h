@@ -16,6 +16,7 @@
 
 #include "base/polynomial.h"
 #include "base/gnssType.h"
+#include "gnss/gnssObservationIsl.h"
 #include "gnss/gnssTransceiver.h"
 
 /** @addtogroup gnssGroup */
@@ -52,7 +53,7 @@ public:
     clk(clock), offset(offset), crf2srf(crf2srf), srf2arf(srf2arf), timesPosVel(timesPosVel), pos(position), vel(velocity) {}
 
   /// Destructor.
-  virtual ~GnssTransmitter() {}
+  virtual ~GnssTransmitter();
 
   /** @brief Identify number in the GNSS system. */
   UInt idTrans() const {return id_;}
@@ -80,6 +81,23 @@ public:
 
   /** @brief Rotation from celestial reference frame (CRF) to left-handed antenna system. */
   Transform3d celestial2antennaFrame(UInt idEpoch, const Time &/*time*/) const {return srf2arf.at(idEpoch) * crf2srf.at(idEpoch);}
+
+  // Inter satellite links (ISL)
+  // ---------------------------
+private:
+  std::vector<std::vector<GnssObservationIsl*>> observations_; // observations at receiver (for each epoch, for each transmitter)
+
+public:
+  /** @brief All observations between receiver and transmitter at one epoch. */
+  GnssObservationIsl *observationIsl(UInt idTrans, UInt idEpoch) const;
+
+  /** @brief Max. observed epoch id+1. */
+  UInt idEpochSize() const {return observations_.size();}
+
+  /** @brief Max. observed transmitter id+1 at @a idEpoch. */
+  UInt idTransmitterSize(UInt idEpoch) const {return (idEpoch < observations_.size()) ? observations_.at(idEpoch).size() : 0;}
+
+  void readObservationsIsl(const FileName &fileName, const std::vector<GnssTransmitterPtr> &transmitters, const std::vector<Time> &times, const Time &timeMargin);
 };
 
 /***********************************************/
