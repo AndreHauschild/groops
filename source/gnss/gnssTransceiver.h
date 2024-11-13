@@ -62,16 +62,12 @@ public:
   /** @brief Allowed signal types. Empty if no  definition was provided. */
   std::vector<GnssType> definedTypes(const Time &time) const;
 
-  /** @brief Signal bias corrections.
-  * observed range = range + bias. */
-  Vector signalBiases(const std::vector<GnssType> &type) const;
-
   /** @brief Direction dependent corrections.
   * observed range = range (ARPs of transmitter and receiver) + antennaVariations. */
   Vector antennaVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
   /** @brief Direction (and other parameters) dependent standard deviation.
-  * @a azimuth and @a elevation must be given in the antenna frame (left-handed). */
+  * @a azmiut and @a elevation must be given in the antenna frame (left-handed). */
   Vector accuracy(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
   void save(OutArchive &oa) const;
@@ -135,27 +131,12 @@ inline std::vector<GnssType> GnssTransceiver::definedTypes(const Time &time) con
 
 /***********************************************/
 
-inline Vector GnssTransceiver::signalBiases(const std::vector<GnssType> &types) const
-{
-  try
-  {
-    Vector corr(types.size());
-    corr += signalBias.compute(types);
-    return corr;
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
 inline Vector GnssTransceiver::antennaVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &types) const
 {
   try
   {
     Vector corr(types.size());
+    corr += signalBias.compute(types);
 
     auto antenna = platform.findEquipment<PlatformGnssAntenna>(time);
     if(!antenna)

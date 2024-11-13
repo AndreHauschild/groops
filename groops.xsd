@@ -1590,7 +1590,7 @@
 			</xs:element>
 			<xs:element name="ionosphereVTEC">
 				<xs:annotation>
-					<xs:documentation>ionospheric vertical delays</xs:documentation>
+					<xs:documentation>ionospheric verical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -1621,17 +1621,12 @@
 								<xs:documentation>[degree] parametrization of north and east gradients</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="VTEC0" type="double" minOccurs="0" default="0">
-							<xs:annotation>
-								<xs:documentation>VTEC [TECU] for a-priori (0 = not applied)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="ionosphereMap">
 				<xs:annotation>
-					<xs:documentation>ionospheric vertical delays</xs:documentation>
+					<xs:documentation>ionospheric verical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -10780,64 +10775,6 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="inputfileStationMeteorology" type="filename" default="meteorology_{loopTime:%y}.{station}.dat"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="saastamoinen">
-				<xs:annotation>
-					<xs:documentation>Saastamoinen troposphere model</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="inputfileGpt" type="filename" default="{groopsDataDir}/troposphere/gpt3_grid1deg.dat">
-							<xs:annotation>
-								<xs:documentation>gridded GPT data</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="aHeight" type="double" minOccurs="0" default="2.53e-5">
-							<xs:annotation>
-								<xs:documentation>parameter a (height correction)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="bHeight" type="double" minOccurs="0" default="5.49e-3">
-							<xs:annotation>
-								<xs:documentation>parameter b (height correction)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="cHeight" type="double" minOccurs="0" default="1.14e-3">
-							<xs:annotation>
-								<xs:documentation>parameter c (height correction)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="hopfield">
-				<xs:annotation>
-					<xs:documentation>Hopfield troposphere model (simplified)</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="inputfileGpt" type="filename" default="{groopsDataDir}/troposphere/gpt3_grid1deg.dat">
-							<xs:annotation>
-								<xs:documentation>gridded GPT data</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="aHeight" type="double" minOccurs="0" default="2.53e-5">
-							<xs:annotation>
-								<xs:documentation>parameter a (height correction)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="bHeight" type="double" minOccurs="0" default="5.49e-3">
-							<xs:annotation>
-								<xs:documentation>parameter b (height correction)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="cHeight" type="double" minOccurs="0" default="1.14e-3">
-							<xs:annotation>
-								<xs:documentation>parameter c (height correction)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -25297,79 +25234,6 @@
 						<xs:element name="inputfileStationInfo" type="filename" default="{groopsDataDir}/gnss/receiverStation/stationInfo/igs/stationInfo.{station}.xml"/>
 						<xs:element name="inputfileStation" type="filename"/>
 						<xs:element name="inputfileVmf" type="filename"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="starCamera2Orbex">
-				<xs:annotation>
-					<xs:documentation>Convert satellite attitude from star camera instrument file to ORBEX file format (quaternions).</xs:documentation>
-					<xs:appinfo>tag: Conversion</xs:appinfo>
-					<xs:appinfo>tag: Instrument</xs:appinfo>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="outputfileOrbex" type="filename">
-							<xs:annotation>
-								<xs:documentation>ORBEX file</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="satellite" maxOccurs="unbounded">
-							<xs:complexType>
-								<xs:sequence>
-									<xs:element name="inputfileStarCamera" type="filename" default="starcamera.{satellite}.dat">
-										<xs:annotation>
-											<xs:documentation>instrument file containing star camera data</xs:documentation>
-										</xs:annotation>
-									</xs:element>
-									<xs:element name="identifier" type="string">
-										<xs:annotation>
-											<xs:documentation>string identifier (e.g. GNSS PRN: G01)</xs:documentation>
-										</xs:annotation>
-									</xs:element>
-								</xs:sequence>
-							</xs:complexType>
-						</xs:element>
-						<xs:element name="timeSeries" type="timeSeriesType" minOccurs="0" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>resample to these epochs (otherwise input file epochs are used)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="earthRotation" type="earthRotationType" minOccurs="0" default="file">
-							<xs:annotation>
-								<xs:documentation>rotate data into Earth-fixed frame</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="interpolationDegree" type="uint" default="7">
-							<xs:annotation>
-								<xs:documentation>for attitude and Earth rotation interpolation</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="description" type="string">
-							<xs:annotation>
-								<xs:documentation>description of file contents</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="createdBy" type="string">
-							<xs:annotation>
-								<xs:documentation>name of agency</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="inputData" type="string" default="p">
-							<xs:annotation>
-								<xs:documentation>description of input data (see ORBEX description)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="contact" type="string">
-							<xs:annotation>
-								<xs:documentation>email address</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="referenceFrame" type="string" default="IGb14">
-							<xs:annotation>
-								<xs:documentation>reference frame used in file</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="comment" type="string" minOccurs="0" maxOccurs="unbounded"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>

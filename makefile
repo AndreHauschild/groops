@@ -68,7 +68,8 @@ init:
 	if [ ! -d "$(GROOPS_bld)" ]; then mkdir -p $(GROOPS_bld); fi
 	
 groops_:
-	cd $(GROOPS_bld); $(CMAKE) .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../..; $(PMAKE); $(PMAKE) install 
+	cd $(GROOPS_bld); $(CMAKE) .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../..; $(PMAKE); $(PMAKE) install
+	rm groops.xsd; groops --xsd groops.xsd
 
 groopsgui_:
 	cd $(GROOPS_gui); $(QMAKE); $(PMAKE)

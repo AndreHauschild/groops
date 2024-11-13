@@ -17,8 +17,6 @@
 #include "files/fileGriddedData.h"
 #include "troposphereGpt.h"
 #include "troposphereMendesAndPavlis.h"
-#include "troposphereSaastamoinen.h"
-#include "troposphereHopfield.h"
 #include "troposphereViennaMapping.h"
 #include "troposphere.h"
 
@@ -27,9 +25,7 @@
 GROOPS_REGISTER_CLASS(Troposphere, "troposphereType",
                       TroposphereViennaMapping,
                       TroposphereGpt,
-                      TroposphereMendesAndPavlis,
-                      TroposphereSaastamoinen,
-                      TroposphereHopfield)
+                      TroposphereMendesAndPavlis)
 
 GROOPS_READCONFIG_CLASS(Troposphere, "troposphereType")
 
@@ -49,10 +45,6 @@ TropospherePtr Troposphere::create(Config &config, const std::string &name)
       troposphere = TropospherePtr(new TroposphereGpt(config));
     if(readConfigChoiceElement(config, "mendesAndPavlis", type, "SLR troposphere model by Mendes and Pavlis, 2004"))
       troposphere = TropospherePtr(new TroposphereMendesAndPavlis(config));
-    if(readConfigChoiceElement(config, "saastamoinen",    type, "Saastamoinen troposphere model"))
-      troposphere = TropospherePtr(new TroposphereSaastamoinen(config));
-    if(readConfigChoiceElement(config, "hopfield",        type, "Hopfield troposphere model (simplified)"))
-      troposphere = TropospherePtr(new TroposphereHopfield(config));
     endChoice(config);
 
     return troposphere;

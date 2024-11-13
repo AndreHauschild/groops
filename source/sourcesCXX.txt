@@ -180,8 +180,6 @@ classes/tides/tidesSolidMoon.cpp
 classes/timeSeries/timeSeries.cpp
 classes/troposphere/troposphere.cpp
 classes/troposphere/troposphereGpt.cpp
-classes/troposphere/troposphereHopfield.cpp
-classes/troposphere/troposphereSaastamoinen.cpp
 classes/troposphere/troposphereViennaMapping.cpp
 
 gnss/gnssParametrization/gnssParametrization.cpp
@@ -577,7 +575,6 @@ programs/conversion/potentialCoefficients2Icgem.cpp
 programs/conversion/psmslOceanBottomPressure2TimeSeries.cpp
 programs/conversion/sinex2Normals.cpp
 programs/conversion/sp3Format2Orbit.cpp
-programs/conversion/starCamera2Orbex.cpp
 programs/conversion/tle2Orbit.cpp
 programs/conversion/viennaMappingFunctionGrid2File.cpp
 programs/conversion/viennaMappingFunctionStation2File.cpp

@@ -31,7 +31,6 @@ GnssParametrizationIonosphereVTEC::GnssParametrizationIonosphereVTEC(Config &con
     readConfig(config, "mapH",              mapH,              Config::DEFAULT,  "506.7e3",    "constant of MSLM mapping function");
     readConfig(config, "mapAlpha",          mapAlpha,          Config::DEFAULT,  "0.9782",     "constant of MSLM mapping function");
     readConfig(config, "vtecGradientEstimation", parametrizationGradient, Config::DEFAULT,  "",  "[degree] parametrization of north and east gradients");
-    readConfig(config, "VTEC0",             VTEC0,             Config::DEFAULT,  "0",  "VTEC [TECU] for a-priori (0 = not applied)");
     if(isCreateSchema(config)) return;
   }
   catch(std::exception &e)
@@ -61,7 +60,7 @@ void GnssParametrizationIonosphereVTEC::init(Gnss *gnss, Parallel::CommunicatorP
       const UInt idRecv = recv->idRecv();
       if(recv->useable() && recv->isMyRank())
       {
-        VTEC.at(idRecv).resize(gnss->times.size(), VTEC0);
+        VTEC.at(idRecv).resize(gnss->times.size(), 0);
         xGradient.at(idRecv) = Vector(2*parametrizationGradient->parameterCount());
         gradientX.at(idRecv).resize(gnss->times.size(), 0);
         gradientY.at(idRecv).resize(gnss->times.size(), 0);
@@ -177,24 +176,6 @@ void GnssParametrizationIonosphereVTEC::mappingGradient(const GnssObservationEqu
     // TODO: check if angles are normalized!
     dx = RAD2DEG*(piercePoint - eqn.posRecv).lambda();
     dy = RAD2DEG*(piercePoint - eqn.posRecv).phi();
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
-void GnssParametrizationIonosphereVTEC::observationCorrections(GnssObservationEquation &eqn) const
-{
-  try
-  {
-    Double dx, dy;
-    UInt   idRecv = eqn.receiver->idRecv();
-    mappingGradient(eqn, dx, dy);
-    eqn.STEC += mapping(eqn.elevationRecvLocal) * \
-        (VTEC.at(idRecv).at(eqn.idEpoch) + dx * gradientX.at(idRecv).at(eqn.idEpoch) + dy * gradientY.at(idRecv).at(eqn.idEpoch));
   }
   catch(std::exception &e)
   {
