@@ -339,8 +339,7 @@ Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquati
               {
                 GnssObservationEquation eqn(*recv->observation(idTrans, idEpoch), *recv, *gnss->transmitters.at(idTrans), gnss->funcRotationCrf2Trf,
                     nullptr/*reduceModels*/, idEpoch, FALSE/*decorrelate*/, {}/*types*/);
-                recv->observation(idTrans, idEpoch)->STEC += mapping(eqn.elevationRecvLocal) * \
-                    (dx * gradientX.at(idRecv).at(eqn.idEpoch) + dy * gradientY.at(idRecv).at(eqn.idEpoch));
+                recv->observation(idTrans, idEpoch)->STEC += mapping(eqn.elevationRecvLocal) * (gx + gy);
               }
           }
         }
@@ -356,7 +355,7 @@ Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquati
 }
 
 /***********************************************/
-// TODO: add VTEC output!
+
 void GnssParametrizationIonosphereVTEC::writeResults(const GnssNormalEquationInfo &normalEquationInfo, const std::string &suffix) const
 {
   try
@@ -373,15 +372,24 @@ void GnssParametrizationIonosphereVTEC::writeResults(const GnssNormalEquationInf
       for(auto &recv : gnss->receivers)
         if(normalEquationInfo.estimateReceiver.at(recv->idRecv()) && recv->isMyRank())
         {
-          MiscValueArc arc;
+          MiscValuesArc arc;
           for(UInt idEpoch : normalEquationInfo.idEpochs)
+          {
             if(index.at(recv->idRecv()).size() && index.at(recv->idRecv()).at(idEpoch))
             {
-              MiscValueEpoch epoch;
+              Vector data(1+(indexGradient.at(recv->idRecv())? 2:0));
+              data.at(0) = VTEC.at(recv->idRecv()).at(idEpoch);
+              if (indexGradient.at(recv->idRecv()))
+              {
+                data.at(1) = gradientX.at(recv->idRecv()).at(idEpoch);
+                data.at(2) = gradientY.at(recv->idRecv()).at(idEpoch);
+              }
+              MiscValuesEpoch epoch(data.size());
               epoch.time  = gnss->times.at(idEpoch);
-              epoch.value = VTEC.at(recv->idRecv()).at(idEpoch);
+              epoch.setData(data);
               arc.push_back(epoch);
             }
+          }
           fileNameVariableList.setVariable("station", recv->name());
           if(arc.size())
             InstrumentFile::write(fileNameVTEC(fileNameVariableList).appendBaseName(suffix), arc);
