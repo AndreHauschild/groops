@@ -1621,6 +1621,7 @@
 								<xs:documentation>[degree] parametrization of north and east gradients</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="magnetosphere" type="magnetosphereType"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>

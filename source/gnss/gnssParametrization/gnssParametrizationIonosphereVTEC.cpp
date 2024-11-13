@@ -24,13 +24,14 @@ GnssParametrizationIonosphereVTEC::GnssParametrizationIonosphereVTEC(Config &con
 {
   try
   {
-    readConfig(config, "name",              name,              Config::OPTIONAL, "parameter.VTEC", "");
-    readConfig(config, "selectReceivers",   selectReceivers,   Config::MUSTSET,   R"(["all"])", "");
-    readConfig(config, "outputfileVTEC",    fileNameVTEC,      Config::OPTIONAL, "output/vtec_{loopTime:%D}.{station}.dat", "variable {station} available");
-    readConfig(config, "mapR",              mapR,              Config::DEFAULT,  "6371e3",     "constant of MSLM mapping function");
-    readConfig(config, "mapH",              mapH,              Config::DEFAULT,  "506.7e3",    "constant of MSLM mapping function");
-    readConfig(config, "mapAlpha",          mapAlpha,          Config::DEFAULT,  "0.9782",     "constant of MSLM mapping function");
+    readConfig(config, "name",                   name,                    Config::OPTIONAL, "parameter.VTEC", "");
+    readConfig(config, "selectReceivers",        selectReceivers,         Config::MUSTSET,   R"(["all"])", "");
+    readConfig(config, "outputfileVTEC",         fileNameVTEC,            Config::OPTIONAL, "output/vtec_{loopTime:%D}.{station}.dat", "variable {station} available");
+    readConfig(config, "mapR",                   mapR,                    Config::DEFAULT,  "6371e3",     "constant of MSLM mapping function");
+    readConfig(config, "mapH",                   mapH,                    Config::DEFAULT,  "506.7e3",    "constant of MSLM mapping function");
+    readConfig(config, "mapAlpha",               mapAlpha,                Config::DEFAULT,  "0.9782",     "constant of MSLM mapping function");
     readConfig(config, "vtecGradientEstimation", parametrizationGradient, Config::DEFAULT,  "",  "[degree] parametrization of north and east gradients");
+    readConfig(config, "magnetosphere",          magnetosphere,           Config::MUSTSET,  "",  "");
     if(isCreateSchema(config)) return;
   }
   catch(std::exception &e)
@@ -163,19 +164,34 @@ Double GnssParametrizationIonosphereVTEC::mapping(Angle elevation) const
 
 /***********************************************/
 
+// intersection point in ionosphere height
+Vector3d GnssParametrizationIonosphereVTEC::intersection(const Double radiusIono, const Vector3d &posRecv, const Vector3d &posTrans) const
+{
+  try
+  {
+    const Double   rRecv = std::min(posRecv.r(), radiusIono); // LEO satellites flying possibly higher
+    const Vector3d k     = normalize(posRecv-posTrans);       // direction from transmitter
+    const Double   rk    = inner(posRecv, k);
+    return posRecv - (std::sqrt(rk*rk+radiusIono*radiusIono-rRecv*rRecv)+rk) * k;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 // Mapping function for gradient
 void GnssParametrizationIonosphereVTEC::mappingGradient(const GnssObservationEquation &eqn, Double &dx, Double &dy) const
 {
   try
   {
-    constexpr Double   radiusIono  = 6371e3+450e3;                          // single layer ionosphere in 450 km
-    const     Double   rRecv       = std::min(eqn.posRecv.r(), radiusIono); // LEO satellites flying possibly higher
-    const     Vector3d k           = normalize(eqn.posRecv-eqn.posTrans);   // direction from transmitter
-    const     Double   rk          = inner(eqn.posRecv, k);
-    const     Vector3d piercePoint = eqn.posRecv - (std::sqrt(rk*rk+radiusIono*radiusIono-rRecv*rRecv)+rk) * k;
-    // TODO: check if angles are normalized!
-    dx = RAD2DEG*(piercePoint - eqn.posRecv).lambda();
-    dy = RAD2DEG*(piercePoint - eqn.posRecv).phi();
+    // spatial representation
+    const Rotary3d rot = magnetosphere->rotaryCelestial2SolarGeomagneticFrame(eqn.timeRecv);
+    const Vector3d ipp = rot.rotate(intersection(mapR+mapH, eqn.posRecv, eqn.posTrans));
+    dx = RAD2DEG*ipp.lambda();
+    dy = RAD2DEG*(ipp-rot.rotate(eqn.posRecv)).phi();
   }
   catch(std::exception &e)
   {
@@ -193,7 +209,8 @@ void GnssParametrizationIonosphereVTEC::designMatrix(const GnssNormalEquationInf
       return;
 
     // VTEC at station per epoch
-    axpy(mapping(eqn.elevationRecvLocal), eqn.A.column(GnssObservationEquation::idxSTEC), A.column(index.at(eqn.receiver->idRecv()).at(eqn.idEpoch)));
+    const Double map_vtec = mapping(eqn.elevationRecvLocal);
+    axpy(map_vtec, eqn.A.column(GnssObservationEquation::idxSTEC), A.column(index.at(eqn.receiver->idRecv()).at(eqn.idEpoch)));
 
     // temporal parametrization
     auto designMatrixTemporal = [&](ParametrizationTemporalPtr parametrization, const_MatrixSliceRef B, const GnssParameterIndex &index)
@@ -206,14 +223,14 @@ void GnssParametrizationIonosphereVTEC::designMatrix(const GnssNormalEquationInf
         axpy(factor.at(i), B, Design.column(B.columns()*idx.at(i), B.columns()));
     };
 
-    // VTEC gradient at station per epoch
+    // VTEC gradient at station
     if(indexGradient.at(eqn.receiver->idRecv()))
     {
       Double dx, dy;
       mappingGradient(eqn, dx, dy);
       Matrix B(eqn.A.rows(), 2);
-      axpy(dx, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(0));
-      axpy(dy, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(1));
+      axpy(map_vtec*dx, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(0));
+      axpy(map_vtec*dy, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(1));
       designMatrixTemporal(parametrizationGradient, B, indexGradient.at(eqn.receiver->idRecv()));
     }
   }
@@ -306,11 +323,11 @@ Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquati
               gx += factor.at(k) * xGradient.at(idRecv)(2*index.at(k)+0);
               gy += factor.at(k) * xGradient.at(idRecv)(2*index.at(k)+1);
             }
-            const Double dx = gx - gradientX.at(idRecv).at(idEpoch);
-            const Double dy = gy - gradientY.at(idRecv).at(idEpoch);
+            const Double dgx = gx - gradientX.at(idRecv).at(idEpoch);
+            const Double dgy = gy - gradientY.at(idRecv).at(idEpoch);
             gradientX.at(idRecv).at(idEpoch) = gx;
             gradientY.at(idRecv).at(idEpoch) = gy;
-            const Double dxdy = std::sqrt(dx*dx+dy*dy);
+            const Double dxdy = std::sqrt(dgx*dgx+dgy*dgy);
             if(infoGradient.update(dxdy))
               infoGradient.info = "VTEC gradient ("+recv->name()+", "+gnss->times.at(idEpoch).dateTimeStr()+")";
 
@@ -320,7 +337,9 @@ Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquati
               {
                 GnssObservationEquation eqn(*recv->observation(idTrans, idEpoch), *recv, *gnss->transmitters.at(idTrans), gnss->funcRotationCrf2Trf,
                     nullptr/*reduceModels*/, idEpoch, FALSE/*decorrelate*/, {}/*types*/);
-                recv->observation(idTrans, idEpoch)->STEC += mapping(eqn.elevationRecvLocal) * (gx + gy);
+                Double dx,dy;
+                mappingGradient(eqn, dx, dy);
+                recv->observation(idTrans, idEpoch)->STEC += mapping(eqn.elevationRecvLocal) * (dx*dgx + dy*dgy);
               }
           }
         }
@@ -358,13 +377,10 @@ void GnssParametrizationIonosphereVTEC::writeResults(const GnssNormalEquationInf
           {
             if(index.at(recv->idRecv()).size() && index.at(recv->idRecv()).at(idEpoch))
             {
-              Vector data(1+(indexGradient.at(recv->idRecv())? 2:0));
+              Vector data(3);
               data.at(0) = VTEC.at(recv->idRecv()).at(idEpoch);
-              if (indexGradient.at(recv->idRecv()))
-              {
-                data.at(1) = gradientX.at(recv->idRecv()).at(idEpoch);
-                data.at(2) = gradientY.at(recv->idRecv()).at(idEpoch);
-              }
+              data.at(1) = gradientX.at(recv->idRecv()).at(idEpoch);
+              data.at(2) = gradientY.at(recv->idRecv()).at(idEpoch);
               MiscValuesEpoch epoch(data.size());
               epoch.time  = gnss->times.at(idEpoch);
               epoch.setData(data);
