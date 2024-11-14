@@ -187,11 +187,14 @@ void GnssParametrizationIonosphereVTEC::mappingGradient(const GnssObservationEqu
 {
   try
   {
-    // spatial representation
-    const Rotary3d rot = magnetosphere->rotaryCelestial2SolarGeomagneticFrame(eqn.timeRecv);
-    const Vector3d ipp = rot.rotate(intersection(mapR+mapH, eqn.posRecv, eqn.posTrans));
-    dx = RAD2DEG*ipp.lambda();
-    dy = RAD2DEG*(ipp-rot.rotate(eqn.posRecv)).phi();
+    /*
+    const Double M_h = 1.0/(sin(eqn.elevationRecvLocal)*tan(eqn.elevationRecvLocal) + 3*(mapH+mapR)/(2*(mapH+mapR)+eqn.posRecv.r()));
+    dx = M_h*sin(eqn.azimutRecvLocal);  // East
+    dy = M_h*cos(eqn.azimutRecvLocal);  // North
+     */
+    dx = sin(eqn.azimutRecvLocal);  // East
+    dy = cos(eqn.azimutRecvLocal);  // North
+
   }
   catch(std::exception &e)
   {
