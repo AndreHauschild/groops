@@ -15,7 +15,6 @@
 #include "base/planets.h"
 #include "config/config.h"
 #include "files/fileInstrument.h"
-#include "classes/magnetosphere/magnetosphere.h"
 #include "gnss/gnssParametrization/gnssParametrizationIonosphereVTEC.h"
 
 /***********************************************/
@@ -31,7 +30,6 @@ GnssParametrizationIonosphereVTEC::GnssParametrizationIonosphereVTEC(Config &con
     readConfig(config, "mapH",                   mapH,                    Config::DEFAULT,  "506.7e3",    "constant of MSLM mapping function");
     readConfig(config, "mapAlpha",               mapAlpha,                Config::DEFAULT,  "0.9782",     "constant of MSLM mapping function");
     readConfig(config, "vtecGradientEstimation", parametrizationGradient, Config::DEFAULT,  "",  "[degree] parametrization of north and east gradients");
-    readConfig(config, "magnetosphere",          magnetosphere,           Config::MUSTSET,  "",  "");
     if(isCreateSchema(config)) return;
   }
   catch(std::exception &e)
@@ -187,13 +185,8 @@ void GnssParametrizationIonosphereVTEC::mappingGradient(const GnssObservationEqu
 {
   try
   {
-    /*
-    const Double M_h = 1.0/(sin(eqn.elevationRecvLocal)*tan(eqn.elevationRecvLocal) + 3*(mapH+mapR)/(2*(mapH+mapR)+eqn.posRecv.r()));
-    dx = M_h*sin(eqn.azimutRecvLocal);  // East
-    dy = M_h*cos(eqn.azimutRecvLocal);  // North
-     */
-    dx = sin(eqn.azimutRecvLocal);  // East
-    dy = cos(eqn.azimutRecvLocal);  // North
+    dx = mapping(eqn.elevationRecvLocal)*sin(eqn.azimutRecvLocal);  // East
+    dy = mapping(eqn.elevationRecvLocal)*cos(eqn.azimutRecvLocal);  // North
 
   }
   catch(std::exception &e)
@@ -212,8 +205,7 @@ void GnssParametrizationIonosphereVTEC::designMatrix(const GnssNormalEquationInf
       return;
 
     // VTEC at station per epoch
-    const Double map_vtec = mapping(eqn.elevationRecvLocal);
-    axpy(map_vtec, eqn.A.column(GnssObservationEquation::idxSTEC), A.column(index.at(eqn.receiver->idRecv()).at(eqn.idEpoch)));
+    axpy(mapping(eqn.elevationRecvLocal), eqn.A.column(GnssObservationEquation::idxSTEC), A.column(index.at(eqn.receiver->idRecv()).at(eqn.idEpoch)));
 
     // temporal parametrization
     auto designMatrixTemporal = [&](ParametrizationTemporalPtr parametrization, const_MatrixSliceRef B, const GnssParameterIndex &index)
@@ -232,8 +224,8 @@ void GnssParametrizationIonosphereVTEC::designMatrix(const GnssNormalEquationInf
       Double dx, dy;
       mappingGradient(eqn, dx, dy);
       Matrix B(eqn.A.rows(), 2);
-      axpy(map_vtec*dx, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(0));
-      axpy(map_vtec*dy, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(1));
+      axpy(dx, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(0));
+      axpy(dy, eqn.A.column(GnssObservationEquation::idxSTEC), B.column(1));
       designMatrixTemporal(parametrizationGradient, B, indexGradient.at(eqn.receiver->idRecv()));
     }
   }
@@ -342,7 +334,7 @@ Double GnssParametrizationIonosphereVTEC::updateParameter(const GnssNormalEquati
                     nullptr/*reduceModels*/, idEpoch, FALSE/*decorrelate*/, {}/*types*/);
                 Double dx,dy;
                 mappingGradient(eqn, dx, dy);
-                recv->observation(idTrans, idEpoch)->STEC += mapping(eqn.elevationRecvLocal) * (dx*dgx + dy*dgy);
+                recv->observation(idTrans, idEpoch)->STEC += dx*dgx + dy*dgy;
               }
           }
         }

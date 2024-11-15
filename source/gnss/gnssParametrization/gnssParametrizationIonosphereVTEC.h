@@ -45,7 +45,6 @@ The \file{parameter names}{parameterName} are \verb|<station>:VTEC::<time>|.
 
 #include "base/import.h"
 #include "config/config.h"
-#include "classes/magnetosphere/magnetosphere.h"
 #include "classes/parametrizationTemporal/parametrizationTemporal.h"
 #include "classes/platformSelector/platformSelector.h"
 #include "gnss/gnss.h"
@@ -71,7 +70,6 @@ class GnssParametrizationIonosphereVTEC : public GnssParametrizationBase
   std::vector<GnssParameterIndex>              indexGradient; // for each receiver
   std::vector<Vector>                          xGradient;
   std::vector<std::vector<Double>>             gradientX, gradientY;
-  MagnetospherePtr                             magnetosphere;
 
   Vector3d intersection(const Double radiusIono, const Vector3d &posRecv, const Vector3d &posTrans) const;
   Double   mapping(Angle elevation) const;
