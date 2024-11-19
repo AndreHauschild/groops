@@ -175,7 +175,15 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
         {
           timer.loopStep(idTrans);
           fileNameVariableList.setVariable("prn", gnss->transmitters.at(idTrans)->name());
-          gnss->transmitters.at(idTrans)->readObservationsIsl(fileNameObsIsl(fileNameVariableList), gnss->transmitters, times, seconds2time(marginSeconds));
+          try
+          {
+            gnss->transmitters.at(idTrans)->readObservationsIsl(fileNameObsIsl(fileNameVariableList), gnss->transmitters, times, seconds2time(marginSeconds));
+          }
+          catch(std::exception &/*e*/)
+          {
+            logWarningOnce<<"Unable to read ISL observations <"<<fileNameObsIsl(fileNameVariableList)<<">."<<Log::endl;
+            continue;
+          }
         }
       Parallel::barrier(comm);
       timer.loopEnd();

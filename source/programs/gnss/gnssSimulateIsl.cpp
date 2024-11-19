@@ -165,7 +165,15 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
           logInfo<<"Load ISL schedule "<<fileNameSchedule(fileNameVariableList)<<Log::endl;
 
           GnssReceiverArc scheduleIsl;
-          readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
+          try
+          {
+            readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
+          }
+          catch(std::exception &/*e*/)
+          {
+            logWarningOnce<<"Unable to read ISL schedule <"<<fileNameSchedule(fileNameVariableList)<<">, disabling receiver."<<Log::endl;
+            continue;
+          }
           if(!scheduleIsl.size())
           {
             recv->disable("no scheduled ISLs found");
