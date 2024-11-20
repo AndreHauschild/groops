@@ -73,16 +73,19 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
   try
   {
     const UInt obsCount = 1;
+    std::vector<GnssType> types;
 
     idEpoch      = idEpoch_;
     receiver     = &receiver_;
     transmitter  = &transmitter_;
     terminalRecv = observation.terminalRecv;
     terminalSend = observation.terminalSend;
+    types.resize(obsCount);
     l            = Vector(obsCount);
     sigma        = Vector(obsCount);
     sigma0       = Vector(obsCount);
 
+    types.at(0) = GnssType("C1C***"); // TODO: avoid hard-coding this here!
     l(0)        = observation.observation;
     sigma(0)    = observation.sigma;
     sigma0(0)   = observation.sigma0;
@@ -126,13 +129,15 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
       A(i, idxPosTrans+1) = k.y() * (-1+rDotTrans);  // transmitter coord y
       A(i, idxPosTrans+2) = k.z() * (-1+rDotTrans);  // transmitter coord z
       A(i, idxClockTrans) = -1.0;                    // transmitter clock correction
-      A(i, idxRange)      =  1.0;                    // range correction (troposphere, ...)
+      A(i, idxRange)      =  1.0;                    // range correction (???, ...)
     }  // for(i=0..obsCount)
 
     // antenna correction and other corrections
     // ----------------------------------------
-    // l -= receiver->antennaVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt,  types);
-    // l -= T * transmitter->antennaVariations(timeTrans, azimutTrans, elevationTrans, typesTransmitted);
+    l -= receiver->antennaVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt,  types);
+    l -= receiver->signalBiasesIslRx(types);
+    l -= transmitter->antennaVariations(timeTrans, azimutTrans, elevationTrans, types);
+    l -= transmitter->signalBiasesIslTx(types);
     if(reduceModels)
       reduceModels(*this);
 

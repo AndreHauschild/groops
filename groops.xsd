@@ -1823,7 +1823,7 @@
 						</xs:element>
 						<xs:element name="outputfileSignalBiasReceiver" type="filename" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>variable {station} available</xs:documentation>
+								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileSignalBiasTransmitter" type="filename" minOccurs="0">
@@ -1833,7 +1833,7 @@
 						</xs:element>
 						<xs:element name="inputfileSignalBiasReceiver" type="filename" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>variable {station} available</xs:documentation>
+								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
