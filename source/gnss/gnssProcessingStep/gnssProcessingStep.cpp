@@ -527,18 +527,16 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
 
         // inter satellite links
         // ---------------------
-        {
-          GnssObservationEquationIsl eqn;
-          for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
-            for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
-              if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
-              {
-                A.init(eqn.l);
-                gnss->designMatrixIsl(normalEquationInfo, eqn, A);
-                A.transMult(eqn.l-A.mult(n, blockStart, normalEquationInfo.blockCount()-blockStart), n, 0, blockStart);
-                A.transMult(-A.mult(monteCarlo, blockStart, blockCount), monteCarlo, 0, blockStart);
-              }
-        }
+        GnssObservationEquationIsl eqnIsl;
+        for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
+          for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+            if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqnIsl))
+            {
+              A.init(eqnIsl.l);
+              gnss->designMatrixIsl(normalEquationInfo, eqnIsl, A);
+              A.transMult(eqnIsl.l-A.mult(n, blockStart, normalEquationInfo.blockCount()-blockStart), n, 0, blockStart);
+              A.transMult(-A.mult(monteCarlo, blockStart, blockCount), monteCarlo, 0, blockStart);
+            }
       } // for(idEpoch)
       Parallel::barrier(normalEquationInfo.comm);
       timer.loopEnd();
