@@ -16,8 +16,10 @@
 
 #include "base/polynomial.h"
 #include "base/gnssType.h"
+#include "files/fileInstrument.h"
 #include "gnss/gnssObservationIsl.h"
 #include "gnss/gnssTransceiver.h"
+#include "classes/noiseGenerator/noiseGenerator.h"
 
 /** @addtogroup gnssGroup */
 /// @{
@@ -98,6 +100,9 @@ public:
   UInt idTransmitterSize(UInt idEpoch) const {return (idEpoch < observations_.size()) ? observations_.at(idEpoch).size() : 0;}
 
   void readObservationsIsl(const FileName &fileName, const std::vector<GnssTransmitterPtr> &transmitters, const std::vector<Time> &times, const Time &timeMargin);
+  void simulateObservationsIsl(NoiseGeneratorPtr noiseObs, const std::vector<GnssTransmitterPtr> &transmitters,
+                               const std::vector<Time> &times, const GnssReceiverArc   &scheduleIsl,
+                               const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels);
 };
 
 /***********************************************/

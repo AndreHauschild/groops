@@ -63,6 +63,10 @@ public:
             GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,
             EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm);
 
+  void init(const std::vector<Time> &times, const Time &timeMargin,
+            GnssTransmitterGeneratorPtr transmitterGenerator,
+            EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm);
+
   Rotary3d rotationCrf2Trf(const Time &time) const; // Inertial system (CRF) -> earth fixed system (TRF).
   void     synchronizeTransceivers(Parallel::CommunicatorPtr comm);
 

@@ -17,6 +17,7 @@
 #include "inputOutput/logging.h"
 #include "gnss/gnssObservationIsl.h"
 #include "gnss/gnssTransmitter.h"
+#include "classes/noiseGenerator/noiseGenerator.h"
 
 /***********************************************/
 
@@ -38,10 +39,10 @@ GnssObservationIsl *GnssTransmitter::observationIsl(UInt idTrans, UInt idEpoch) 
 
 /***********************************************/
 
-// C1X  range
+// C1C  range
 // X1A  terminalSend
 // X1B  terminalRecv
-// S1X  sigma, accuracy
+// S1C  sigma, accuracy
 void GnssTransmitter::readObservationsIsl(const FileName &fileName, const std::vector<GnssTransmitterPtr> &transmitters, const std::vector<Time> &times, const Time &timeMargin)
 {
   try
@@ -109,3 +110,75 @@ void GnssTransmitter::readObservationsIsl(const FileName &fileName, const std::v
 }
 
 /***********************************************/
+
+void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
+                                              const std::vector<GnssTransmitterPtr> &transmitters,
+                                              const std::vector<Time> &times,
+                                              const GnssReceiverArc   &scheduleIsl,
+                                              const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels)
+{
+  try
+  {
+
+    // Simulate zero observations
+    // --------------------------
+    const Vector eps = noiseObs->noise(times.size()); // obs noise
+    for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
+    {
+      const std::vector<GnssType> receiverTypes = definedTypes(times.at(idEpoch));
+
+      GnssReceiverEpoch epochSchedule = scheduleIsl.at(idEpoch);
+
+      // create observation class for each satellite
+      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      {
+
+        // Filter for transmitter PRN from the ISL schedule
+        // ------------------------------------------------
+        if(!transmitters.at(idTrans)->PRN().isInList(scheduleIsl.at(idEpoch).satellite))
+          continue;
+
+        // Skip receiver PRN
+        // ------------------------------------------------
+        if (this->name()==transmitters.at(idTrans)->name())
+          continue;
+
+        logInfo<<times.at(idEpoch).dateTimeStr()<<"  "
+               <<this->name()<<" <- "<<transmitters.at(idTrans)->name()
+               <<" simulation of ISL observation"<<Log::endl;
+
+        GnssObservationIsl *obs = new GnssObservationIsl();
+        obs->time = times.at(idEpoch);
+
+        GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, idEpoch, FALSE);
+
+        const GnssType prn = transmitters.at(idTrans)->PRN() & (GnssType::SYSTEM + GnssType::PRN + GnssType::FREQ_NO);
+        UInt idChan = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(), prn));
+
+        obs->observation = -eqn->l(0) + eps.at(idEpoch);
+        obs->sigma0 = sqrt(noiseObs->covarianceFunction(1)(0,1)); // TODO: make sure the value makes sense!
+        obs->terminalRecv = 0;
+        obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChan);
+
+        if(observations_.size() <= idEpoch)
+          observations_.resize(idEpoch+1);
+        if(observations_.at(idEpoch).size() <= idTrans)
+          observations_.at(idEpoch).resize(idTrans+1, nullptr);
+        if(observations_[idEpoch][idTrans])
+          logWarning<<name()<<" -> "<<transmitters.at(idTrans)->name()<<" at "<<times.at(idEpoch).dateTimeStr()<<": observation already exists"<<Log::endl;
+        std::swap(observations_[idEpoch][idTrans], obs);
+
+        delete obs;
+        delete eqn;
+      } // for(satellite)
+
+      if((observations_.size() <= idEpoch) || (observations_[idEpoch].size() == 0))
+        disable(idEpoch, "no observations simulated (elevationCutOff, use/ignoreTypes, defined receiver/transmitter types, missing antenna patterns)");
+    } // for(arcEpoch)
+
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}

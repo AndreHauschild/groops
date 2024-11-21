@@ -341,15 +341,19 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
       // ---------------------
       for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
       {
+        logInfo<<"idRecv"<<idRecv<<Log::endl;
         // all observation equations for this epoch
         GnssObservationEquationIsl eqn;
         for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+        {
+          logInfo<<"idRecv"<<idRecv<<" idTrans"<<idTrans<<Log::endl;
           if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
           {
             A.init(eqn.l);
             gnss->designMatrixIsl(normalEquationInfo, eqn, A);
             A.accumulateNormals(normals, n, lPl(0), obsCount);
           }
+        }
       }
 
       // perform following steps not every epoch

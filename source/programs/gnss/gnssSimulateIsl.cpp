@@ -25,7 +25,6 @@ Parameter settings and output files are ignored.
 
 #include "programs/program.h"
 #include "base/string.h"
-#include "files/fileInstrument.h"
 #include "classes/earthRotation/earthRotation.h"
 #include "classes/noiseGenerator/noiseGenerator.h"
 #include "classes/timeSeries/timeSeries.h"
@@ -53,135 +52,84 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 {
   try
   {
-    FileName                    fileNameIsl, fileNameClock, fileNameSchedule;
+    FileName                    fileNameIsl, fileNameSchedule;
     TimeSeriesPtr               timeSeries;
     Double                      marginSeconds;
     GnssTransmitterGeneratorPtr transmitterGenerator;
-    GnssReceiverGeneratorPtr    receiverGenerator;
     GnssParametrizationPtr      gnssParametrization;
     EarthRotationPtr            earthRotation;
-    NoiseGeneratorPtr           noiseClock, noiseObs;
-    std::vector<GnssType>       obsTypes;
+    NoiseGeneratorPtr           noiseObs;
 
-    readConfig(config, "outputfileGnssIsl",       fileNameIsl,          Config::MUSTSET,  "gnssIsl_{loopTime:%D}.{station}.dat.gz", "variable {station} available, simulated observations");
-    readConfig(config, "outputfileClock",         fileNameClock,        Config::OPTIONAL, "clock_{loopTime:%D}.{station}.dat", "variable {station} available, simulated receiver clock errors");
+    readConfig(config, "outputfileGnssIsl",       fileNameIsl,          Config::MUSTSET,  "gnssIsl_{loopTime:%D}.{prn}.dat.gz", "variable {prn} available, simulated observations");
     readConfig(config, "timeSeries",              timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
     readConfig(config, "timeMargin",              marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
     readConfig(config, "transmitter",             transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
-    readConfig(config, "receiver",                receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
-    readConfig(config, "islSchedule",             fileNameSchedule,     Config::MUSTSET,  "islSchedule_{loopTime:%D}.{station}.txt", "variable {station} available, schedule with ISL connections");
+    readConfig(config, "islSchedule",             fileNameSchedule,     Config::MUSTSET,  "islSchedule_{loopTime:%D}.{prn}.txt", "variable {prn} available, schedule with ISL connections");
     readConfig(config, "earthRotation",           earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
     readConfig(config, "parametrization",         gnssParametrization,  Config::DEFAULT,  R"(["signalBiasesIsl"])", "models and parameters");
     readConfig(config, "noiseObservation",        noiseObs,             Config::DEFAULT,  "",    "[-] noise is multiplied with type accuracy pattern of receiver");
-    readConfig(config, "noiseClockReceiver",      noiseClock,           Config::DEFAULT,  "",    "[m] noise added to the simulated receiver clock");
     if(isCreateSchema(config)) return;
 
     // ============================
 
-    // Set fixed list of observation types for all simulated GNSSs.
-    //
-    // NOTE: only C1C,X1A,X1B and C1C will later be returned as observations,
-    //       the rest is required internally for validation checks and is
-    //       filtered prior to output.
-    // -------------------------------------------------------------------------
-
-    obsTypes.push_back(GnssType::RANGE   + GnssType::E1  + GnssType::C);
-    obsTypes.push_back(GnssType::RANGE   + GnssType::E5a + GnssType::Q);
-    obsTypes.push_back(GnssType::PHASE   + GnssType::E1  + GnssType::C);
-    obsTypes.push_back(GnssType::PHASE   + GnssType::E5a + GnssType::Q);
-    obsTypes.push_back(GnssType::CHANNEL + GnssType::E1  + GnssType::A);
-    obsTypes.push_back(GnssType::CHANNEL + GnssType::E1  + GnssType::B);
-    obsTypes.push_back(GnssType::SNR     + GnssType::E1  + GnssType::C);
-
     // init the GNSS system
     // --------------------
     logInfo<<"Init GNSS"<<Log::endl;
-    std::sort(obsTypes.begin(), obsTypes.end());
     std::vector<Time> times = timeSeries->times();
     Gnss gnss;
-    gnss.init(times, seconds2time(marginSeconds), transmitterGenerator, receiverGenerator, earthRotation, gnssParametrization, comm);
-    receiverGenerator->simulation(obsTypes, noiseClock, noiseObs, &gnss, comm);
-    gnss.synchronizeTransceivers(comm);
+    gnss.init(times, seconds2time(marginSeconds), transmitterGenerator, earthRotation, gnssParametrization, comm);
+
+    // inter satellite links
+    // ---------------------
+    for(auto recv : gnss.transmitters)
+    {
+      logInfo<<"ISL rx "<<recv->name()<<Log::endl;
+
+      // Loading ISL schedule file
+      // -------------------------
+      VariableList fileNameVariableList;
+      fileNameVariableList.setVariable("prn", recv->name());
+      logInfo<<"Load ISL schedule "<<fileNameSchedule(fileNameVariableList)<<Log::endl;
+
+      GnssReceiverArc scheduleIsl;
+      try
+      {
+        readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
+      }
+      catch(std::exception &/*e*/)
+      {
+        logWarningOnce<<"Unable to read ISL schedule <"<<fileNameSchedule(fileNameVariableList)<<">, skipping satellite."<<Log::endl;
+        continue;
+      }
+      if(!scheduleIsl.size())
+      {
+        logWarning<<"no scheduled ISLs found"<<Log::endl;
+        continue;
+      }
+
+      // Simulate ISL observations
+      // -------------------------
+      recv->simulateObservationsIsl(noiseObs,gnss.transmitters,times,scheduleIsl,gnss.funcReduceModelsIsl);
+
+    }
+    //gnss.synchronizeTransceivers(comm); // manipulates signal biases...is this necessary?
     logInfo<<"  transmitter: "<<std::count_if(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto t) {return t->useable();})<<Log::endl;
-    logInfo<<"  receiver:    "<<std::count_if(gnss.receivers.begin(),    gnss.receivers.end(),    [](auto r) {return r->useable();})<<Log::endl;
     if(!std::any_of(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto trans){return trans->useable();}))
     {
       logWarningOnce<<times.front().dateTimeStr()<<" - "<<times.back().dateTimeStr()<<": no useable transmitters"<<Log::endl;
       return;
     }
-    if(!std::any_of(gnss.receivers.begin(), gnss.receivers.end(), [](auto recv){return recv->useable();}))
-    {
-      logWarningOnce<<times.front().dateTimeStr()<<" - "<<times.back().dateTimeStr()<<": no useable receivers"<<Log::endl;
-      return;
-    }
-
-    // count observation types
-    // -----------------------
-    logInfo<<"types and number of observations:"<<Log::endl;
-    std::vector<GnssType> types = gnss.types(~(GnssType::PRN + GnssType::FREQ_NO));
-    Vector countTypes(types.size());
-    for(auto recv : gnss.receivers)
-      if(recv->isMyRank())
-        for(UInt idEpoch=0; idEpoch<recv->idEpochSize(); idEpoch++)
-          for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
-          {
-            auto obs = recv->observation(idTrans, idEpoch);
-            if(obs)
-              for(UInt idType=0; idType<obs->size(); idType++)
-              {
-                const UInt idx = GnssType::index(types, obs->at(idType).type);
-                if(idx != NULLINDEX)
-                  countTypes(idx)++;
-              }
-          }
-    Parallel::reduceSum(countTypes, 0, comm);
-
-    for(UInt idType=0; idType<types.size(); idType++)
-      logInfo<<"  "<<types.at(idType).str()<<":"<<countTypes(idType)%"%10i"s<<Log::endl;
-    logInfo<<"        + ========="<<Log::endl;
-    logInfo<<"  total:"<<sum(countTypes)%"%11i"s<<Log::endl;
-
-    UInt countTracks = 0;
-    for(auto recv : gnss.receivers)
-      if(recv->isMyRank())
-        countTracks += recv->tracks.size();
-    Parallel::reduceSum(countTracks, 0, comm);
-    logInfo<<"  number of tracks: "<<countTracks<<Log::endl;
-
-    // ============================
 
     // Write observations
     // ------------------
     if(!fileNameIsl.empty())
     {
       VariableList fileNameVariableList;
-      fileNameVariableList.setVariable("station", "****");
-      logStatus<<"write receiver observations to files <"<<fileNameIsl(fileNameVariableList)<<">"<<Log::endl;
-      for(auto recv : gnss.receivers)
-        if(recv->isMyRank())
+      fileNameVariableList.setVariable("prn", "****");
+      logStatus<<"write ISL observations to files <"<<fileNameIsl(fileNameVariableList)<<">"<<Log::endl;
+      for(auto recv : gnss.transmitters)
+        if(recv->useable())
         {
-
-          // Loading ISL schedule file
-          // -------------------------
-          fileNameVariableList.setVariable("station", recv->markerNumber());
-          logInfo<<"Load ISL schedule "<<fileNameSchedule(fileNameVariableList)<<Log::endl;
-
-          GnssReceiverArc scheduleIsl;
-          try
-          {
-            readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
-          }
-          catch(std::exception &/*e*/)
-          {
-            logWarningOnce<<"Unable to read ISL schedule <"<<fileNameSchedule(fileNameVariableList)<<">, disabling receiver."<<Log::endl;
-            continue;
-          }
-          if(!scheduleIsl.size())
-          {
-            recv->disable("no scheduled ISLs found");
-            logWarning<<"no scheduled ISLs found"<<Log::endl;
-            continue;
-          }
 
           GnssReceiverArc arc;
           for(UInt idEpoch=0; idEpoch<gnss.times.size(); idEpoch++)
@@ -193,58 +141,37 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 
               // get types
               for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
-                if(recv->observation(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch))
-                  for(UInt idType=0; idType<recv->observation(idTrans, idEpoch)->size(); idType++)
-                  {
-                    // Filter all observation types except for C1C, X1A, X1B, C1C (works for all GNSSs!)
-                    GnssType obsType = recv->observation(idTrans, idEpoch)->at(idType).type;
-                    if(obsType != GnssType(GnssType::RANGE   + GnssType::E1 + GnssType::C) &&
-                       obsType != GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::A) &&
-                       obsType != GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::B) &&
-                       obsType != GnssType(GnssType::SNR     + GnssType::E1 + GnssType::C))
-                      continue;
-                    if(!recv->observation(idTrans, idEpoch)->at(idType).type.isInList(epoch.obsType))
-                      epoch.obsType.push_back(recv->observation(idTrans, idEpoch)->at(idType).type & ~(GnssType::PRN+GnssType::FREQ_NO));
-                  }
+                if(recv->observationIsl(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch)) {
+                  epoch.obsType.push_back(GnssType::RANGE + GnssType::E1 + GnssType::C);
+                  epoch.obsType.push_back(GnssType::CHANNEL + GnssType::E1 + GnssType::A);
+                  epoch.obsType.push_back(GnssType::CHANNEL + GnssType::E1 + GnssType::B);
+                  epoch.obsType.push_back(GnssType::SNR + GnssType::E1 + GnssType::C);
+                }
               std::sort(epoch.obsType.begin(), epoch.obsType.end());
               if(!epoch.obsType.size())
                 continue;
 
-              GnssReceiverEpoch epochSchedule = scheduleIsl.at(idEpoch);
               for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
               {
 
-                // Filter for transmitter PRN from the ISL schedule
-                // ------------------------------------------------
-                if(!gnss.transmitters.at(idTrans)->PRN().isInList(scheduleIsl.at(idEpoch).satellite))
-                  continue;
-
-                if(recv->observation(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch))
+                if(recv->observationIsl(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch))
                 {
-                  const GnssObservation &obs = *recv->observation(idTrans, idEpoch);
-                  const GnssType prn = obs.at(0).type & (GnssType::SYSTEM + GnssType::PRN + GnssType::FREQ_NO);
-                  UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), prn));
-                  UInt idChan = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(), prn));
-
+                  const GnssObservationIsl &obs = *recv->observationIsl(idTrans, idEpoch);
+                  const GnssType prn = gnss.transmitters.at(idTrans)->PRN();
                   epoch.satellite.push_back(prn);
+
+                  UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), prn));
                   for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType++)
                   {
                     epoch.observation.push_back(NAN_EXPR);
-                    for(UInt i=0; i<obs.size(); i++)
-                      if(obs.at(i).type == epoch.obsType.at(idType))
-                      {
-                        // Set the transmitter channel number from scheduler file
-                        // ------------------------------------------------------
-                        if(obs.at(i).type == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::A))
-                          epoch.observation.back() = epochSchedule.observation.at(idChan);
-                        else if(obs.at(i).type == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::B))
-                          epoch.observation.back() = 0; // TODO: set from somewhere!
-                        else if(obs.at(i).type == GnssType(GnssType::SNR + GnssType::E1 + GnssType::C))
-                          epoch.observation.back() = noiseObs->covarianceFunction(1)(0,1); // TODO: make sure the values makes sense!
-                        else
-                          epoch.observation.back() = obs.at(i).observation;
-                        break;
-                      }
+                    if(epoch.obsType.at(idType) == GnssType(GnssType::SNR + GnssType::E1 + GnssType::C))
+                      epoch.observation.back() = obs.sigma0;
+                    else if(epoch.obsType.at(idType) == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::A))
+                      epoch.observation.back() = obs.terminalSend;
+                    else if(epoch.obsType.at(idType) == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::B))
+                      epoch.observation.back() = obs.terminalRecv;
+                    else
+                      epoch.observation.back() = obs.observation;
                   }
                 } // for(idTrans)
               }
@@ -253,36 +180,14 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                 arc.push_back(epoch);
             } // for(idEpoch)
 
-          fileNameVariableList.setVariable("station", recv->markerNumber());
-          InstrumentFile::write(fileNameIsl(fileNameVariableList), arc);
+          fileNameVariableList.setVariable("prn", recv->name());
+          if(arc.size())
+            InstrumentFile::write(fileNameIsl(fileNameVariableList), arc);
         } // for(recv)
     } // if(fileNameReceiver)
 
     // ============================
 
-    // write clock errors (TODO: remove this?)
-    // ------------------
-    if(!fileNameClock.empty())
-    {
-      VariableList fileNameVariableList;
-      fileNameVariableList.setVariable("station", "****");
-      logStatus<<"write receiver clocks to files <"<<fileNameClock(fileNameVariableList)<<">"<<Log::endl;
-      for(auto recv : gnss.receivers)
-        if(recv->isMyRank())
-        {
-          MiscValueArc arc;
-          for(UInt idEpoch=0; idEpoch<gnss.times.size(); idEpoch++)
-            if(recv->useable(idEpoch))
-            {
-              MiscValueEpoch epoch;
-              epoch.time  = gnss.times.at(idEpoch);
-              epoch.value = recv->clockError(idEpoch);
-              arc.push_back(epoch);
-            }
-          fileNameVariableList.setVariable("station", recv->markerNumber());
-          InstrumentFile::write(fileNameClock(fileNameVariableList), arc);
-        } // for(recv)
-    } // if(fileNameClock)
   }
   catch(std::exception &e)
   {
@@ -328,7 +233,7 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
         arc.push_back(epoch);
       }
       arc.back().satellite.push_back(GnssType("***"+prn_));
-      arc.back().obsType.push_back(GnssType("X1C"+prn_));
+      arc.back().obsType.push_back(GnssType("X1A"+prn_));
       arc.back().observation.push_back(String::toDouble(cha_));
     }
     if(!arc.size())

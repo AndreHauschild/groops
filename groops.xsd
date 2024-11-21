@@ -12154,14 +12154,60 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
+						<xs:element name="outputfileGnssIsl" type="filename" default="gnssIsl_{loopTime:%D}.{prn}.dat.gz">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available, simulated observations</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeSeries" type="timeSeriesType" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>defines observation epochs</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeMargin" type="double" minOccurs="0" default="0.1">
+							<xs:annotation>
+								<xs:documentation>[seconds] margin to consider two times identical</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="transmitter" type="gnssTransmitterGeneratorType" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>constellation of GNSS satellites</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="islSchedule" type="filename" default="islSchedule_{loopTime:%D}.{prn}.txt">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available, schedule with ISL connections</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="earthRotation" type="earthRotationType">
+							<xs:annotation>
+								<xs:documentation>apriori earth rotation</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="parametrization" type="gnssParametrizationType" minOccurs="0" maxOccurs="unbounded" default="[&quot;signalBiasesIsl&quot;]">
+							<xs:annotation>
+								<xs:documentation>models and parameters</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="noiseObservation" type="noiseGeneratorType" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>[-] noise is multiplied with type accuracy pattern of receiver</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GnssSimulateIslOld">
+				<xs:annotation>
+					<xs:documentation>GNSS ISL simulation</xs:documentation>
+					<xs:appinfo>tag: Gnss</xs:appinfo>
+					<xs:appinfo>tag: Simulation</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
 						<xs:element name="outputfileGnssIsl" type="filename" default="gnssIsl_{loopTime:%D}.{station}.dat.gz">
 							<xs:annotation>
 								<xs:documentation>variable {station} available, simulated observations</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="outputfileClock" type="filename" minOccurs="0" default="clock_{loopTime:%D}.{station}.dat">
-							<xs:annotation>
-								<xs:documentation>variable {station} available, simulated receiver clock errors</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="timeSeries" type="timeSeriesType" maxOccurs="unbounded">
