@@ -12191,7 +12191,7 @@
 						</xs:element>
 						<xs:element name="noiseObservation" type="noiseGeneratorType" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
-								<xs:documentation>[-] noise is multiplied with type accuracy pattern of receiver</xs:documentation>
+								<xs:documentation>[m] ISL observation noise</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>

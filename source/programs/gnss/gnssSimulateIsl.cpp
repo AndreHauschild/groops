@@ -67,7 +67,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     readConfig(config, "islSchedule",             fileNameSchedule,     Config::MUSTSET,  "islSchedule_{loopTime:%D}.{prn}.txt", "variable {prn} available, schedule with ISL connections");
     readConfig(config, "earthRotation",           earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
     readConfig(config, "parametrization",         gnssParametrization,  Config::DEFAULT,  R"(["signalBiasesIsl"])", "models and parameters");
-    readConfig(config, "noiseObservation",        noiseObs,             Config::DEFAULT,  "",    "[-] noise is multiplied with type accuracy pattern of receiver");
+    readConfig(config, "noiseObservation",        noiseObs,             Config::DEFAULT,  "",    "[m] ISL observation noise");
     if(isCreateSchema(config)) return;
 
     // ============================
@@ -83,7 +83,6 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     // ---------------------
     for(auto recv : gnss.transmitters)
     {
-      logInfo<<"ISL rx "<<recv->name()<<Log::endl;
 
       // Loading ISL schedule file
       // -------------------------
@@ -112,7 +111,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
       recv->simulateObservationsIsl(noiseObs,gnss.transmitters,times,scheduleIsl,gnss.funcReduceModelsIsl);
 
     }
-    //gnss.synchronizeTransceivers(comm); // manipulates signal biases...is this necessary?
+    //gnss.synchronizeTransceivers(comm); // TODO: manipulates signal biases...is this necessary?
     logInfo<<"  transmitter: "<<std::count_if(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto t) {return t->useable();})<<Log::endl;
     if(!std::any_of(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto trans){return trans->useable();}))
     {

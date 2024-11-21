@@ -139,13 +139,9 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
           continue;
 
         // Skip receiver PRN
-        // ------------------------------------------------
+        // -----------------
         if (this->name()==transmitters.at(idTrans)->name())
           continue;
-
-        logInfo<<times.at(idEpoch).dateTimeStr()<<"  "
-               <<this->name()<<" <- "<<transmitters.at(idTrans)->name()
-               <<" simulation of ISL observation"<<Log::endl;
 
         GnssObservationIsl *obs = new GnssObservationIsl();
         obs->time = times.at(idEpoch);
@@ -156,7 +152,7 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
         UInt idChan = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(), prn));
 
         obs->observation = -eqn->l(0) + eps.at(idEpoch);
-        obs->sigma0 = sqrt(noiseObs->covarianceFunction(1)(0,1)); // TODO: make sure the value makes sense!
+        obs->sigma0 = sqrt(noiseObs->covarianceFunction(1)(0,1));
         obs->terminalRecv = 0;
         obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChan);
 
