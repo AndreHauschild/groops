@@ -24,6 +24,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 {
   try
   {
+
     // receiver in celestial reference frame
     timeRecv = time - seconds2time(receiver.clockError(idEpoch));
     posRecv  = receiver.position(idEpoch, timeRecv);
@@ -73,19 +74,14 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
   try
   {
     const UInt obsCount = 1;
-    std::vector<GnssType> types;
-
     idEpoch      = idEpoch_;
     receiver     = &receiver_;
     transmitter  = &transmitter_;
     terminalRecv = observation.terminalRecv;
     terminalSend = observation.terminalSend;
-    types.resize(obsCount);
     l            = Vector(obsCount);
     sigma        = Vector(obsCount);
     sigma0       = Vector(obsCount);
-
-    types.at(0) = GnssType("C1C***"); // TODO: avoid hard-coding this here!
     l(0)        = observation.observation;
     sigma(0)    = observation.sigma;
     sigma0(0)   = observation.sigma0;
@@ -132,7 +128,15 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
       A(i, idxRange)      =  1.0;                    // range correction (???, ...)
     }  // for(i=0..obsCount)
 
+    // ISL observation code for antenna correction and biases
+    // TODO: avoid using this here!
+    // ------------------------------------------------------
+    std::vector<GnssType> types;
+    types.resize(obsCount);
+    types.at(0) = GnssType("C1C***");
+
     // antenna correction and other corrections
+    // TODO: try adding a separate class for ISL terminal as antenna!
     // ----------------------------------------
     l -= receiver->antennaVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt,  types);
     l -= receiver->signalBiasesIslRx(types);
