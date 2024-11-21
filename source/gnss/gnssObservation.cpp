@@ -69,11 +69,6 @@ Bool GnssObservation::init(const GnssReceiver &receiver, const GnssTransmitter &
     if((!receiver.useable(idEpoch)) || (!transmitter.useable(idEpoch)))
       return FALSE;
 
-	// avoid using the same satellite as receiver and transmitter
-	//
-    if (receiver.markerNumber()==transmitter.markerNumber())
-      return FALSE;
-
     // position, time of transmitter & receiver
     // ----------------------------------------
     Time     timeRecv, timeTrans;
@@ -323,8 +318,6 @@ void GnssObservationEquation::compute(const GnssObservation &observation, const 
     Double       r12 = (posRecv - posTrans).r();
     r12 += 2*DEFAULT_GM/pow(LIGHT_VELOCITY,2)*log((r1+r2+r12)/(r1+r2-r12)); // curved space-time
     r12 += 2*inner(posTrans, velocityTrans)/LIGHT_VELOCITY;                 // relativistic clock correction
-    if(!receiver_.isEarthFixed())
-      r12 -= 2*inner(posRecv, velocityRecv)/LIGHT_VELOCITY;                 // relativistic clock correction
     r12 -= LIGHT_VELOCITY * transmitter->clockError(idEpoch);
     r12 += LIGHT_VELOCITY * receiver->clockError(idEpoch);
 
