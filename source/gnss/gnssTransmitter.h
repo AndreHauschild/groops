@@ -38,8 +38,10 @@ class GnssTransmitter : public GnssTransceiver
   GnssType                 type; // system + PRN
   Polynomial               polynomial;
   std::vector<Double>      clk;
-  std::vector<Vector3d>    offset;   // between CoM and ARF in SRF
+  std::vector<Vector3d>    offset;      // between CoM and ARF in SRF
+  std::vector<Vector3d>    offsetIsl;   // between CoM and ISL RF in SRF
   std::vector<Transform3d> crf2srf, srf2arf;
+  std::vector<Transform3d> srf2arfIsl;
 
 public:
   std::vector<Time> timesPosVel;
@@ -49,10 +51,11 @@ public:
                   GnssAntennaDefinition::NoPatternFoundAction noPatternFoundAction,
                   const Vector &useableEpochs, const std::vector<Double> &clock, const std::vector<Vector3d> &offset,
                   const std::vector<Transform3d> &crf2srf, const std::vector<Transform3d> &srf2arf,
+                  const std::vector<Vector3d> &offsetIsl, const std::vector<Transform3d> &srf2arfIsl,
                   const std::vector<Time> &timesPosVel, const_MatrixSliceRef position, const_MatrixSliceRef velocity, UInt interpolationDegree)
   : GnssTransceiver(platform, noPatternFoundAction, useableEpochs),
     type(prn), polynomial(timesPosVel, interpolationDegree, TRUE/*throwException*/, FALSE/*leastSquares*/, -(interpolationDegree+1.1), -1.1, 1e-7),
-    clk(clock), offset(offset), crf2srf(crf2srf), srf2arf(srf2arf), timesPosVel(timesPosVel), pos(position), vel(velocity) {}
+    clk(clock), offset(offset), crf2srf(crf2srf), srf2arf(srf2arf), offsetIsl(offsetIsl), srf2arfIsl(srf2arfIsl), timesPosVel(timesPosVel), pos(position), vel(velocity) {}
 
   /// Destructor.
   virtual ~GnssTransmitter();
@@ -78,11 +81,17 @@ public:
   /** @brief antenna reference point in celestial reference frame (CRF). */
   Vector3d position(UInt idEpoch, const Time &time) const {return positionCoM(time) + crf2srf.at(idEpoch).inverseTransform(offset.at(idEpoch));}
 
+  /** @brief terminal reference point in celestial reference frame (CRF). */
+  Vector3d positionIsl(UInt idEpoch, const Time &time) const {return positionCoM(time) + crf2srf.at(idEpoch).inverseTransform(offsetIsl.at(idEpoch));}
+
   /** @brief velocity in CRF [m/s]. */
   Vector3d velocity(const Time &time) const;
 
   /** @brief Rotation from celestial reference frame (CRF) to left-handed antenna system. */
   Transform3d celestial2antennaFrame(UInt idEpoch, const Time &/*time*/) const {return srf2arf.at(idEpoch) * crf2srf.at(idEpoch);}
+
+  /** @brief Rotation from celestial reference frame (CRF) to left-handed ISL terminal system. */
+  Transform3d celestial2islTerminalFrame(UInt idEpoch, const Time &/*time*/) const {return srf2arfIsl.at(idEpoch) * crf2srf.at(idEpoch);}
 
   // Inter satellite links (ISL)
   // ---------------------------

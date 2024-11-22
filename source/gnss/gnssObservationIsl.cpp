@@ -27,26 +27,26 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 
     // receiver in celestial reference frame
     timeRecv = time - seconds2time(receiver.clockError(idEpoch));
-    posRecv  = receiver.position(idEpoch, timeRecv);
+    posRecv  = receiver.positionIsl(idEpoch, timeRecv);
     velRecv  = receiver.velocity(timeRecv);
 
     // transmitter position and time
-    posTrans = transmitter.position(idEpoch, timeRecv);
+    posTrans = transmitter.positionIsl(idEpoch, timeRecv);
     Vector3d posOld;
     for(UInt i=0; (i<10) && ((posTrans-posOld).r() > 0.0001); i++) // iteration
     {
       timeTrans = timeRecv - seconds2time((posTrans-posRecv).r()/LIGHT_VELOCITY);
       posOld    = posTrans;
-      posTrans  = transmitter.position(idEpoch, timeTrans);
+      posTrans  = transmitter.positionIsl(idEpoch, timeTrans);
     }
     velTrans = transmitter.velocity(timeTrans);
 
     // line of sight from transmitter to receiver
     k              = normalize(posRecv - posTrans);
-    kRecv          = receiver.celestial2antennaFrame(idEpoch, timeRecv).transform(-k); // line of sight in receiver antenna system
+    kRecv          = receiver.celestial2islTerminalFrame(idEpoch, timeRecv).transform(-k); // line of sight in receiver antenna system
     azimutRecv     = kRecv.lambda();
     elevationRecv  = kRecv.phi();
-    kTrans         = transmitter.celestial2antennaFrame(idEpoch, timeTrans).transform(k);
+    kTrans         = transmitter.celestial2islTerminalFrame(idEpoch, timeTrans).transform(k);
     azimutTrans    = kTrans.lambda();
     elevationTrans = kTrans.phi();
   }
@@ -138,9 +138,9 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     // antenna correction and other corrections
     // TODO: try adding a separate class for ISL terminal as antenna!
     // ----------------------------------------
-    l -= receiver->antennaVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt,  types);
+    l -= receiver->islTerminalVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt, types);
     l -= receiver->signalBiasesIslRx(types);
-    l -= transmitter->antennaVariations(timeTrans, azimutTrans, elevationTrans, types);
+    l -= transmitter->islTerminalVariations(timeTrans, azimutTrans, elevationTrans, types);
     l -= transmitter->signalBiasesIslTx(types);
     if(reduceModels)
       reduceModels(*this);

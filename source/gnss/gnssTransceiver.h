@@ -77,6 +77,10 @@ public:
   * observed range = range (ARPs of transmitter and receiver) + antennaVariations. */
   Vector antennaVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
+  /** @brief Direction dependent corrections.
+  * observed range = range (ARPs of transmitter and receiver) + islTerminalVariations. */
+  Vector islTerminalVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
+
   /** @brief Direction (and other parameters) dependent standard deviation.
   * @a azimuth and @a elevation must be given in the antenna frame (left-handed). */
   Vector accuracy(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
@@ -202,6 +206,29 @@ inline Vector GnssTransceiver::antennaVariations(const Time &time, Angle azimut,
     if(!antenna->antennaDef)
       throw(Exception("no antenna definition for "+antenna->str()));
     corr += antenna->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
+
+    return corr;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+inline Vector GnssTransceiver::islTerminalVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &types) const
+{
+  try
+  {
+    Vector corr(types.size());
+
+    auto terminal = platform.findEquipment<PlatformIslTerminal>(time);
+    if(!terminal)
+      throw(Exception(platform.markerName+"."+platform.markerNumber+": no ISL terminal definition found at "+time.dateTimeStr()));
+    if(!terminal->antennaDef)
+      throw(Exception("no ISL terminal definition for "+terminal->str()));
+    corr += terminal->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
 
     return corr;
   }

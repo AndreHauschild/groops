@@ -3188,6 +3188,11 @@
 								</xs:choice>
 							</xs:complexType>
 						</xs:element>
+						<xs:element name="inputfileIslTerminalDefintion" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat">
+							<xs:annotation>
+								<xs:documentation>phase centers and variations (ANTEX like)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="inputfileSignalDefintion" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml">
 							<xs:annotation>
 								<xs:documentation>transmitted signal types</xs:documentation>
@@ -10379,7 +10384,7 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="inputfileTides" type="filename" default="{groopsDataDir}/tides/oceanTide_fes2022_n180_version20241110.datt"/>
+						<xs:element name="inputfileTides" type="filename" default="{groopsDataDir}/tides/oceanTide_fes2022_n180_version20241110.dat"/>
 						<xs:element name="inputfileAdmittance" type="filename" minOccurs="0" default="{groopsDataDir}/tides/oceanTide_fes2022_admittance_linear_linear.txt">
 							<xs:annotation>
 								<xs:documentation>interpolation of minor constituents</xs:documentation>
@@ -16981,6 +16986,7 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="outputfilePlatform" type="filename"/>
+						<xs:element name="inputfilePlatform" type="filename" minOccurs="0"/>
 						<xs:element name="markerName" type="string"/>
 						<xs:element name="markerNumber" type="string" minOccurs="0"/>
 						<xs:element name="comment" type="string" minOccurs="0"/>
@@ -17227,6 +17233,62 @@
 												<xs:element name="comment" type="string" minOccurs="0"/>
 												<xs:element name="timeStart" type="time" minOccurs="0"/>
 												<xs:element name="timeEnd" type="time" minOccurs="0"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="islTerminal">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="name" type="string"/>
+												<xs:element name="serial" type="string" minOccurs="0"/>
+												<xs:element name="comment" type="string" minOccurs="0"/>
+												<xs:element name="timeStart" type="time" minOccurs="0"/>
+												<xs:element name="timeEnd" type="time" minOccurs="0"/>
+												<xs:element name="positionX" type="double" default="0">
+													<xs:annotation>
+														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="positionY" type="double" default="0">
+													<xs:annotation>
+														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="positionZ" type="double" default="0">
+													<xs:annotation>
+														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="rotationX" type="angle" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="rotationY" type="angle" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="rotationZ" type="angle" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="flipX" type="boolean" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>flip x-axis (after rotation)</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="flipY" type="boolean" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>flip y-axis (after rotation)</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="flipZ" type="boolean" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>flip z-axis (after rotation)</xs:documentation>
+													</xs:annotation>
+												</xs:element>
 											</xs:sequence>
 										</xs:complexType>
 									</xs:element>
