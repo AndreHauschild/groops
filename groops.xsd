@@ -3040,7 +3040,7 @@
 								<xs:documentation>satellite attitude</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="inputfileClock" type="filename">
+						<xs:element name="inputfileClock" type="filename" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>satellite clock offset</xs:documentation>
 							</xs:annotation>
