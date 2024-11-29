@@ -129,7 +129,7 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     }  // for(i=0..obsCount)
 
     // ISL observation code for antenna correction and biases
-    // TODO: avoid using this here!
+    // TODO: avoid using observation types here!
     // ------------------------------------------------------
     std::vector<GnssType> types;
     types.resize(obsCount);
