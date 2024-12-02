@@ -11244,7 +11244,7 @@
 								<xs:documentation>polynomial degree for extrapolation</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="excludeDoodsonForInterpolation" type="doodson" minOccurs="0" default="[&quot;164.555&quot;, &quot;164.556&quot;]" maxOccurs="unbounded">
+						<xs:element name="excludeDoodsonForInterpolation" type="doodson" minOccurs="0" default="[&quot;164.554&quot;, &quot;164.555&quot;, &quot;164.556&quot;, &quot;164.566&quot;]" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>major tides not used for interpolation</xs:documentation>
 							</xs:annotation>
