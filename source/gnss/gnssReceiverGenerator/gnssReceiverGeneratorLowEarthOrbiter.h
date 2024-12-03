@@ -41,7 +41,7 @@ class GnssReceiverGeneratorLowEarthOrbiter : public GnssReceiverGeneratorBase
 {
   FileName              fileNameStationInfo;
   FileName              fileNameAntennaDef, fileNameReceiverDef, fileNameAccuracyDef;
-  FileName              fileNameObs, fileNameOrbit, fileNameStarCamera;
+  FileName              fileNameObs, fileNameOrbit, fileNameStarCamera, fileNameClock;
   ExpressionVariablePtr exprSigmaPhase, exprSigmaCode;
   Bool                  integerAmbiguities;
   Double                wavelengthFactor;

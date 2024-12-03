@@ -65,7 +65,52 @@ void Gnss::init(const std::vector<Time> &times, const Time &timeMargin,
     if(parametrization)
     {
       parametrization->init(this, comm);
-      funcReduceModels = std::bind(&GnssParametrization::observationCorrections, parametrization, std::placeholders::_1);
+      funcReduceModels    = std::bind(&GnssParametrization::observationCorrections,    parametrization, std::placeholders::_1);
+      funcReduceModelsIsl = std::bind(&GnssParametrization::observationCorrectionsIsl, parametrization, std::placeholders::_1);
+    }
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void Gnss::init(const std::vector<Time> &times, const Time &timeMargin,
+                GnssTransmitterGeneratorPtr transmitterGenerator,
+                EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm)
+{
+  try
+  {
+    this->times = times;
+
+    // init earth rotation
+    // -------------------
+    eop = Matrix(times.size(), 8); // Matrix eop columns: xp, yp, sp, deltaUT, LOD, X, Y, S
+    for(UInt i=0; i<times.size(); i++)
+      earthRotation->earthOrientationParameter(times.at(i), eop(i,0), eop(i,1), eop(i,2), eop(i,3), eop(i,4), eop(i,5), eop(i,6), eop(i,7));
+    // UT1-UTC => UT1-GPS (avoid leap seconds jumps for interpolation)
+    for(UInt i=0; i<times.size(); i++)
+      eop(i,3) -= (times.at(i)-timeGPS2UTC(times.at(i))).seconds();
+
+    funcRotationCrf2Trf = std::bind(&Gnss::rotationCrf2Trf, this, std::placeholders::_1);
+
+    // init transmitters
+    // -----------------
+    transmitters = transmitterGenerator->transmitters(times);
+    for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      transmitters.at(idTrans)->id_ = idTrans;
+    synchronizeTransceivers(comm);
+
+    // init parametrization
+    // --------------------
+    this->parametrization = parametrization;
+    if(parametrization)
+    {
+      parametrization->init(this, comm);
+      funcReduceModels    = std::bind(&GnssParametrization::observationCorrections,    parametrization, std::placeholders::_1);
+      funcReduceModelsIsl = std::bind(&GnssParametrization::observationCorrectionsIsl, parametrization, std::placeholders::_1);
     }
   }
   catch(std::exception &e)
@@ -368,12 +413,45 @@ Bool Gnss::basicObservationEquations(const GnssNormalEquationInfo &/*normalEquat
 
 /***********************************************/
 
+Bool Gnss::basicObservationEquationsIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, UInt idRecv, UInt idTrans, UInt idEpoch, GnssObservationEquationIsl &eqn) const
+{
+  try
+  {
+    if(!transmitters.at(idRecv)->observationIsl(idTrans, idEpoch))
+      return FALSE;
+    eqn.compute(*transmitters.at(idRecv)->observationIsl(idTrans, idEpoch), *transmitters.at(idRecv), *transmitters.at(idTrans),
+                funcReduceModelsIsl, idEpoch, TRUE);
+    return TRUE;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void Gnss::designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const
 {
   try
   {
     if(eqn.l.rows())
       parametrization->designMatrix(normalEquationInfo, eqn, A);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void Gnss::designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    if(eqn.l.rows())
+      parametrization->designMatrixIsl(normalEquationInfo, eqn, A);
   }
   catch(std::exception &e)
   {

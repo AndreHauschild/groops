@@ -18,6 +18,7 @@
 #include "base/parameterName.h"
 #include "classes/noiseGenerator/noiseGenerator.h"
 #include "gnss/gnssObservation.h"
+#include "gnss/gnssObservationIsl.h"
 #include "gnss/gnssDesignMatrix.h"
 #include "gnss/gnssTransmitter.h"
 #include "gnss/gnssReceiver.h"
@@ -52,8 +53,9 @@ public:
   std::vector<GnssTransmitterPtr> transmitters;    // GNSS satellites
   std::vector<GnssReceiverPtr>    receivers;       // stations & LEOs
   GnssParametrizationPtr          parametrization; // parameters
-  std::function<void(GnssObservationEquation &eqn)> funcReduceModels;
-  std::function<Rotary3d(const Time &time)>         funcRotationCrf2Trf;
+  std::function<void(GnssObservationEquation &eqn)>    funcReduceModels;
+  std::function<void(GnssObservationEquationIsl &eqn)> funcReduceModelsIsl;
+  std::function<Rotary3d(const Time &time)>            funcRotationCrf2Trf;
   Matrix                          eop;             // Matrix eop columns: xp, yp, sp, deltaUT, LOD, X, Y, S
   std::vector<std::vector<std::vector<GnssType>>> typesRecvTrans; // for each receiver and transmitter: used types (receiver types)
 
@@ -61,21 +63,27 @@ public:
             GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,
             EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm);
 
+  void init(const std::vector<Time> &times, const Time &timeMargin,
+            GnssTransmitterGeneratorPtr transmitterGenerator,
+            EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm);
+
   Rotary3d rotationCrf2Trf(const Time &time) const; // Inertial system (CRF) -> earth fixed system (TRF).
   void     synchronizeTransceivers(Parallel::CommunicatorPtr comm);
 
-  void   initParameter            (GnssNormalEquationInfo &normalEquationInfo);
-  Vector aprioriParameter         (const GnssNormalEquationInfo &normalEquationInfo) const;
-  Bool   basicObservationEquations(const GnssNormalEquationInfo &normalEquationInfo, UInt idRecv, UInt idTrans, UInt idEpoch, GnssObservationEquation &eqn) const;
-  void   designMatrix             (const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const;
-  void   constraintsEpoch         (const GnssNormalEquationInfo &normalEquationInfo, UInt idEpoch, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const;
-  void   constraints              (const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const;
-  Double ambiguityResolve         (const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount,
-                                   const std::vector<Byte> &selectedTransmitters, const std::vector<Byte> &selectedReceivers,
-                                   const std::function<Vector(const_MatrixSliceRef xFloat, MatrixSliceRef W, const_MatrixSliceRef d, Vector &xInt, Double &sigma)> &searchInteger);
-  Double updateParameter          (const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef Wz);
-  void   updateCovariance         (const GnssNormalEquationInfo &normalEquationInfo, const MatrixDistributed &covariance);
-  void   writeResults             (const GnssNormalEquationInfo &normalEquationInfo, const std::string &suffix="");
+  void   initParameter               (GnssNormalEquationInfo &normalEquationInfo);
+  Vector aprioriParameter            (const GnssNormalEquationInfo &normalEquationInfo) const;
+  Bool   basicObservationEquations   (const GnssNormalEquationInfo &normalEquationInfo, UInt idRecv, UInt idTrans, UInt idEpoch, GnssObservationEquation &eqn) const;
+  Bool   basicObservationEquationsIsl(const GnssNormalEquationInfo &normalEquationInfo, UInt idRecv, UInt idTrans, UInt idEpoch, GnssObservationEquationIsl &eqn) const;
+  void   designMatrix                (const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const;
+  void   designMatrixIsl             (const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqnIsl, GnssDesignMatrix &A) const;
+  void   constraintsEpoch            (const GnssNormalEquationInfo &normalEquationInfo, UInt idEpoch, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const;
+  void   constraints                 (const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const;
+  Double ambiguityResolve            (const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount,
+                                      const std::vector<Byte> &selectedTransmitters, const std::vector<Byte> &selectedReceivers,
+                                      const std::function<Vector(const_MatrixSliceRef xFloat, MatrixSliceRef W, const_MatrixSliceRef d, Vector &xInt, Double &sigma)> &searchInteger);
+  Double updateParameter             (const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef Wz);
+  void   updateCovariance            (const GnssNormalEquationInfo &normalEquationInfo, const MatrixDistributed &covariance);
+  void   writeResults                (const GnssNormalEquationInfo &normalEquationInfo, const std::string &suffix="");
 
   /** @brief sorted list of used types. */
   std::vector<GnssType> types(const GnssType mask=GnssType::ALL) const;

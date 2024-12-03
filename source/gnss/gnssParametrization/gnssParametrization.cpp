@@ -20,10 +20,12 @@
 #include "gnss/gnssParametrization/gnssParametrizationClocks.h"
 #include "gnss/gnssParametrization/gnssParametrizationClocksModel.h"
 #include "gnss/gnssParametrization/gnssParametrizationSignalBiases.h"
+#include "gnss/gnssParametrization/gnssParametrizationSignalBiasesIsl.h"
 #include "gnss/gnssParametrization/gnssParametrizationAmbiguities.h"
 #include "gnss/gnssParametrization/gnssParametrizationCodeBiases.h"
 #include "gnss/gnssParametrization/gnssParametrizationTecBiases.h"
 #include "gnss/gnssParametrization/gnssParametrizationTemporalBias.h"
+#include "gnss/gnssParametrization/gnssParametrizationIslBiases.h"
 #include "gnss/gnssParametrization/gnssParametrizationStaticPositions.h"
 #include "gnss/gnssParametrization/gnssParametrizationKinematicPositions.h"
 #include "gnss/gnssParametrization/gnssParametrizationLeoDynamicOrbits.h"
@@ -45,6 +47,8 @@ GROOPS_REGISTER_CLASS(GnssParametrization, "gnssParametrizationType",
                       GnssParametrizationClocks,
                       GnssParametrizationClocksModel,
                       GnssParametrizationSignalBiases,
+                      GnssParametrizationSignalBiasesIsl,
+                      GnssParametrizationIslBiases,
                       GnssParametrizationAmbiguities,
                       GnssParametrizationCodeBiases,
                       GnssParametrizationTecBiases,
@@ -83,6 +87,8 @@ GnssParametrization::GnssParametrization(Config &config, const std::string &name
         base.push_back(new GnssParametrizationClocksModel(config));
       if(readConfigChoiceElement(config, "signalBiases",             type, "apriori values of signal biases (code/phase)"))
         base.push_back(new GnssParametrizationSignalBiases(config));
+      if(readConfigChoiceElement(config, "signalBiasesIsl",          type, "apriori values of ISL signal biases"))
+        base.push_back(new GnssParametrizationSignalBiasesIsl(config));
       if(readConfigChoiceElement(config, "ambiguities",              type, "integer and float ambiguities"))
         base.push_back(new GnssParametrizationAmbiguities(config));
       if(readConfigChoiceElement(config, "codeBiases",               type, "biases of code signals"))
@@ -91,6 +97,8 @@ GnssParametrization::GnssParametrization(Config &config, const std::string &name
         base.push_back(new GnssParametrizationTecBiases(config));
       if(readConfigChoiceElement(config, "temporalBias",             type, "temporal changing signal bias"))
         base.push_back(new GnssParametrizationTemporalBias(config));
+      if(readConfigChoiceElement(config, "islBiases",                type, "biases of inter satellite links"))
+        base.push_back(new GnssParametrizationIslBiases(config));
       if(readConfigChoiceElement(config, "staticPositions",          type, "static positions with no-net constraints"))
         base.push_back(new GnssParametrizationStaticPositions(config));
       if(readConfigChoiceElement(config, "kinematicPositions",       type, "position each epoch"))
@@ -162,6 +170,21 @@ void GnssParametrization::observationCorrections(GnssObservationEquation &eqn) c
 
 /***********************************************/
 
+void GnssParametrization::observationCorrectionsIsl(GnssObservationEquationIsl &eqn) const
+{
+  try
+  {
+    for(auto b : base)
+      b->observationCorrectionsIsl(eqn);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void GnssParametrization::requirements(GnssNormalEquationInfo &normalEquationInfo,
                                        std::vector<UInt> &transCount, std::vector<UInt> &transCountEpoch,
                                        std::vector<UInt> &recvCount, std::vector<UInt> &recvCountEpoch)
@@ -217,6 +240,21 @@ void GnssParametrization::designMatrix(const GnssNormalEquationInfo &normalEquat
   {
     for(auto b : base)
       b->designMatrix(normalEquationInfo, eqn, A);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void GnssParametrization::designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    for(auto b : base)
+      b->designMatrixIsl(normalEquationInfo, eqn, A);
   }
   catch(std::exception &e)
   {
