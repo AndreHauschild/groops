@@ -270,13 +270,21 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
               for(UInt idEpoch : normalEquationInfo.idEpochs)
                 if(trans->useable(idEpoch) && recv->useable(idEpoch) && recv->observation(trans->idTrans(), idEpoch))
                   countEpoch(idEpoch)++;
+
+          // Count ISL observations to other transmitters
+          // TODO: this does not cover all necessary cases!
+          for(const auto &recv : transmitters)
+            if(trans->idTrans()!=recv->idTrans())
+              for(UInt idEpoch : normalEquationInfo.idEpochs)
+                if(trans->useable(idEpoch) && recv->useable(idEpoch) && recv->observationIsl(trans->idTrans(), idEpoch))
+                  countEpoch(idEpoch)++;
+
           Parallel::reduceSum(countEpoch, 0, normalEquationInfo.comm);
           Parallel::broadCast(countEpoch, 0, normalEquationInfo.comm);
 
           for(UInt idEpoch : normalEquationInfo.idEpochs)
             if(trans->useable(idEpoch) && (countEpoch(idEpoch) < transCountEpoch.at(trans->idTrans())))
             {
-              // logWarningOnce<<trans->name()<<" disabled epoch "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
               disabledEpochsTrans++;
               trans->disable(idEpoch, "failed parametrization requirements");
               mustSync = TRUE;
@@ -315,7 +323,6 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
                   count++;
               if(count < recvCountEpoch.at(recv->idRecv()))
               {
-                // logWarning<<recv->name()<<" disabled epoch "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
                 disabledEpochsRecv++;
                 recv->disable(idEpoch, "failed parametrization requirements");
                 mustSync = TRUE;
