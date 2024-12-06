@@ -99,17 +99,17 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         if(para && para->trans->useable())
         {
           std::vector<GnssType> biasTypes;
-          for(GnssType type : para->trans->signalBias.types)
+          for(GnssType type : para->trans->signalBiasIslTx.types)
             if((type == GnssType::RANGE) && !type.isInList(biasTypes))
               biasTypes.push_back(type);
           if(biasTypes.size() <= 2)
             continue;
 
           // transformation matrix
-          Matrix T(para->trans->signalBias.types.size(), biasTypes.size());
-          for(UInt i=0; i<para->trans->signalBias.types.size(); i++)
+          Matrix T(para->trans->signalBiasIslTx.types.size(), biasTypes.size());
+          for(UInt i=0; i<para->trans->signalBiasIslTx.types.size(); i++)
             for(UInt k=0; k<biasTypes.size(); k++)
-              if(para->trans->signalBias.types.at(i) == biasTypes.at(k))
+              if(para->trans->signalBiasIslTx.types.at(i) == biasTypes.at(k))
                 T(i, k) = 1.;
 
           // determine nullspace
@@ -134,7 +134,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
                 A(i, 0) = -1.;  // clock
             UInt idx;
             for(UInt i=0; i<typesTrans.size(); i++)
-              if(typesTrans.at(i).isInList(para->trans->signalBias.types, idx))
+              if(typesTrans.at(i).isInList(para->trans->signalBiasIslTx.types, idx))
                 matMult(1., Compose.column(i), T.row(idx), A.column(1, T.columns()));
             Vector STEC(types.size());
             for(UInt i=0; i<types.size(); i++)
@@ -158,120 +158,119 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
             std::string typeStr;
             for(UInt idType=0; idType<para->Bias.rows(); idType++)
               if(std::fabs(para->Bias(idType, i)) > 1e-4)
-                typeStr += ((para->Bias(idType, i) > 0) ? "+" : "") + para->Bias(idType, i)%"%.2f"s + para->trans->signalBias.types.at(idType).str();
-            parameterNames.push_back(ParameterName(para->trans->name(), "codeBias"+(i+1)%"%02i("s+typeStr+")"));
+                typeStr += ((para->Bias(idType, i) > 0) ? "+" : "") + para->Bias(idType, i)%"%.2f"s + para->trans->signalBiasIslTx.types.at(idType).str();
+            parameterNames.push_back(ParameterName(para->trans->name(), "ISL bias"+(i+1)%"%02i("s+typeStr+")"));
           }
           para->index = normalEquationInfo.parameterNamesTransmitter(para->trans->idTrans(), parameterNames);
           countParaTrans += parameterNames.size();
         }
     if(countParaTrans)
-      logInfo<<countParaTrans%"%9i transmitter code bias parameters"s<<Log::endl;
-
+      logInfo<<countParaTrans%"%9i transmitter ISL bias parameters"s<<Log::endl;
 
     applyConstraint = isEnabled(normalEquationInfo, nameConstraint) && sigmaZeroMean
                     && (countParaTrans) && !normalEquationInfo.isEachReceiverSeparately;
 
-    // TODO: fix this!!
+// TODO: fix this!!
+//
+//    // calculate constraint equations (zero mean of signal biases)
+//    // -----------------------------------------------------------
+//    if(applyConstraint)
+//    {
+//      // parameter indices
+//      UInt parameterCount = 0;
+//      // indices of transmitter biases
+//      idxBias.clear();
+//      idxBias.resize(gnss->transmitters.size(), NULLINDEX);
+//      for(auto para : parameter)
+//        if(para && para->index)
+//        {
+//          idxBias.at(para->trans->idTrans()) = parameterCount;
+//          parameterCount += para->Bias.columns();
+//        }
+//
+//      if(parameterCount)
+//      {
+//        UInt idxClocks = parameterCount;
+//        // indices of transmitter clocks
+//        std::vector<UInt> idxClockTrans(gnss->transmitters.size(), NULLINDEX);
+//        for(auto trans : gnss->transmitters)
+//          if(trans->useable())
+//            idxClockTrans.at(trans->idTrans()) = parameterCount++;
+//        // indices of receiver clocks
+//        std::vector<UInt> idxClockRecv(gnss->receivers.size(), NULLINDEX);
+//        typesRecvTrans.clear();
+//        typesRecvTrans.resize(gnss->receivers.size());
+//        for(auto recv : gnss->receivers)
+//          if(normalEquationInfo.estimateReceiver.at(recv->idRecv()))
+//          {
+//            const UInt idRecvOld = std::distance(typesRecvTrans.begin(), std::find(typesRecvTrans.begin(), typesRecvTrans.end(), gnss->typesRecvTrans.at(recv->idRecv())));
+//            if(idRecvOld >= typesRecvTrans.size())
+//            {
+//              typesRecvTrans.at(recv->idRecv()) = gnss->typesRecvTrans.at(recv->idRecv());
+//              idxClockRecv.at(recv->idRecv())   = parameterCount++;
+//            }
+//            else
+//              idxClockRecv.at(recv->idRecv()) = idxClockRecv.at(idRecvOld);
+//          }
+//
+//        // normals of pseudo observations
+//        Matrix N(parameterCount, Matrix::SYMMETRIC);
+//        for(auto recv : gnss->receivers)
+//          if(recv->isMyRank() && normalEquationInfo.estimateReceiver.at(recv->idRecv()))
+//            for(auto trans : gnss->transmitters)
+//            {
+//              // observation types
+//              std::vector<GnssType> types;
+//              for(GnssType type : gnss->typesRecvTrans.at(recv->idRecv()).at(trans->idTrans()))
+//                if((type == GnssType::RANGE) && !type.isInList(types))
+//                  types.push_back(type);
+//              if(!types.size())
+//                continue;
+//
+//              // transmitted types
+//              std::vector<GnssType> typesTrans;
+//              Matrix T;
+//              recv->signalComposition(NULLINDEX/*idEpoch*/, types, typesTrans, T);
+//
+//              // design matrix
+//              Matrix A(types.size(), parameterCount);
+//              if(idxClockRecv.at(recv->idRecv()) != NULLINDEX)    // clock recv
+//                for(UInt i=0; i<types.size(); i++)
+//                  A(i, idxClockRecv.at(recv->idRecv())) = 1.;
+//              if(idxClockTrans.at(trans->idTrans()) != NULLINDEX) // clock trans
+//                for(UInt i=0; i<types.size(); i++)
+//                  A(i, idxClockTrans.at(trans->idTrans())) = -1.;
+//              if(idxBias.at(trans->idTrans()) != NULLINDEX)  // bias trans
+//                for(UInt k=0; k<typesTrans.size(); k++)
+//                  matMult(1., T.column(k), parameter.at(trans->idTrans())->Bias.row(GnssType::index(trans->signalBiasIslTx.types, typesTrans.at(k))),
+//                          A.column(idxBias.at(trans->idTrans()), parameter.at(trans->idTrans())->Bias.columns()));
+//              // eliminate STEC
+//              Vector STEC(types.size());
+//              for(UInt i=0; i<types.size(); i++)
+//                STEC(i) = types.at(i).ionosphericFactor();
+//              eliminationParameter(STEC, {A});
+//              rankKUpdate(1., A, N);
+//            }
+//        Parallel::reduceSum(N, 0, normalEquationInfo.comm);
+//
+//        if(Parallel::isMaster(normalEquationInfo.comm))
+//        {
+//          // add zero mean of clocks and eliminate clocks
+//          Matrix N11 = N.slice(idxClocks, idxClocks, parameterCount-idxClocks, parameterCount-idxClocks);
+//          for(UInt i=0; i<N11.rows(); i++)
+//            if(N11(i,i) == 0)
+//              N11(i,i) = 1.;
+//          rankKUpdate(1., Matrix(1, N11.rows(), 1.), N11); // add zero mean
+//          cholesky(N11);
+//          triangularSolve(1., N11.trans(), N.slice(0, idxClocks, idxClocks, N11.rows()).trans());
+//          rankKUpdate(-1., N.slice(0, idxClocks, idxClocks, N11.rows()).trans(), N.slice(0, 0, idxClocks, idxClocks));
+//          N = N.slice(0, 0, idxClocks, idxClocks);
+//
+//          zeroMeanDesign = nullSpace(N, FALSE).trans(); // null space defines the constraint equations
+//        }
+//      }
+//    }
 
-    // calculate constraint equations (zero mean of signal biases)
-    // -----------------------------------------------------------
-    if(applyConstraint)
-    {
-      // parameter indices
-      UInt parameterCount = 0;
-      // indices of transmitter biases
-      idxBias.clear();
-      idxBias.resize(gnss->transmitters.size(), NULLINDEX);
-      for(auto para : parameter)
-        if(para && para->index)
-        {
-          idxBias.at(para->trans->idTrans()) = parameterCount;
-          parameterCount += para->Bias.columns();
-        }
-
-      if(parameterCount)
-      {
-        UInt idxClocks = parameterCount;
-        // indices of transmitter clocks
-        std::vector<UInt> idxClockTrans(gnss->transmitters.size(), NULLINDEX);
-        for(auto trans : gnss->transmitters)
-          if(trans->useable())
-            idxClockTrans.at(trans->idTrans()) = parameterCount++;
-        // indices of receiver clocks
-        std::vector<UInt> idxClockRecv(gnss->receivers.size(), NULLINDEX);
-        // TODO: fix this!!
-        //typesRecvTrans.clear();
-        //typesRecvTrans.resize(gnss->receivers.size());
-        //for(auto recv : gnss->receivers)
-        //  if(normalEquationInfo.estimateReceiver.at(recv->idRecv()))
-        //  {
-        //    const UInt idRecvOld = std::distance(typesRecvTrans.begin(), std::find(typesRecvTrans.begin(), typesRecvTrans.end(), gnss->typesRecvTrans.at(recv->idRecv())));
-        //    if(idRecvOld >= typesRecvTrans.size())
-        //    {
-        //      typesRecvTrans.at(recv->idRecv()) = gnss->typesRecvTrans.at(recv->idRecv());
-        //      idxClockRecv.at(recv->idRecv())   = parameterCount++;
-        //    }
-        //    else
-        //      idxClockRecv.at(recv->idRecv()) = idxClockRecv.at(idRecvOld);
-        //  }
-
-        // normals of pseudo observations
-        Matrix N(parameterCount, Matrix::SYMMETRIC);
-        for(auto recv : gnss->receivers)
-          if(recv->isMyRank() && normalEquationInfo.estimateReceiver.at(recv->idRecv()))
-            for(auto trans : gnss->transmitters)
-            {
-              // observation types
-              std::vector<GnssType> types;
-              for(GnssType type : gnss->typesRecvTrans.at(recv->idRecv()).at(trans->idTrans()))
-                if((type == GnssType::RANGE) && !type.isInList(types))
-                  types.push_back(type);
-              if(!types.size())
-                continue;
-
-              // transmitted types
-              std::vector<GnssType> typesTrans;
-              Matrix T;
-              recv->signalComposition(NULLINDEX/*idEpoch*/, types, typesTrans, T);
-
-              // design matrix
-              Matrix A(types.size(), parameterCount);
-              if(idxClockRecv.at(recv->idRecv()) != NULLINDEX)    // clock recv
-                for(UInt i=0; i<types.size(); i++)
-                  A(i, idxClockRecv.at(recv->idRecv())) = 1.;
-              if(idxClockTrans.at(trans->idTrans()) != NULLINDEX) // clock trans
-                for(UInt i=0; i<types.size(); i++)
-                  A(i, idxClockTrans.at(trans->idTrans())) = -1.;
-              if(idxBias.at(trans->idTrans()) != NULLINDEX)  // bias trans
-                for(UInt k=0; k<typesTrans.size(); k++)
-                  matMult(1., T.column(k), parameter.at(trans->idTrans())->Bias.row(GnssType::index(trans->signalBias.types, typesTrans.at(k))),
-                          A.column(idxBias.at(trans->idTrans()), parameter.at(trans->idTrans())->Bias.columns()));
-              // eliminate STEC
-              Vector STEC(types.size());
-              for(UInt i=0; i<types.size(); i++)
-                STEC(i) = types.at(i).ionosphericFactor();
-              eliminationParameter(STEC, {A});
-              rankKUpdate(1., A, N);
-            }
-        Parallel::reduceSum(N, 0, normalEquationInfo.comm);
-
-        if(Parallel::isMaster(normalEquationInfo.comm))
-        {
-          // add zero mean of clocks and eliminate clocks
-          Matrix N11 = N.slice(idxClocks, idxClocks, parameterCount-idxClocks, parameterCount-idxClocks);
-          for(UInt i=0; i<N11.rows(); i++)
-            if(N11(i,i) == 0)
-              N11(i,i) = 1.;
-          rankKUpdate(1., Matrix(1, N11.rows(), 1.), N11); // add zero mean
-          cholesky(N11);
-          triangularSolve(1., N11.trans(), N.slice(0, idxClocks, idxClocks, N11.rows()).trans());
-          rankKUpdate(-1., N.slice(0, idxClocks, idxClocks, N11.rows()).trans(), N.slice(0, 0, idxClocks, idxClocks));
-          N = N.slice(0, 0, idxClocks, idxClocks);
-
-          zeroMeanDesign = nullSpace(N, FALSE).trans(); // null space defines the constraint equations
-        }
-      }
-    }
   }
   catch(std::exception &e)
   {
@@ -280,7 +279,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
 }
 
 /***********************************************/
-
+// TODO: also add ISL receiver biases!!
 void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo, MatrixSliceRef x0) const
 {
   try
@@ -288,7 +287,7 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
     if(Parallel::isMaster(normalEquationInfo.comm))
       for(auto para : parameter)
         if(para && para->index)
-          copy(leastSquares(Matrix(para->Bias), Vector(para->trans->signalBias.biases)), x0.row(normalEquationInfo.index(para->index), para->Bias.columns()));
+          copy(leastSquares(Matrix(para->Bias), Vector(para->trans->signalBiasIslTx.biases)), x0.row(normalEquationInfo.index(para->index), para->Bias.columns()));
   }
   catch(std::exception &e)
   {
@@ -297,21 +296,30 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
 }
 
 /***********************************************/
-
+// TODO: properly handle transmitter and receiver biases for ISL!!
 void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
 {
   try
   {
-    auto parameter = this->parameter.at(eqn.transmitter->idTrans());
-    if(parameter && parameter->index)
+    logInfo << "GnssParametrizationIslBiases::designMatrixIsl() "
+            << "idRecv "  << eqn.receiver->idTrans()
+            <<" idTrans " << eqn.transmitter->idTrans()
+            <<Log::endl;
+
+    auto paraTrans = this->parameter.at(eqn.transmitter->idTrans());
+    if(paraTrans && paraTrans->index)
     {
-      UInt idx;
-      MatrixSlice Design(A.column(parameter->index));
-      // TODO: fix this!!
-      //for(UInt idType=0; idType<eqn.typesTransmitted.size(); idType++)
-      //  if((eqn.typesTransmitted.at(idType) == GnssType::RANGE) && eqn.typesTransmitted.at(idType).isInList(eqn.transmitter->signalBias.types, idx))
-      //   matMult(1., eqn.A.column(GnssObservationEquationIsl::idxUnit + eqn.types.size() + idType), parameter->Bias.row(idx), Design);
+      MatrixSlice Design(A.column(paraTrans->index));
+      matMult(1., eqn.A.column(GnssObservationEquationIsl::idxRange), paraTrans->Bias.row(0), Design);
     }
+
+    auto paraRecv = this->parameter.at(eqn.receiver->idTrans());
+    if(paraRecv && paraRecv->index)
+    {
+      MatrixSlice Design(A.column(paraRecv->index));
+      matMult(1., eqn.A.column(GnssObservationEquationIsl::idxRange), paraRecv->Bias.row(0), Design);
+    }
+
   }
   catch(std::exception &e)
   {
@@ -320,14 +328,14 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 }
 
 /***********************************************/
-
+// TODO: also add ISL receiver biases!!
 void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const
 {
   try
   {
     if(Parallel::isMaster(normalEquationInfo.comm) && applyConstraint)
     {
-      logStatus<<"apply "<<zeroMeanDesign.rows()<<" zero mean equations for code bias parameters"<<Log::endl;
+      logStatus<<"apply "<<zeroMeanDesign.rows()<<" zero mean equations for ISL bias parameters"<<Log::endl;
       if(zeroMeanDesign.size())
       {
         GnssDesignMatrix A(normalEquationInfo, Vector(zeroMeanDesign.rows()));
@@ -345,7 +353,7 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
 }
 
 /***********************************************/
-
+// TODO: also add ISL receiver biases!!
 Double GnssParametrizationIslBiases::updateParameter(const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef /*Wz*/)
 {
   try
@@ -357,10 +365,10 @@ Double GnssParametrizationIslBiases::updateParameter(const GnssNormalEquationInf
       {
         const Vector dBias = para->Bias * x.row(normalEquationInfo.index(para->index), para->Bias.columns());
         for(UInt idType=0; idType<dBias.size(); idType++)
-          para->trans->signalBias.biases.at(idType) += dBias(idType);
+          para->trans->signalBiasIslTx.biases.at(idType) += dBias(idType);
         for(UInt idType=0; idType<dBias.size(); idType++)
           if(infoTrans.update(1e3*dBias(idType)))
-            infoTrans.info = "ISL bias transmitter ("+para->trans->signalBias.types.at(idType).str()+")";
+            infoTrans.info = "ISL bias transmitter ("+para->trans->signalBiasIslTx.types.at(idType).str()+")";
       }
     infoTrans.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
 

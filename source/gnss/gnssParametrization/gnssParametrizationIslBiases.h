@@ -35,6 +35,7 @@ TODO!
 /** @brief Code biases.
 * @ingroup gnssParametrizationGroup
 * @see GnssParametrization */
+// TODO: properly handle transmitter and receiver biases for ISL!!
 class GnssParametrizationIslBiases : public GnssParametrizationBase
 {
   class Parameter
