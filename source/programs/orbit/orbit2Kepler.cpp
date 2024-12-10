@@ -34,6 +34,7 @@ The data of \configFile{inputfileInstrument}{instrument} are appended as values 
 
 #include "programs/program.h"
 #include "base/kepler.h"
+#include "base/equinoctial.h"
 #include "files/fileInstrument.h"
 
 /***** CLASS ***********************************/
@@ -57,11 +58,13 @@ void Orbit2Kepler::run(Config &config, Parallel::CommunicatorPtr comm)
     FileName              fileNameOut, fileNameOrbit;
     std::vector<FileName> fileNamesInstrument;
     Double                GM;
+    Bool                  useEquinoctial;
 
     readConfig(config, "outputfileKepler",    fileNameOut,         Config::MUSTSET,  "", "instrument file (MISCVALUES: Omega, i, omega [degree], a [m], e, M [degree], tau [mjd], ...)");
     readConfig(config, "inputfileOrbit",      fileNameOrbit,       Config::MUSTSET,  "", "position and velocity at each epoch define the kepler orbit");
     readConfig(config, "inputfileInstrument", fileNamesInstrument, Config::OPTIONAL, "", "data is appended");
     readConfig(config, "GM",                  GM,                  Config::DEFAULT,  STRING_DEFAULT_GM, "Geocentric gravitational constant");
+    readConfig(config, "EquinoctialParameters", useEquinoctial,    Config::DEFAULT,  "0", "false: classical Kepler elements, true: equinoctial elements");
     if(isCreateSchema(config)) return;
 
     // =======================
@@ -87,16 +90,30 @@ void Orbit2Kepler::run(Config &config, Parallel::CommunicatorPtr comm)
         if(orbit.at(i).velocity.r()==0)
           throw(Exception("no velocity given"));
 
-        const Kepler kepler(orbit.at(i).time, orbit.at(i).position, orbit.at(i).velocity, GM);
-        const Double M = (orbit.at(i).time-kepler.tau).seconds() * std::sqrt(GM/std::pow(kepler.a,3));
-
-        A(i, 1) = std::fmod(kepler.Omega+2*PI, 2*PI) * RAD2DEG;
-        A(i, 2) = kepler.i * RAD2DEG;
-        A(i, 3) = std::fmod(kepler.omega+2*PI, 2*PI) * RAD2DEG;
-        A(i, 4) = kepler.a;
-        A(i, 5) = kepler.e;
-        A(i, 6) = std::fmod(M+2*PI, 2*PI) * RAD2DEG;
-        A(i, 7) = kepler.tau.mjd();
+        if(useEquinoctial)
+        {
+          const Equinoctial kepler(orbit.at(i).time, orbit.at(i).position, orbit.at(i).velocity, GM);
+          const Double M = (orbit.at(i).time-kepler.tau).seconds() * std::sqrt(GM/std::pow(kepler.a,3));
+          A(i, 1) = std::fmod(kepler.h+2*PI, 2*PI) * RAD2DEG;
+          A(i, 2) = std::fmod(kepler.k+2*PI, 2*PI) * RAD2DEG;
+          A(i, 3) = std::fmod(kepler.p+2*PI, 2*PI) * RAD2DEG;
+          A(i, 4) = kepler.a;
+          A(i, 5) = std::fmod(kepler.q+2*PI, 2*PI) * RAD2DEG;
+          A(i, 6) = std::fmod(kepler.l0+2*PI, 2*PI) * RAD2DEG;
+          A(i, 7) = kepler.tau.mjd();
+        }
+        else
+        {
+          const Kepler kepler(orbit.at(i).time, orbit.at(i).position, orbit.at(i).velocity, GM);
+          const Double M = (orbit.at(i).time-kepler.tau).seconds() * std::sqrt(GM/std::pow(kepler.a,3));
+          A(i, 1) = std::fmod(kepler.Omega+2*PI, 2*PI) * RAD2DEG;
+          A(i, 2) = kepler.i * RAD2DEG;
+          A(i, 3) = std::fmod(kepler.omega+2*PI, 2*PI) * RAD2DEG;
+          A(i, 4) = kepler.a;
+          A(i, 5) = kepler.e;
+          A(i, 6) = std::fmod(M+2*PI, 2*PI) * RAD2DEG;
+          A(i, 7) = kepler.tau.mjd();
+        }
       }
 
       UInt idx = 8;
