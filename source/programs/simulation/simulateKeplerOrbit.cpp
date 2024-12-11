@@ -95,6 +95,8 @@ void SimulateKeplerOrbit::run(Config &config, Parallel::CommunicatorPtr /*comm*/
     logInfo<<"  inclination i  : "<<k.i*RAD2DEG<<" Degree"<<Log::endl;
     logInfo<<"  ascending node : "<<k.Omega*RAD2DEG<<" Degree"<<Log::endl;
     logInfo<<"  perigee        : "<<k.omega*RAD2DEG<<" Degree"<<Log::endl;
+    logInfo<<"  true anomaly   : "<<k.trueAnomaly(time0)*RAD2DEG<<" Degree"<<Log::endl;
+    logInfo<<"  arg of latitude: "<<(k.omega+k.trueAnomaly(time0))*RAD2DEG<<" Degree"<<Log::endl;
 
     // Computation
     // -----------
