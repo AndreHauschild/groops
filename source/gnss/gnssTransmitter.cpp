@@ -39,6 +39,24 @@ GnssObservationIsl *GnssTransmitter::observationIsl(UInt idTrans, UInt idEpoch) 
 
 /***********************************************/
 
+void GnssTransmitter::deleteObservationIsl(UInt idTrans, UInt idEpoch)
+{
+  try
+  {
+    if(!observationIsl(idTrans, idEpoch))
+      return;
+    observations_[idEpoch][idTrans] = nullptr;
+    if(std::all_of(observations_[idEpoch].begin(), observations_[idEpoch].end(), [](auto obs) {return obs == nullptr;}))
+      disable(idEpoch, "no valid epochs left");
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 // C1C  range
 // X1A  terminalSend
 // X1B  terminalRecv

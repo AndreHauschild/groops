@@ -291,6 +291,9 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
               for(const auto &recv : receivers)
                 if(recv->isMyRank() && recv->observation(trans->idTrans(), idEpoch))
                   recv->deleteObservation(trans->idTrans(), idEpoch);
+              for(const auto &recv : transmitters)
+                if(recv->observationIsl(trans->idTrans(), idEpoch))
+                  recv->deleteObservationIsl(trans->idTrans(), idEpoch);
             }
 
           UInt epochCount = 0;
@@ -303,9 +306,14 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
             trans->disable("not enough estimable epochs ("+epochCount%"%i)"s);
             mustSync = TRUE;
             for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
+            {
               for(const auto &recv : receivers)
                 if(recv->isMyRank() && recv->observation(trans->idTrans(), idEpoch))
                   recv->deleteObservation(trans->idTrans(), idEpoch);
+              for(const auto &recv : transmitters)
+                if(recv->observationIsl(trans->idTrans(), idEpoch))
+                  recv->deleteObservationIsl(trans->idTrans(), idEpoch);
+            }
           }
         }
 

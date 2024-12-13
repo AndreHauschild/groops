@@ -99,8 +99,11 @@ private:
   std::vector<std::vector<GnssObservationIsl*>> observations_; // observations at receiver (for each epoch, for each transmitter)
 
 public:
-  /** @brief All observations between receiver and transmitter at one epoch. */
+  /** @brief ISL observation between receiver and transmitter at one epoch. */
   GnssObservationIsl *observationIsl(UInt idTrans, UInt idEpoch) const;
+
+  /** @brief Delete ISL observation. */
+  void deleteObservationIsl(UInt idTrans, UInt idEpoch);
 
   /** @brief Max. observed epoch id+1. */
   UInt idEpochSize() const {return observations_.size();}
