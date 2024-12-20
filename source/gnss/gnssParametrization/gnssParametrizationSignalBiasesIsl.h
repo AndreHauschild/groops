@@ -17,20 +17,19 @@
 // Latex documentation
 #ifdef DOCSTRING_GnssParametrization
 static const char *docstringGnssParametrizationSignalBiasesIsl = R"(
-\subsection{SignalBiases}\label{gnssParametrizationType:signalBiases}
-Each code and phase observation (e.g \verb|C1C| or \verb|L2W|) contains a bias at transmitter/receiver level
+\subsection{SignalBiasesIsl}\label{gnssParametrizationType:signalBiasesIsl}
+Each inter-satellite-link observation contains a bias for ISL terminal of the transmitting and receiving satellite
 \begin{equation}
-  [\tau\nu a]_r^s(t) = \dots + \text{bias}[\tau\nu a]^s + \text{bias}[\tau\nu a]_r + \dots
+  [\tau\nu a]_r^s(t) = \dots + \text{bias}[\tau\nu a]^s + \text{bias}[\tau\nu a]^r + \dots
 \end{equation}
 This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.
 
 The \configFile{inputfileSignalBiasTransmitter/Receiver}{gnssSignalBias} are read
-for each receiver and transmitter. The file name is interpreted as a template with
-the variables \verb|{prn}| and \verb|{station}| being replaced by the name.
-(Infos regarding the variables \verb|{prn}| and \verb|{station}| can be found in
-\configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType} and
-\configClass{gnssReceiverGeneratorType}{gnssReceiverGeneratorType} respectively). The files can
-be converted with \program{GnssSinexBias2SignalBias}.
+for each satellite. The transmitter and receiver biases are stored in separate files.
+The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
+(Infos regarding the variable \verb|{prn}| can be found in
+\configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType}).
+The bias files must contain one bias with the C1C observation code.
 )";
 #endif
 
