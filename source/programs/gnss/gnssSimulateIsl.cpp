@@ -183,7 +183,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
           if(arc.size())
             InstrumentFile::write(fileNameIsl(fileNameVariableList), arc);
         } // for(recv)
-    } // if(fileNameReceiver)
+    } // if(fileNameIsl)
 
     // ============================
 
@@ -196,6 +196,10 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 
 /***********************************************/
 
+// C1C  range
+// X1A  terminalSend
+// X1B  terminalRecv
+// S1C  sigma, accuracy
 void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time> &times, const Time &timeMargin, GnssReceiverArc &scheduleIsl) const
 {
   try
@@ -207,7 +211,7 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
     // read data
     // ---------
     GnssReceiverArc arc;
-    std::string     line, prn_, cha_;
+    std::string     line, prn_, chaTx_,chaRx_;
     while(std::getline(file, line))
     {
       // skip comment lines
@@ -220,7 +224,7 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
       Time   time   = Time(mjdInt,mjdMod);
 
       std::stringstream ss(line.substr(27));
-      ss>>prn_>>cha_;
+      ss>>prn_>>chaTx_>>chaRx_;
 
       if(arc.size() && (time<arc.back().time))
         throw(Exception("epochs not in increasing order"));
@@ -233,7 +237,10 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
       }
       arc.back().satellite.push_back(GnssType("***"+prn_));
       arc.back().obsType.push_back(GnssType("X1A"+prn_));
-      arc.back().observation.push_back(String::toDouble(cha_));
+      arc.back().observation.push_back(String::toDouble(chaTx_));
+      arc.back().obsType.push_back(GnssType("X1B"+prn_));
+      arc.back().observation.push_back(String::toDouble(chaRx_));
+
     }
     if(!arc.size())
       return;
