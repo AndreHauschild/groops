@@ -37,7 +37,7 @@ Each step is processed consecutively. Some steps allow the selection of paramete
 or the normal equation structure, which affects all subsequent steps.
 A minimal example consists of following steps:
 \begin{itemize}
-  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downeighting
+  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downweighting
   \item \configClass{resolveAmbiguities}{gnssProcessingStepType:resolveAmbiguities}:
         fix ambiguities to integer and remove them from the normals
   \item \configClass{estimate}{gnssProcessingStepType:estimate}: few iteration for final outlier downweighting
@@ -160,7 +160,6 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     Parallel::reduceSum(countTracks, 0, comm);
     logInfo<<"  number of tracks: "<<countTracks<<Log::endl;
 
-
     // inter satellite links
     // ---------------------
     VariableList fileNameVariableList;
@@ -168,7 +167,7 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     if(!fileNameObsIsl(fileNameVariableList).empty())
     {
       Parallel::barrier(comm);
-      logStatus<<"read inter satellite links"<<Log::endl;
+      logStatus<<"read inter satellite link observations"<<Log::endl;
       Log::Timer timer(gnss->transmitters.size());
       for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
         if(idTrans%Parallel::size(comm) == Parallel::myRank(comm)) // distribute to nodes
@@ -188,6 +187,7 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
       Parallel::barrier(comm);
       timer.loopEnd();
     }
+    gnss->synchronizeTransceiversIsl(comm);
 
     // Processing steps
     // ----------------

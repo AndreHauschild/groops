@@ -111,7 +111,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
       recv->simulateObservationsIsl(noiseObs,gnss.transmitters,times,scheduleIsl,gnss.funcReduceModelsIsl);
 
     }
-    //gnss.synchronizeTransceivers(comm); // TODO: manipulates signal biases...is this necessary?
+    gnss.synchronizeTransceiversIsl(comm);
     logInfo<<"  transmitter: "<<std::count_if(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto t) {return t->useable();})<<Log::endl;
     if(!std::any_of(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto trans){return trans->useable();}))
     {

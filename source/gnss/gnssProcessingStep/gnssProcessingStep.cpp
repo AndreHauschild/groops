@@ -339,20 +339,21 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
 
       // inter satellite links
       // ---------------------
-      for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
-      {
-        // all observation equations for this epoch
-        GnssObservationEquationIsl eqn;
-        for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+      if(!constraintsOnly)
+        for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
         {
-          if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
+          // all observation equations for this epoch
+          GnssObservationEquationIsl eqn;
+          for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
           {
-            A.init(eqn.l);
-            gnss->designMatrixIsl(normalEquationInfo, eqn, A);
-            A.accumulateNormals(normals, n, lPl(0), obsCount);
+            if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
+            {
+              A.init(eqn.l);
+              gnss->designMatrixIsl(normalEquationInfo, eqn, A);
+              A.accumulateNormals(normals, n, lPl(0), obsCount);
+            }
           }
         }
-      }
 
       // perform following steps not every epoch
       blockCount += normalEquationInfo.blockCountEpoch(idEpoch);

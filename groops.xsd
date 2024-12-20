@@ -1976,6 +1976,7 @@
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="selectTransmitters" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectReceivers" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
 						<xs:element name="nameConstraint" type="string" minOccurs="0" default="constraint.islBiases">
 							<xs:annotation>
 								<xs:documentation>used for parameter selection</xs:documentation>

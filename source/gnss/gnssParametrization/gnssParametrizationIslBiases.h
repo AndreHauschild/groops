@@ -43,16 +43,15 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   public:
     GnssTransmitterPtr trans;
     GnssParameterIndex index;
-    Matrix             Bias;
   };
 
   Gnss                      *gnss;
   std::string                name, nameConstraint;
-  PlatformSelectorPtr        selectTransmitters;
+  PlatformSelectorPtr        selectTransmitters, selectReceivers;
   Bool                       applyConstraint;
   Double                     sigmaZeroMean;
-  std::vector<Parameter*>    parameter;
-  std::vector<UInt>          idxBias;        // indices in zeroMean matrix
+  std::vector<Parameter*>    paraTrans, paraRecv;
+  std::vector<UInt>          idxBiasTrans, idxBiasRecv; // indices in zeroMean matrix
   Matrix                     zeroMeanDesign; // zero mean observation equations
 
 public:
@@ -60,7 +59,6 @@ public:
  ~GnssParametrizationIslBiases();
 
   void   init(Gnss *gnss, Parallel::CommunicatorPtr comm) override;
-//void   observationCorrections(GnssObservationEquationIsl &eqn) const override;
   void   initParameter(GnssNormalEquationInfo &normalEquationInfo) override;
   void   aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo, MatrixSliceRef x0) const override;
   void   designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const override;

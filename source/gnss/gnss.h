@@ -68,7 +68,8 @@ public:
             EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm);
 
   Rotary3d rotationCrf2Trf(const Time &time) const; // Inertial system (CRF) -> earth fixed system (TRF).
-  void     synchronizeTransceivers(Parallel::CommunicatorPtr comm);
+  void     synchronizeTransceivers   (Parallel::CommunicatorPtr comm);
+  void     synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm);
 
   void   initParameter               (GnssNormalEquationInfo &normalEquationInfo);
   Vector aprioriParameter            (const GnssNormalEquationInfo &normalEquationInfo) const;
