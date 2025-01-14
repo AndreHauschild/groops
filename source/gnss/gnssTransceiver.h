@@ -258,12 +258,14 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 }
 
 /***********************************************/
-// TODO: add save/load for ISL biases?
+
 inline void GnssTransceiver::save(OutArchive &oa) const
 {
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
+  oa<<nameValue("signalBiasIslRx",    signalBiasIslRx);
+  oa<<nameValue("signalBiasIslTx",    signalBiasIslTx);
 }
 
 /***********************************************/
@@ -273,6 +275,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
+  ia>>nameValue("signalBiasIslRx",    signalBiasIslRx);
+  ia>>nameValue("signalBiasIslTx",    signalBiasIslTx);
 }
 
 /***********************************************/
