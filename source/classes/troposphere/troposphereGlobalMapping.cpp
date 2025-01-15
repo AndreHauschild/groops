@@ -36,7 +36,7 @@ TroposphereGlobalMapping::TroposphereGlobalMapping(Config &config)
 
 /***********************************************/
 
-void TroposphereGlobalMapping::init(const std::vector<Vector3d> &stationPositions)
+void TroposphereGlobalMapping::init(const std::vector<std::string> &/*stationNames*/, const std::vector<Vector3d> &stationPositions)
 {
   try
   {
@@ -221,17 +221,17 @@ void TroposphereGlobalMapping::init(const std::vector<Vector3d> &stationPosition
 
 /***********************************************/
 
-Double TroposphereGlobalMapping::slantDelay(const Time &time, UInt stationId, Angle azimuth, Angle elevation) const
+Double TroposphereGlobalMapping::slantDelay(UInt stationId, const Time &time, Double /*frequency*/, Angle azimuth, Angle elevation) const
 {
   try
   {
     computeEmpiricalCoefficients(time);
 
     const Double sinE = std::sin(elevation);
-    const Double gmfh = mappingFunctionHydrostatic(time, stationId, azimuth, elevation);
-    const Double gmfw = mappingFunctionWet(time, stationId, azimuth, elevation);
-    const Double mfgh = 1. / (sinE*std::tan(elevation) + 0.0031); // hydrostatic gradient mapping function [Chen and Herring, 1997]
-    const Double mfgw = 1. / (sinE*std::tan(elevation) + 0.0007); // wet -"-
+    const Double gmfh = mappingFunctionHydrostatic(stationId, time, 0.0,azimuth, elevation);
+    const Double gmfw = mappingFunctionWet(stationId, time, 0.0, azimuth, elevation);
+    const Double mfgh = 0. / (sinE*std::tan(elevation) + 0.0031); // hydrostatic gradient mapping function [Chen and Herring, 1997]
+    const Double mfgw = 0. / (sinE*std::tan(elevation) + 0.0007); // wet -"-
 
     return gmfh*zhd(stationId) + gmfw*zwd(stationId)
         + (mfgh*gnh(stationId) + mfgw*gnw(stationId)) * std::cos(azimuth)
@@ -245,7 +245,7 @@ Double TroposphereGlobalMapping::slantDelay(const Time &time, UInt stationId, An
 
 /***********************************************/
 
-Double TroposphereGlobalMapping::mappingFunctionHydrostatic(const Time &time, UInt stationId, Angle /*azimuth*/, Angle elevation) const
+Double TroposphereGlobalMapping::mappingFunctionHydrostatic(UInt stationId, const Time &time, Double /*frequency*/, Angle azimuth, Angle elevation) const
 {
   try
   {
@@ -270,7 +270,7 @@ Double TroposphereGlobalMapping::mappingFunctionHydrostatic(const Time &time, UI
     topcon = (1 + a_ht/(1 + b_ht/(1 + c_ht)));
     Double ht_corr_coef = 1/sine - topcon/(sine + gamma);
 
-    return gmfh + ht_corr_coef * hs_km;;
+    return gmfh + ht_corr_coef * hs_km;
 
   }
   catch(std::exception &e)
@@ -281,7 +281,7 @@ Double TroposphereGlobalMapping::mappingFunctionHydrostatic(const Time &time, UI
 
 /***********************************************/
 
-Double TroposphereGlobalMapping::mappingFunctionWet(const Time &time, UInt stationId, Angle /*azimuth*/, Angle elevation) const
+Double TroposphereGlobalMapping::mappingFunctionWet(UInt stationId, const Time &time, Double /*frequency*/, Angle azimuth, Angle elevation) const
 {
   try
   {
@@ -306,7 +306,7 @@ Double TroposphereGlobalMapping::mappingFunctionWet(const Time &time, UInt stati
 
 /***********************************************/
 
-void TroposphereGlobalMapping::mappingFunctionGradient(const Time &/*time*/, UInt /*stationId*/, Angle azimuth, Angle elevation, Double &dx, Double &dy) const
+void TroposphereGlobalMapping::mappingFunctionGradient(UInt stationId, const Time &time, Double /*frequency*/, Angle azimuth, Angle elevation, Double &dx, Double &dy) const
 {
   try
   {
@@ -322,7 +322,7 @@ void TroposphereGlobalMapping::mappingFunctionGradient(const Time &/*time*/, UIn
 
 /***********************************************/
 
-void TroposphereGlobalMapping::getAprioriValues(const Time &time, UInt stationId, Double &zenithDryDelay, Double &zenithWetDelay,
+void TroposphereGlobalMapping::getAprioriValues(UInt stationId, const Time &time, Double /*frequency*/, Double &zenithDryDelay, Double &zenithWetDelay,
                                                 Double &gradientDryNorth, Double &gradientWetNorth, Double &gradientDryEast, Double &gradientWetEast,
                                                 Double &aDry, Double &aWet) const
 {

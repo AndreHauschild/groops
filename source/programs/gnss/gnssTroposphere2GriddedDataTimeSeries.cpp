@@ -75,8 +75,9 @@ void GnssTroposphere2GriddedDataTimeSeries::run(Config &config, Parallel::Commun
 
     // create station position and init troposphere
     Ellipsoid trfEll(a, f);
+    std::vector<std::string> stationNames(1, "???");
     std::vector<Vector3d> stationPositions(1, trfEll(stationLongitude, stationLatitude, stationHeight));
-    troposphere->init(stationPositions);
+    troposphere->init(stationNames,stationPositions);
 
     // set up evaluation grid (time, elevation, azimuth)
     std::vector<Time> times = timeSeries->times();
@@ -104,10 +105,10 @@ void GnssTroposphere2GriddedDataTimeSeries::run(Config &config, Parallel::Commun
       {
         for(const Angle& az : azimuth)
         {
-          newData(pointIdx, 0) = troposphere->slantDelay(time, stationId, az, el);
-          newData(pointIdx, 1) = troposphere->mappingFunctionWet(time, stationId, az, el);
-          newData(pointIdx, 2) = troposphere->mappingFunctionHydrostatic(time, stationId, az, el);
-          troposphere->mappingFunctionGradient(time, stationId, az, el, newData(pointIdx, 3), newData(pointIdx, 4));
+          newData(pointIdx, 0) = troposphere->slantDelay(stationId, time, 0.0, az, el);
+          newData(pointIdx, 1) = troposphere->mappingFunctionWet(stationId, time, 0.0, az, el);
+          newData(pointIdx, 2) = troposphere->mappingFunctionHydrostatic(stationId, time, 0.0, az, el);
+          troposphere->mappingFunctionGradient(stationId, time, 0.0, az, el, newData(pointIdx, 3), newData(pointIdx, 4));
 
           if(grid.points.size() < newData.rows())
           {

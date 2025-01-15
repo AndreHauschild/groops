@@ -10788,6 +10788,35 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="globalMapping">
+				<xs:annotation>
+					<xs:documentation>Global Mapping Function</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="inputfileGpt" type="filename" default="{groopsDataDir}/troposphere/gpt3_grid1deg.dat">
+							<xs:annotation>
+								<xs:documentation>gridded GPT data</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="aHeight" type="double" minOccurs="0" default="2.53e-5">
+							<xs:annotation>
+								<xs:documentation>parameter a (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="bHeight" type="double" minOccurs="0" default="5.49e-3">
+							<xs:annotation>
+								<xs:documentation>parameter b (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="cHeight" type="double" minOccurs="0" default="1.14e-3">
+							<xs:annotation>
+								<xs:documentation>parameter c (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="programType">
@@ -12284,6 +12313,86 @@
 									<xs:element name="timeEnd" type="time" minOccurs="0"/>
 								</xs:sequence>
 							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GnssTroposphere2GriddedDataTimeSeries">
+				<xs:annotation>
+					<xs:documentation>Evaluate a troposphere class by computing slant delays and mapping function values.</xs:documentation>
+					<xs:appinfo>tag: Gnss</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileGriddedDataTimeSeries" type="filename">
+							<xs:annotation>
+								<xs:documentation>output file name for the gridded data time series</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="troposphere" type="troposphereType">
+							<xs:annotation>
+								<xs:documentation>troposphere class to be evaluated</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeSeries" type="timeSeriesType" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>time series at which the troposphere class is evaluated</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="stationLongitude" type="angle">
+							<xs:annotation>
+								<xs:documentation>station longitude in degrees</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="stationLatitude" type="angle">
+							<xs:annotation>
+								<xs:documentation>station latitude in degrees</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="stationHeight" type="double">
+							<xs:annotation>
+								<xs:documentation>station height in meters</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="elevationMin" type="angle" minOccurs="0" default="0.5">
+							<xs:annotation>
+								<xs:documentation>minimum elevation (degrees) at which the troposphere class is evaluated</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="elevationMax" type="angle" minOccurs="0" default="89.5">
+							<xs:annotation>
+								<xs:documentation>maximum elevation (degrees) at which the troposphere class is evaluated</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="elevationSampling" type="angle" minOccurs="0" default="1">
+							<xs:annotation>
+								<xs:documentation>elevation sampling (degrees)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="azimuthMin" type="angle" minOccurs="0" default="-179.5">
+							<xs:annotation>
+								<xs:documentation>minimum azimuth (degrees) at which the troposphere class is evaluated</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="azimuthMax" type="angle" minOccurs="0" default="179.5">
+							<xs:annotation>
+								<xs:documentation>maximum azimuth (degrees) at which the troposphere class is evaluated</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="azimuthSampling" type="angle" minOccurs="0" default="1">
+							<xs:annotation>
+								<xs:documentation>elevation sampling (degrees)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="R" type="double" minOccurs="0" default="6378137.0">
+							<xs:annotation>
+								<xs:documentation>reference radius for ellipsoidal coordinates</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inverseFlattening" type="double" minOccurs="0" default="298.2572221010">
+							<xs:annotation>
+								<xs:documentation>reference flattening for ellipsoidal coordinates</xs:documentation>
+							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
