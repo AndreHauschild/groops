@@ -230,8 +230,8 @@ Double TroposphereGlobalMapping::slantDelay(UInt stationId, const Time &time, Do
     const Double sinE = std::sin(elevation);
     const Double gmfh = mappingFunctionHydrostatic(stationId, time, 0.0,azimuth, elevation);
     const Double gmfw = mappingFunctionWet(stationId, time, 0.0, azimuth, elevation);
-    const Double mfgh = 0. / (sinE*std::tan(elevation) + 0.0031); // hydrostatic gradient mapping function [Chen and Herring, 1997]
-    const Double mfgw = 0. / (sinE*std::tan(elevation) + 0.0007); // wet -"-
+    const Double mfgh = 1. / (sinE*std::tan(elevation) + 0.0031); // hydrostatic gradient mapping function [Chen and Herring, 1997]
+    const Double mfgw = 1. / (sinE*std::tan(elevation) + 0.0007); // wet -"-
 
     return gmfh*zhd(stationId) + gmfw*zwd(stationId)
         + (mfgh*gnh(stationId) + mfgw*gnw(stationId)) * std::cos(azimuth)
