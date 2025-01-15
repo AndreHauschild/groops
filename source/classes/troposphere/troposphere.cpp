@@ -17,6 +17,7 @@
 #include "files/fileGriddedData.h"
 #include "troposphereGpt.h"
 #include "troposphereMendesAndPavlis.h"
+#include "troposphereGlobalMapping.h"
 #include "troposphereViennaMapping.h"
 #include "troposphere.h"
 
@@ -45,6 +46,8 @@ TropospherePtr Troposphere::create(Config &config, const std::string &name)
       troposphere = TropospherePtr(new TroposphereGpt(config));
     if(readConfigChoiceElement(config, "mendesAndPavlis", type, "SLR troposphere model by Mendes and Pavlis, 2004"))
       troposphere = TropospherePtr(new TroposphereMendesAndPavlis(config));
+    if(readConfigChoiceElement(config, "globalMapping",           type, "Global Mapping Function"))
+      troposphere = TropospherePtr(new TroposphereGlobalMapping(config));
     endChoice(config);
 
     return troposphere;
