@@ -150,7 +150,6 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
 {
   try
   {
-    logInfo<<"aprioriParameter() "<<this->Name()<<Log::endl;
     if(Parallel::isMaster(normalEquationInfo.comm))
       for(auto para : paraTrans)
         if(para && para->index)
