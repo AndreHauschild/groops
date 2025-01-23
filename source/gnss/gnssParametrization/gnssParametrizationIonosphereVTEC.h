@@ -71,9 +71,8 @@ class GnssParametrizationIonosphereVTEC : public GnssParametrizationBase
   std::vector<Vector>                          xGradient;
   std::vector<std::vector<Double>>             gradientX, gradientY;
 
-  Vector3d intersection(const Double radiusIono, const Vector3d &posRecv, const Vector3d &posTrans) const;
-  Double   mapping(Angle elevation) const;
-  void     mappingGradient(const GnssObservationEquation &eqn, Double &dx, Double &dy) const;
+  Double mapping(Angle elevation) const;
+  void   mappingGradient(const GnssObservationEquation &eqn, Double &dx, Double &dy) const;
 
 public:
   GnssParametrizationIonosphereVTEC(Config &config);

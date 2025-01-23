@@ -93,6 +93,8 @@ void GnssParametrizationIonosphereVTEC::initParameter(GnssNormalEquationInfo &no
       if(recv->useable() && normalEquationInfo.estimateReceiver.at(idRecv) && selectedReceivers.at(idRecv))
       {
         index.at(idRecv).resize(gnss->times.size());
+        if(recv->isMyRank())
+          VTEC.at(idRecv).resize(gnss->times.size(), 0);
         for(UInt idEpoch : normalEquationInfo.idEpochs)
           if(recv->useable(idEpoch))
           {
@@ -158,24 +160,6 @@ void GnssParametrizationIonosphereVTEC::aprioriParameter(const GnssNormalEquatio
 Double GnssParametrizationIonosphereVTEC::mapping(Angle elevation) const
 {
   return 1./std::cos(std::asin(mapR/(mapR+mapH) * std::sin(mapAlpha*(PI/2-elevation))));
-}
-
-/***********************************************/
-
-// intersection point in ionosphere height
-Vector3d GnssParametrizationIonosphereVTEC::intersection(const Double radiusIono, const Vector3d &posRecv, const Vector3d &posTrans) const
-{
-  try
-  {
-    const Double   rRecv = std::min(posRecv.r(), radiusIono); // LEO satellites flying possibly higher
-    const Vector3d k     = normalize(posRecv-posTrans);       // direction from transmitter
-    const Double   rk    = inner(posRecv, k);
-    return posRecv - (std::sqrt(rk*rk+radiusIono*radiusIono-rRecv*rRecv)+rk) * k;
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
 }
 
 /***********************************************/
