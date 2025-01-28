@@ -56,6 +56,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     TimeSeriesPtr               timeSeries;
     Double                      marginSeconds;
     GnssTransmitterGeneratorPtr transmitterGenerator;
+    GnssReceiverGeneratorPtr    receiverGenerator;
     GnssParametrizationPtr      gnssParametrization;
     EarthRotationPtr            earthRotation;
     NoiseGeneratorPtr           noiseObs;
@@ -77,7 +78,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     logInfo<<"Init GNSS"<<Log::endl;
     std::vector<Time> times = timeSeries->times();
     Gnss gnss;
-    gnss.init(times, seconds2time(marginSeconds), transmitterGenerator, earthRotation, gnssParametrization, comm);
+    gnss.init(times, seconds2time(marginSeconds), transmitterGenerator, receiverGenerator, earthRotation, gnssParametrization, comm);
 
     // inter satellite links
     // ---------------------

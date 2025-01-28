@@ -54,9 +54,12 @@ void Gnss::init(const std::vector<Time> &times, const Time &timeMargin,
 
     // init receivers
     // --------------
-    receivers = receiverGenerator->receivers(times, timeMargin, transmitters, earthRotation, comm);
-    for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
-      receivers.at(idRecv)->id_ = idRecv;
+    if(receiverGenerator)
+    {
+      receivers = receiverGenerator->receivers(times, timeMargin, transmitters, earthRotation, comm);
+      for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
+        receivers.at(idRecv)->id_ = idRecv;
+    }
     synchronizeTransceivers(comm);
     synchronizeTransceiversIsl(comm);
 
@@ -67,54 +70,6 @@ void Gnss::init(const std::vector<Time> &times, const Time &timeMargin,
     {
       parametrization->init(this, comm);
       funcReduceModels    = std::bind(&GnssParametrization::observationCorrections,    parametrization, std::placeholders::_1);
-      funcReduceModelsIsl = std::bind(&GnssParametrization::observationCorrectionsIsl, parametrization, std::placeholders::_1);
-    }
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-/* NOTE: this is really only needed for the simulation of ISLs, where there are
- *       no receivers...
- */
-
-void Gnss::init(const std::vector<Time> &times, const Time &timeMargin,
-                GnssTransmitterGeneratorPtr transmitterGenerator,
-                EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm)
-{
-  try
-  {
-    this->times = times;
-
-    // init earth rotation
-    // -------------------
-    eop = Matrix(times.size(), 8); // Matrix eop columns: xp, yp, sp, deltaUT, LOD, X, Y, S
-    for(UInt i=0; i<times.size(); i++)
-      earthRotation->earthOrientationParameter(times.at(i), eop(i,0), eop(i,1), eop(i,2), eop(i,3), eop(i,4), eop(i,5), eop(i,6), eop(i,7));
-    // UT1-UTC => UT1-GPS (avoid leap seconds jumps for interpolation)
-    for(UInt i=0; i<times.size(); i++)
-      eop(i,3) -= (times.at(i)-timeGPS2UTC(times.at(i))).seconds();
-
-    funcRotationCrf2Trf = std::bind(&Gnss::rotationCrf2Trf, this, std::placeholders::_1);
-
-    // init transmitters
-    // -----------------
-    transmitters = transmitterGenerator->transmitters(times);
-    for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
-      transmitters.at(idTrans)->id_ = idTrans;
-    //synchronizeTransceivers(comm);
-    synchronizeTransceiversIsl(comm);
-
-    // init parametrization
-    // --------------------
-    this->parametrization = parametrization;
-    if(parametrization)
-    {
-      parametrization->init(this, comm);
-      //funcReduceModels    = std::bind(&GnssParametrization::observationCorrections,    parametrization, std::placeholders::_1);
       funcReduceModelsIsl = std::bind(&GnssParametrization::observationCorrectionsIsl, parametrization, std::placeholders::_1);
     }
   }
