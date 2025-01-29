@@ -330,9 +330,10 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           for(const auto &recv : transmitters)
             if(trans->idTrans()!=recv->idTrans())
               for(UInt idEpoch : normalEquationInfo.idEpochs)
-                if(trans->useable(idEpoch) && recv->useable(idEpoch) && recv->observationIsl(trans->idTrans(), idEpoch))
+                if(trans->useable(idEpoch) && recv->useable(idEpoch) &&
+                    (recv->observationIsl(trans->idTrans(), idEpoch) ||
+                     trans->observationIsl(recv->idTrans(), idEpoch)))
                   countEpoch(idEpoch)++;
-
           Parallel::reduceSum(countEpoch, 0, normalEquationInfo.comm);
           Parallel::broadCast(countEpoch, 0, normalEquationInfo.comm);
 
