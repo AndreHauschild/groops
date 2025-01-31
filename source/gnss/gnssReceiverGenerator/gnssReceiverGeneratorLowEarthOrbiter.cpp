@@ -143,6 +143,11 @@ void GnssReceiverGeneratorLowEarthOrbiter::init(const std::vector<Time> &times, 
           Arc::checkSynchronized({orbit, clock});
         }
 
+        // FIXME: time series and orbit must have the same sampling!!
+        // ----------------------------------------------------------
+        if (medianSampling(times) - medianSampling(orbit.times())>timeMargin)
+          recv->disable("Mismatch of sampling rates for observation and orbit/attitude!");
+
         UInt idEpoch = 0;
         for(UInt i=0; i<orbit.size(); i++)
         {
@@ -150,6 +155,7 @@ void GnssReceiverGeneratorLowEarthOrbiter::init(const std::vector<Time> &times, 
             recv->disable(idEpoch++, "due to missing orbit/attitude/clock data");
           if(idEpoch >= times.size())
             break;
+          // FIXME: wrong epochs are disabled here!
           if(times.at(idEpoch) > orbit.at(i).time+timeMargin)
           {
             recv->disable(idEpoch, "due to missing orbit/attitude/clock data");
