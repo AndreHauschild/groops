@@ -2979,6 +2979,11 @@
 								<xs:documentation>satellite attitude</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="inputfileClock" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>satellite clock offset</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="sigmaFactorPhase" type="expression" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>PHASE: factor = f(FREQ, ELE, SNR, ROTI, dTEc, IONOINDEX)</xs:documentation>
