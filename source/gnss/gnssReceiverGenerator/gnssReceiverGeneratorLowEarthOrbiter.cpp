@@ -200,9 +200,6 @@ void GnssReceiverGeneratorLowEarthOrbiter::preprocessing(Gnss *gnss, Parallel::C
 {
   try
   {
-    if(fileNameObs.empty())
-      return;
-
     logStatus<<"init observations"<<Log::endl;
     if(recv->isMyRank())
     {
