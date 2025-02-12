@@ -1545,7 +1545,7 @@
 	</xs:complexType>
 	<xs:complexType name="gnssParametrizationType">
 		<xs:annotation>
-			<xs:documentation>parametrization of GNSS observations</xs:documentation>
+			<xs:documentation>parametrization of GNSS/ISL observations</xs:documentation>
 		</xs:annotation>
 		<xs:choice>
 			<xs:element name="ionosphereSTEC">
@@ -1590,7 +1590,7 @@
 			</xs:element>
 			<xs:element name="ionosphereVTEC">
 				<xs:annotation>
-					<xs:documentation>ionospheric verical delays</xs:documentation>
+					<xs:documentation>ionospheric vertical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -1621,7 +1621,7 @@
 			</xs:element>
 			<xs:element name="ionosphereMap">
 				<xs:annotation>
-					<xs:documentation>ionospheric verical delays</xs:documentation>
+					<xs:documentation>ionospheric vertical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -1966,7 +1966,7 @@
 			</xs:element>
 			<xs:element name="islBiases">
 				<xs:annotation>
-					<xs:documentation>biases of inter satellite links</xs:documentation>
+					<xs:documentation>biases of inter-satellite link signals</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -1982,9 +1982,11 @@
 								<xs:documentation>used for parameter selection</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="selectTransmittersZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectReceiversZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded"/>
 						<xs:element name="sigmaZeroMeanConstraint" type="double" minOccurs="0" default="0.0001">
 							<xs:annotation>
-								<xs:documentation>(0 = unconstrained) sigma [m] for null space constraint</xs:documentation>
+								<xs:documentation>(0 = unconstrained) sigma [m] for constraint over all selected biases</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>

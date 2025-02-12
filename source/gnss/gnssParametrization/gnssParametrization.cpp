@@ -73,13 +73,13 @@ GnssParametrization::GnssParametrization(Config &config, const std::string &name
   try
   {
     std::string type;
-    while(readConfigChoice(config, name, type, Config::OPTIONAL, "", "parametrization of GNSS observations"))
+    while(readConfigChoice(config, name, type, Config::OPTIONAL, "", "parametrization of GNSS/ISL observations"))
     {
       if(readConfigChoiceElement(config, "ionosphereSTEC",           type, "ionospheric slant delays"))
         base.push_back(new GnssParametrizationIonosphereSTEC(config));
-      if(readConfigChoiceElement(config, "ionosphereVTEC",           type, "ionospheric verical delays"))
+      if(readConfigChoiceElement(config, "ionosphereVTEC",           type, "ionospheric vertical delays"))
         base.push_back(new GnssParametrizationIonosphereVTEC(config));
-      if(readConfigChoiceElement(config, "ionosphereMap",            type, "ionospheric verical delays"))
+      if(readConfigChoiceElement(config, "ionosphereMap",            type, "ionospheric vertical delays"))
         base.push_back(new GnssParametrizationIonosphereMap(config));
       if(readConfigChoiceElement(config, "clocks",                   type, "clock errors"))
         base.push_back(new GnssParametrizationClocks(config));
@@ -97,7 +97,7 @@ GnssParametrization::GnssParametrization(Config &config, const std::string &name
         base.push_back(new GnssParametrizationTecBiases(config));
       if(readConfigChoiceElement(config, "temporalBias",             type, "temporal changing signal bias"))
         base.push_back(new GnssParametrizationTemporalBias(config));
-      if(readConfigChoiceElement(config, "islBiases",                type, "biases of inter satellite links"))
+      if(readConfigChoiceElement(config, "islBiases",                type, "biases of inter-satellite link signals"))
         base.push_back(new GnssParametrizationIslBiases(config));
       if(readConfigChoiceElement(config, "staticPositions",          type, "static positions with no-net constraints"))
         base.push_back(new GnssParametrizationStaticPositions(config));
