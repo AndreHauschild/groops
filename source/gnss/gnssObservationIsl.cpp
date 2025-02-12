@@ -128,20 +128,12 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
       A(i, idxRange)      =  1.0;                    // range correction (???, ...)
     }  // for(i=0..obsCount)
 
-    // ISL observation code for antenna correction and biases
-    // TODO: avoid using observation types here!
-    // ------------------------------------------------------
-    std::vector<GnssType> types;
-    types.resize(obsCount);
-    types.at(0) = GnssType("C1C***");
-
     // antenna correction and other corrections
-    // TODO: try adding a separate class for ISL terminal as antenna!
     // ----------------------------------------
-    l -= receiver->islTerminalVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt, types);
-    l -= receiver->signalBiasesIslRx(types);
-    l -= transmitter->islTerminalVariations(timeTrans, azimutTrans, elevationTrans, types);
-    l -= transmitter->signalBiasesIslTx(types);
+    l -= receiver->islTerminalVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt);
+    l -= receiver->signalBiasesIslRx();
+    l -= transmitter->islTerminalVariations(timeTrans, azimutTrans, elevationTrans);
+    l -= transmitter->signalBiasesIslTx();
     if(reduceModels)
       reduceModels(*this);
 
