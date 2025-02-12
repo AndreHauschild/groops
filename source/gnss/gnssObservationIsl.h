@@ -45,7 +45,7 @@ public:
 /***** CLASS ***********************************/
 
 /** @brief Reduced observations (obs - computed) and design matrix.
-* Between one receiver and one transmitter at one epoch. */
+* Between one receiver and one transmitter terminal at one epoch. */
 class GnssObservationEquationIsl
 {
 public:
@@ -66,7 +66,7 @@ public:
   Vector sigma0;
 
   // design matrix
-  Matrix A;      ///< columns: dl/dx, dl/dy, dl/dz, dl/dClock, unit matrix, transformation matrix (typesTransmitter->types)
+  Matrix A;      ///< columns: dl/dx, dl/dy, dl/dz, dl/dClock, unit matrix
 
   // approximate values (Taylor point)
   Time     timeRecv, timeTrans;
