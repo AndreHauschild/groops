@@ -60,8 +60,8 @@ void GnssParametrizationSignalBiasesIsl::init(Gnss *gnss, Parallel::Communicator
           }
           catch(std::exception &/*e*/)
           {
-            logWarningOnce<<"Unable to read ISL transmitter signal bias file <"<<fileNameInTransmitter(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
-            gnss->transmitters.at(idTrans)->disable("Unable to read signal bias file <"+fileNameInTransmitter(fileNameVariableList).str()+">");
+            logWarningOnce<<"Unable to read send ISL terminal bias file <"<<fileNameInTransmitter(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
+            gnss->transmitters.at(idTrans)->disable("Unable to read ISL bias file <"+fileNameInTransmitter(fileNameVariableList).str()+">");
           }
         }
     }
@@ -80,8 +80,8 @@ void GnssParametrizationSignalBiasesIsl::init(Gnss *gnss, Parallel::Communicator
           }
           catch(std::exception &/*e*/)
           {
-            logWarningOnce<<"Unable to read ISL receiver signal bias file <"<<fileNameInReceiver(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
-            gnss->transmitters.at(idTrans)->disable("Unable to read signal bias file <"+fileNameInReceiver(fileNameVariableList).str()+">");
+            logWarningOnce<<"Unable to read recv ISL terminal bias file <"<<fileNameInReceiver(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
+            gnss->transmitters.at(idTrans)->disable("Unable to read ISL bias file <"+fileNameInReceiver(fileNameVariableList).str()+">");
           }
         }
     }
@@ -98,10 +98,10 @@ void GnssParametrizationSignalBiasesIsl::writeResults(const GnssNormalEquationIn
 {
   try
   {
-    if(!isEnabled(normalEquationInfo, name))
+    if(!isEnabled(normalEquationInfo, name) || normalEquationInfo.isEachReceiverSeparately)
       return;
 
-    if(!fileNameOutTransmitter.empty() && !normalEquationInfo.isEachReceiverSeparately && Parallel::isMaster(normalEquationInfo.comm))
+    if(!fileNameOutTransmitter.empty() && Parallel::isMaster(normalEquationInfo.comm))
     {
       VariableList fileNameVariableList;
       fileNameVariableList.setVariable("prn", "***");
@@ -116,7 +116,7 @@ void GnssParametrizationSignalBiasesIsl::writeResults(const GnssNormalEquationIn
         }
     }
 
-    if(!fileNameOutReceiver.empty())
+    if(!fileNameOutReceiver.empty() && Parallel::isMaster(normalEquationInfo.comm))
     {
       VariableList fileNameVariableList;
       fileNameVariableList.setVariable("prn", "***");
