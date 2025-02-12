@@ -6,6 +6,7 @@
 * @see GnssParametrization
 *
 * @author Torsten Mayer-Guerr
+* @author Andre Hauschild
 * @date 2024-01-30
 *
 */
@@ -35,7 +36,6 @@ TODO!
 /** @brief Code biases.
 * @ingroup gnssParametrizationGroup
 * @see GnssParametrization */
-// TODO: properly handle transmitter and receiver biases for ISL!!
 class GnssParametrizationIslBiases : public GnssParametrizationBase
 {
   class Parameter
@@ -45,14 +45,15 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
     GnssParameterIndex index;
   };
 
-  Gnss                      *gnss;
-  std::string                name, nameConstraint;
-  PlatformSelectorPtr        selectTransmitters, selectReceivers;
-  Bool                       applyConstraint;
-  Double                     sigmaZeroMean;
-  std::vector<Parameter*>    paraTrans, paraRecv;
-  std::vector<UInt>          idxBiasTrans, idxBiasRecv; // indices in zeroMean matrix
-  Matrix                     zeroMeanDesign; // zero mean observation equations
+  Gnss                     *gnss;
+  std::string               name, nameConstraint;
+  PlatformSelectorPtr       selectSendTerminal, selectRecvTerminal;
+  PlatformSelectorPtr       selectSendTerminalZeroMean, selectRecvTerminalZeroMean;
+  std::vector<Byte>         selectedSendTerminalZeroMean, selectedRecvTerminalZeroMean;
+  Bool                      applyConstraint;
+  Double                    sigmaZeroMean;
+  std::vector<Parameter*>   paraSendTerminal, paraRecvTerminal;
+  std::vector<Double>       x0SendTerminal, x0RecvTerminal; // a-priori values for each send/recv terminal
 
 public:
   GnssParametrizationIslBiases(Config &config);

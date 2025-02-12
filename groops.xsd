@@ -1975,15 +1975,15 @@
 								<xs:documentation>used for parameter selection</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="selectTransmitters" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
-						<xs:element name="selectReceivers" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectSendTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectRecvTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
 						<xs:element name="nameConstraint" type="string" minOccurs="0" default="constraint.islBiases">
 							<xs:annotation>
 								<xs:documentation>used for parameter selection</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="selectTransmittersZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
-						<xs:element name="selectReceiversZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="selectSendTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectRecvTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded"/>
 						<xs:element name="sigmaZeroMeanConstraint" type="double" minOccurs="0" default="0.0001">
 							<xs:annotation>
 								<xs:documentation>(0 = unconstrained) sigma [m] for constraint over all selected biases</xs:documentation>
