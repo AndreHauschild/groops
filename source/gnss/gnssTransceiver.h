@@ -79,7 +79,7 @@ public:
   * @a azimuth and @a elevation must be given in the antenna frame (left-handed). */
   Vector accuracy(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
-  /** @brief ISL bias corrections.
+  /** @brief ISL terminal bias corrections.
   * observed range = range + bias. */
   Double signalBiasesIslTx() const;
   Double signalBiasesIslRx() const;
