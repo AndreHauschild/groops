@@ -206,7 +206,7 @@ void GnssParametrizationTransmitterDynamicOrbits::designMatrixIsl(const GnssNorm
     {
       auto para = parameters.at(eqn.receiver->idTrans());
       if(para && para->index)
-        matMult(1., eqn.A.column(GnssObservationEquation::idxPosRecv, 3),
+        matMult(1., eqn.A.column(GnssObservationEquationIsl::idxPosRecv, 3),
                 para->polynomial.interpolate({eqn.timeRecv}, para->PosDesign, 3),
                 A.column(para->index));
     }
@@ -216,7 +216,7 @@ void GnssParametrizationTransmitterDynamicOrbits::designMatrixIsl(const GnssNorm
     {
       auto para = parameters.at(eqn.transmitter->idTrans());
       if(para && para->index)
-        matMult(1., eqn.A.column(GnssObservationEquation::idxPosTrans, 3),
+        matMult(1., eqn.A.column(GnssObservationEquationIsl::idxPosTrans, 3),
                 para->polynomial.interpolate({eqn.timeTrans}, para->PosDesign, 3),
                 A.column(para->index));
     }

@@ -232,11 +232,11 @@ void GnssParametrizationClocks::designMatrixIsl(const GnssNormalEquationInfo &/*
   {
     // receiver clock
     if(indexTrans.at(eqn.receiver->idTrans()).size() && indexTrans.at(eqn.receiver->idTrans()).at(eqn.idEpoch))
-      copy(eqn.A.column(GnssObservationEquation::idxClockRecv,1), A.column(indexTrans.at(eqn.receiver->idTrans()).at(eqn.idEpoch)));
+      copy(eqn.A.column(GnssObservationEquationIsl::idxClockRecv,1), A.column(indexTrans.at(eqn.receiver->idTrans()).at(eqn.idEpoch)));
 
     // transmitter clock
     if(indexTrans.at(eqn.transmitter->idTrans()).size() && indexTrans.at(eqn.transmitter->idTrans()).at(eqn.idEpoch))
-      copy(eqn.A.column(GnssObservationEquation::idxClockTrans,1), A.column(indexTrans.at(eqn.transmitter->idTrans()).at(eqn.idEpoch)));
+      copy(eqn.A.column(GnssObservationEquationIsl::idxClockTrans,1), A.column(indexTrans.at(eqn.transmitter->idTrans()).at(eqn.idEpoch)));
   }
   catch(std::exception &e)
   {
