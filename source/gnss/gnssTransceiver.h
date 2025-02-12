@@ -154,43 +154,7 @@ inline Vector GnssTransceiver::signalBiases(const std::vector<GnssType> &types) 
 {
   try
   {
-    Vector corr(types.size());
-    corr += signalBias.compute(types);
-    return corr;
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
-inline Double GnssTransceiver::signalBiasesIslTx() const
-{
-  try
-  {
-    std::vector<GnssType> types = { GnssType("C1C***") };
-    Vector corr(types.size());
-    corr += signalBiasIslTx.compute(types);
-    return corr.at(0);
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
-inline Double GnssTransceiver::signalBiasesIslRx() const
-{
-  try
-  {
-    std::vector<GnssType> types = { GnssType("C1C***") };
-    Vector corr(types.size());
-    corr += signalBiasIslRx.compute(types);
-    return corr.at(0);
+    return signalBias.compute(types);
   }
   catch(std::exception &e)
   {
@@ -204,16 +168,12 @@ inline Vector GnssTransceiver::antennaVariations(const Time &time, Angle azimut,
 {
   try
   {
-    Vector corr(types.size());
-
     auto antenna = platform.findEquipment<PlatformGnssAntenna>(time);
     if(!antenna)
       throw(Exception(platform.markerName+"."+platform.markerNumber+": no antenna definition found at "+time.dateTimeStr()));
     if(!antenna->antennaDef)
       throw(Exception("no antenna definition for "+antenna->str()));
-    corr += antenna->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
-
-    return corr;
+    return antenna->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
   }
   catch(std::exception &e)
   {
@@ -242,25 +202,60 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 
 /***********************************************/
 
+inline Double GnssTransceiver::signalBiasesIslTx() const
+{
+  try
+  {
+    // ISL observation code for biases
+    // TODO: avoid using observation types here!
+    // -----------------------------------------
+    const std::vector<GnssType> types = { GnssType("C1C***") };
+    Vector corr(types.size());
+    corr += signalBiasIslTx.compute(types);
+    return corr.at(0);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+inline Double GnssTransceiver::signalBiasesIslRx() const
+{
+  try
+  {
+    // ISL observation code for biases
+    // TODO: avoid using observation types here!
+    // -----------------------------------------
+    const std::vector<GnssType> types = { GnssType("C1C***") };
+    Vector corr(types.size());
+    corr += signalBiasIslRx.compute(types);
+    return corr.at(0);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 inline Double GnssTransceiver::islTerminalVariations(const Time &time, Angle azimut, Angle elevation) const
 {
   try
   {
-    // ISL observation code for antenna correction and biases
+    // ISL observation code for antenna corrections
     // TODO: avoid using observation types here!
-    // ------------------------------------------------------
-    std::vector<GnssType> types = { GnssType("C1C***") };
-
-    Vector corr(types.size());
-
+    // --------------------------------------------
+    const std::vector<GnssType> types = { GnssType("C1C***") };
     auto terminal = platform.findEquipment<PlatformIslTerminal>(time);
     if(!terminal)
       throw(Exception(platform.markerName+"."+platform.markerNumber+": no ISL terminal definition found at "+time.dateTimeStr()));
     if(!terminal->antennaDef)
       throw(Exception("no ISL terminal definition for "+terminal->str()));
-    corr += terminal->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
-
-    return corr.at(0);
+    return terminal->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction).at(0);
   }
   catch(std::exception &e)
   {
