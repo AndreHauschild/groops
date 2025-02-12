@@ -10,6 +10,8 @@
 */
 /***********************************************/
 
+#define DEBUG 1
+
 #include "base/import.h"
 #include "base/planets.h"
 #include "config/config.h"
@@ -198,10 +200,15 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
   }
 }
 
+// FIXME: remove the process distribution of receivers!
+// FIXME: simplify the observation type collection for ISL
+
 void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 {
   try
   {
+    logInfo<<"synchronizeTransceiversIsl()"<<Log::endl;
+
     // distribute process id of receivers
     // ----------------------------------
     Vector recvProcess(transmitters.size());
@@ -219,7 +226,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       else if(transmitters.at(idRecv)->useable())
         transmitters.at(idRecv)->disable("");
        */
-    logInfo<<"synchronizeTransceiversIsl()"<<Log::endl;
 
     // collect observation types
     // -------------------------
@@ -257,13 +263,16 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
           if(type == GnssType::RANGE && !type.isInList(types))
             types.push_back(type + trans->PRN());
 
-      for (auto type : types)
-        logInfo<<"Adding ISL tx biases "<< type.str() << " for " << trans->name()<<Log::endl;
-
       if(types.size())
       {
         trans->signalBiasIslTx.biases = trans->signalBiasIslTx.compute(types); // apriori signal bias
         trans->signalBiasIslTx.types  = types;
+#if DEBUG> 0
+        for(UInt i=0; i<types.size(); i++)
+          logInfo<<"Adding send ISL terminal bias "<<trans->name()
+                 <<" type "<< trans->signalBiasIslTx.types.at(i).str()
+                 <<trans->signalBiasIslTx.biases.at(i)%" value %6.2f"s<<Log::endl;
+#endif
       }
     }
 
@@ -276,13 +285,16 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
             types.push_back(type & ~GnssType::PRN);
       std::sort(types.begin(), types.end());
 
-      for (auto type : types)
-        logInfo<<"Adding ISL rx biases "<< type.str() << " for " << recv->name()<<Log::endl;
-
       if(types.size())
       {
         recv->signalBiasIslRx.biases = recv->signalBiasIslRx.compute(types); // apriori signal bias
         recv->signalBiasIslRx.types  = types;
+#if DEBUG> 0
+        for(UInt i=0; i<types.size(); i++)
+          logInfo<<"Adding recv ISL terminal bias "<<recv->name()
+                 <<" type "<<recv->signalBiasIslRx.types.at(i).str()
+                 <<recv->signalBiasIslRx.biases.at(i)%" value %6.2f"s<<Log::endl;
+#endif
       }
     }
   }
