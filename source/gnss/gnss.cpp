@@ -159,6 +159,8 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
     }
 
     // adjust signal biases to available observation types
+    // NOTE: if no observations are found, the biases are not adjusted and
+    //       a-priori values are retained!!
     // ---------------------------------------------------
     for(auto trans : transmitters)
     {
@@ -200,19 +202,15 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
   }
 }
 
-// FIXME: remove the process distribution of receivers!
-// FIXME: simplify the observation type collection for ISL!
-// TODO:  collect observable biases for send and receive ISL terminals and
-//        disable them if not enough observations are available
+/***********************************************/
 
 void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
 {
   try
   {
-    logInfo<<"synchronizeTransceiversIsl()"<<Log::endl;
 
-    // collect observation types
-    // -------------------------
+    // collect ISL observations
+    // ------------------------
     std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types)
     typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
     for(auto recvTerminal : transmitters)
@@ -234,50 +232,50 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
       }
     }
 
-    // adjust ISL signal biases to available observation types
-    // -------------------------------------------------------
-    for(auto trans : transmitters)
+    // adjust signal biases to available observation types
+    // NOTE: if no observations are found, a-priori biases
+    //       are removed at this point!
+    // ---------------------------------------------------
+    for(auto sendTerminal : transmitters)
     {
       std::vector<GnssType> types;
       for(auto &typesTrans : typesRecvTransIsl)
-        for(GnssType type : typesTrans.at(trans->idTrans()))
+        for(GnssType type : typesTrans.at(sendTerminal->idTrans()))
           if(type == GnssType::RANGE && !type.isInList(types))
             types.push_back(type);
 
-      if(types.size())
-      {
-        trans->signalBiasIslTx.biases = trans->signalBiasIslTx.compute(types); // apriori signal bias
-        trans->signalBiasIslTx.types  = types;
-#if DEBUG> 0
-        for(UInt i=0; i<types.size(); i++)
-          logInfo<<"Adding send ISL terminal bias "<<trans->name()
-                 <<" type "<< trans->signalBiasIslTx.types.at(i).str()
-                 <<trans->signalBiasIslTx.biases.at(i)%" value %6.2f"s<<Log::endl;
-#endif
-      }
+      sendTerminal->signalBiasIslTx.biases = sendTerminal->signalBiasIslTx.compute(types); // apriori signal bias
+      sendTerminal->signalBiasIslTx.types  = types;
     }
 
-    for(auto recv : transmitters)
+#if DEBUG> 0
+    for(auto sendTerminal : transmitters)
+      for(UInt i=0; i<sendTerminal->signalBiasIslTx.types.size(); i++)
+        logInfo<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
+               <<sendTerminal->signalBiasIslTx.types.at(i).str()<< " : "
+               <<sendTerminal->signalBiasIslTx.biases.at(i)%" %6.2f"s<<Log::endl;
+#endif
+
+    for(auto recvTerminal : transmitters)
     {
       std::vector<GnssType> types;
-      for(auto &typesTrans : typesRecvTransIsl.at(recv->idTrans()))
+      for(auto &typesTrans : typesRecvTransIsl.at(recvTerminal->idTrans()))
         for(GnssType type : typesTrans)
           if(type == GnssType::RANGE && !type.isInList(types))
             types.push_back(type & ~GnssType::PRN);
       std::sort(types.begin(), types.end());
 
-      if(types.size())
-      {
-        recv->signalBiasIslRx.biases = recv->signalBiasIslRx.compute(types); // apriori signal bias
-        recv->signalBiasIslRx.types  = types;
-#if DEBUG> 0
-        for(UInt i=0; i<types.size(); i++)
-          logInfo<<"Adding recv ISL terminal bias "<<recv->name()
-                 <<" type "<<recv->signalBiasIslRx.types.at(i).str()
-                 <<recv->signalBiasIslRx.biases.at(i)%" value %6.2f"s<<Log::endl;
-#endif
-      }
+      recvTerminal->signalBiasIslRx.biases = recvTerminal->signalBiasIslRx.compute(types); // apriori signal bias
+      recvTerminal->signalBiasIslRx.types  = types;
     }
+
+#if DEBUG> 0
+    for(auto sendTerminal : transmitters)
+      for(UInt i=0; i<sendTerminal->signalBiasIslRx.types.size(); i++)
+        logInfo<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<sendTerminal->name()<<" "
+               <<sendTerminal->signalBiasIslRx.types.at(i).str()<< " : "
+               <<sendTerminal->signalBiasIslRx.biases.at(i)%" %6.2f"s<<Log::endl;
+#endif
   }
   catch(std::exception &e)
   {

@@ -47,13 +47,13 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
 
   Gnss                     *gnss;
   std::string               name, nameConstraint;
-  PlatformSelectorPtr       selectSendTerminal, selectRecvTerminal;
-  PlatformSelectorPtr       selectSendTerminalZeroMean, selectRecvTerminalZeroMean;
-  std::vector<Byte>         selectedSendTerminalZeroMean, selectedRecvTerminalZeroMean;
+  PlatformSelectorPtr       selectTransmitTerminal, selectReceiveTerminal;
+  PlatformSelectorPtr       selectTransmitTerminalZeroMean, selectReceiveTerminalZeroMean;
+  std::vector<Byte>         selectedTransmitTerminalZeroMean, selectedReceiveTerminalZeroMean;
   Bool                      applyConstraint;
   Double                    sigmaZeroMean;
-  std::vector<Parameter*>   paraSendTerminal, paraRecvTerminal;
-  std::vector<Double>       x0SendTerminal, x0RecvTerminal; // a-priori values for each send/recv terminal
+  std::vector<Parameter*>   paraTransmitTerminal, paraReceiveTerminal;
+  std::vector<Double>       x0TransmitTerminal, x0ReceiveTerminal; // a-priori values for each trans/recv terminal
 
 public:
   GnssParametrizationIslBiases(Config &config);
