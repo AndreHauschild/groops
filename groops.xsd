@@ -2590,6 +2590,16 @@
 								<xs:documentation>variable {station} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="selectTransmitter" type="platformSelectorType" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>subset of used transmitters</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="outputfileResidualsIsl" type="filename" default="output/residuals_{loopTime:%D}.{prn}.dat">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
