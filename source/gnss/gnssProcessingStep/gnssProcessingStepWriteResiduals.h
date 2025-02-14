@@ -150,6 +150,9 @@ inline void GnssProcessingStepWriteResiduals::process(GnssProcessingStep::State 
         InstrumentFile::write(fileNameResiduals(fileNameVariableList), arc);
       } // for(recv)
 
+    // ISL residuals
+    // ------------
+
     auto selectedTransmitters = state.gnss->selectTransmitters(selectTransmitters);
     fileNameVariableList.setVariable("prn", "****");
     logStatus<<"write ISL residuals to file <"<<fileNameResidualsIsl(fileNameVariableList)<<">"<<Log::endl;
@@ -195,8 +198,7 @@ inline void GnssProcessingStepWriteResiduals::process(GnssProcessingStep::State 
                 const GnssObservationIsl &obs = *recv->observationIsl(idTrans, idEpoch);
                 const GnssObservationEquationIsl eqn(obs, *recv, *state.gnss->transmitters.at(idTrans),
                                                      state.gnss->funcReduceModelsIsl, idEpoch, FALSE);
-                const GnssType typeIsl = GnssType("C1C") + state.gnss->transmitters.at(idTrans)->PRN();
-                const GnssType prn = typeIsl & (GnssType::SYSTEM + GnssType::PRN + GnssType::FREQ_NO);
+                const GnssType prn = state.gnss->transmitters.at(idTrans)->PRN();
                 UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), prn));
                 if(idType >= epoch.obsType.size())
                   continue;
@@ -214,15 +216,6 @@ inline void GnssProcessingStepWriteResiduals::process(GnssProcessingStep::State 
                   epoch.observation.at(epoch.observation.size()-1) = obs.sigma/obs.sigma0;
                   break;
                 }
-
-                logInfo<<"### residual output "
-                       <<epoch.time.dateTimeStr()<<" "
-                       <<prn.str()
-                       <<obs.residual%" %6.3f"s
-                       <<obs.redundancy%" %6.3f"s
-                       <<obs.sigma/obs.sigma0%" %6.3f"s
-                       <<Log::endl;
-
               } // for(idTrans)
 
             if(epoch.satellite.size())
