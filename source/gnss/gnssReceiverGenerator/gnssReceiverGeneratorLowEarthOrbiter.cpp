@@ -49,6 +49,7 @@ GnssReceiverGeneratorLowEarthOrbiter::GnssReceiverGeneratorLowEarthOrbiter(Confi
     readConfig(config, "inputfileObservations",        fileNameObs,             Config::OPTIONAL,  "gnssReceiver_{loopTime:%D}.dat", "");
     readConfig(config, "inputfileOrbit",               fileNameOrbit,           Config::MUSTSET,  "",     "approximate positions");
     readConfig(config, "inputfileStarCamera",          fileNameStarCamera,      Config::MUSTSET,  "",     "satellite attitude");
+    readConfig(config, "inputfileClock",               fileNameClock,           Config::OPTIONAL, "",     "satellite clock offset");
     readConfig(config, "sigmaFactorPhase",             exprSigmaPhase,          Config::OPTIONAL, "",     "PHASE: factor = f(FREQ, ELE, SNR, ROTI, dTEc, IONOINDEX)");
     readConfig(config, "sigmaFactorCode",              exprSigmaCode,           Config::OPTIONAL, "",     "CODE: factor = f(FREQ, ELE, SNR, ROTI, dTEc, IONOINDEX)");
     readConfig(config, "supportsIntegerAmbiguities",   integerAmbiguities,      Config::DEFAULT,  "1",    "receiver tracks full cycle integer ambiguities");
@@ -146,7 +147,7 @@ void GnssReceiverGeneratorLowEarthOrbiter::init(std::vector<GnssType> simulation
             i++;
           if((i >= orbit.size()) || (orbit.at(i).time > times.at(idEpoch)+timeMargin))
           {
-            recv->disable(idEpoch, "due to missing orbit/attitude data");
+            recv->disable(idEpoch, "due to missing orbit/attitude/clock data");
             continue;
           }
 
