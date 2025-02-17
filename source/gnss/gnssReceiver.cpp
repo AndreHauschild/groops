@@ -221,7 +221,6 @@ void GnssReceiver::signalComposition(UInt /*idEpoch*/, const std::vector<GnssTyp
 }
 
 /***********************************************/
-/***********************************************/
 
 GnssReceiver::ObservationEquationList::ObservationEquationList(const GnssReceiver &receiver, const std::vector<GnssTransmitterPtr> &transmitters,
                                                                const std::function<Rotary3d(const Time &time)> &rotationCrf2Trf,
@@ -604,8 +603,10 @@ void GnssReceiver::simulateObservations(NoiseGeneratorPtr noiseClock, NoiseGener
     for(auto &track : tracks)
     {
       Vector value(track->types.size());
-      for(UInt i=0; i<value.size(); i++)
-        value(i) = wavelengthFactor*track->types.at(i).wavelength() * ambiguityRandom(generator); // cycles to meter
+      for(UInt i=0; i<value.size(); i++) {
+      //value(i) = wavelengthFactor*track->types.at(i).wavelength() * ambiguityRandom(generator); // cycles to meter
+        value(i) = 0.0;
+      };
       new Ambiguity(track.get(), value); // track is owner of ambiguity
     }
 
