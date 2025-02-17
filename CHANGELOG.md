@@ -7,14 +7,17 @@
 - New option:       GnssAntennaNormalsConstraint: gnssType selection for TEC constraint.
 - New option:       PlotAxisLabeled: majorTickSpacing, minorTickSpacing, gridLineSpacing.
 - File format:      TideGeneratingPotential includes now degree 3 tides.
+- File format:      Each file is now readable/writable in JSON format as well.
 - Bugfix:           GUI: fixed Ctrl+Shift+Up/Down for variables.
 - Bugfix:           slrParametrizationRangeBiasStationSatellite: Fix station index.
 - Bugfix:           parameterNames: fixed wrong order.
 - Bugfix:           GraceAod2DoodsonHarmonics: fixed phase error.
 - Bugfix:           GnssOrbex2StarCamera: reads now free format.
 - Bugfix:           GnssNormals2Sinex: fixed parser error.
+- Bugfix:           GnssParametrizationIonosphereSTEC: constant sigmaSTEC>0 was evaluated always to one.
 - Other:            GUI: offer links for numbers and strings of different types.
 - Other:            gnss: set margin for polynomial orbit interpolation to 1e-7 seconds.
+- Other:            gnss: simulation considers more apriori models (e.g. TEC maps).
 
 # Release 2024-06-24
 - Interface change: Variables can now declared at any place in the config file (not only in the global section).
