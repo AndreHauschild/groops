@@ -4712,6 +4712,11 @@
 											<xs:documentation>loop over satellite identifiers</xs:documentation>
 										</xs:annotation>
 									</xs:element>
+									<xs:element name="islTerminal">
+										<xs:annotation>
+											<xs:documentation>loop over ISL terminals</xs:documentation>
+										</xs:annotation>
+									</xs:element>
 									<xs:element name="other">
 										<xs:annotation>
 											<xs:documentation>loop over other types</xs:documentation>
