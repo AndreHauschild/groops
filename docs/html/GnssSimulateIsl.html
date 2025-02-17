@@ -77,17 +77,14 @@ Parameter settings and output files are ignored.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">outputfileGnssIsl</div></div></td><td>filename</td><td>variable {station} available, simulated observations</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">outputfileClock</div></div></td><td>filename</td><td>variable {station} available, simulated receiver clock errors</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">timeSeries</div></div></td><td><a href="timeSeriesType.html">timeSeries</a></td><td>defines observation epochs</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">timeMargin</div></div></td><td>double</td><td>[seconds] margin to consider two times identical</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">transmitter</div></div></td><td><a href="gnssTransmitterGeneratorType.html">gnssTransmitterGenerator</a></td><td>constellation of GNSS satellites</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">receiver</div></div></td><td><a href="gnssReceiverGeneratorType.html">gnssReceiverGenerator</a></td><td>ground station network or LEO satellite</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">islSchedule</div></div></td><td>filename</td><td>variable {station} available, schedule with ISL connections</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">outputfileGnssIsl</div></div></td><td>filename</td><td>variable {prn} available, simulated observations</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">timeSeries</div></div></td><td><a href="timeSeriesType.html">timeSeries</a></td><td>defines observation epochs</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">timeMargin</div></div></td><td>double</td><td>[seconds] margin to consider two times identical</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">transmitter</div></div></td><td><a href="gnssTransmitterGeneratorType.html">gnssTransmitterGenerator</a></td><td>constellation of GNSS satellites</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">islSchedule</div></div></td><td>filename</td><td>variable {prn} available, schedule with ISL connections</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">earthRotation</div></div></td><td><a href="earthRotationType.html">earthRotation</a></td><td>apriori earth rotation</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">parametrization</div></div></td><td><a href="gnssParametrizationType.html">gnssParametrization</a></td><td>models and parameters</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">noiseObservation</div></div></td><td><a href="noiseGeneratorType.html">noiseGenerator</a></td><td>[-] noise is multiplied with type accuracy pattern of receiver</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">noiseClockReceiver</div></div></td><td><a href="noiseGeneratorType.html">noiseGenerator</a></td><td>[m] noise added to the simulated receiver clock</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">noiseObservation</div></div></td><td><a href="noiseGeneratorType.html">noiseGenerator</a></td><td>[m] ISL observation noise</td></tr>
 </table>
 This program is <a class="groops-ref" href="general.parallelization.html">parallelized</a>.
 
