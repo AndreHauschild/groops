@@ -49,6 +49,7 @@ GnssReceiverGeneratorLowEarthOrbiter::GnssReceiverGeneratorLowEarthOrbiter(Confi
     readConfig(config, "inputfileObservations",        fileNameObs,             Config::OPTIONAL,  "gnssReceiver_{loopTime:%D}.dat", "");
     readConfig(config, "inputfileOrbit",               fileNameOrbit,           Config::MUSTSET,  "",     "approximate positions");
     readConfig(config, "inputfileStarCamera",          fileNameStarCamera,      Config::MUSTSET,  "",     "satellite attitude");
+    readConfig(config, "inputfileClock",               fileNameClock,           Config::OPTIONAL, "",     "satellite clock offset");
     readConfig(config, "sigmaFactorPhase",             exprSigmaPhase,          Config::OPTIONAL, "",     "PHASE: factor = f(FREQ, ELE, SNR, ROTI, dTEc, IONOINDEX)");
     readConfig(config, "sigmaFactorCode",              exprSigmaCode,           Config::OPTIONAL, "",     "CODE: factor = f(FREQ, ELE, SNR, ROTI, dTEc, IONOINDEX)");
     readConfig(config, "supportsIntegerAmbiguities",   integerAmbiguities,      Config::DEFAULT,  "1",    "receiver tracks full cycle integer ambiguities");
@@ -139,6 +140,13 @@ void GnssReceiverGeneratorLowEarthOrbiter::init(std::vector<GnssType> simulation
         StarCameraArc starCamera = InstrumentFile::read(fileNameStarCamera);
         Arc::checkSynchronized({orbit, starCamera});
 
+        MiscValueArc  clock;
+        if(!fileNameClock.empty())
+        {
+          clock = InstrumentFile::read(fileNameClock);
+          Arc::checkSynchronized({orbit, clock});
+        }
+        
         UInt i=0;
         for(UInt idEpoch=0; idEpoch<times.size(); i++)
         {
@@ -146,7 +154,7 @@ void GnssReceiverGeneratorLowEarthOrbiter::init(std::vector<GnssType> simulation
             i++;
           if((i >= orbit.size()) || (orbit.at(i).time > times.at(idEpoch)+timeMargin))
           {
-            recv->disable(idEpoch, "due to missing orbit/attitude data");
+            recv->disable(idEpoch, "due to missing orbit/attitude/clock data");
             continue;
           }
 
@@ -159,6 +167,8 @@ void GnssReceiverGeneratorLowEarthOrbiter::init(std::vector<GnssType> simulation
 
           recv->pos.at(idEpoch)            = orbit.at(i).position;
           recv->vel.at(idEpoch)            = orbit.at(i).velocity;
+          if(!fileNameClock.empty())
+            recv->clk.at(idEpoch)            = clock.at(i).value;
           recv->global2local.at(idEpoch)   = inverse(localNorthEastUp(recv->pos.at(idEpoch), Ellipsoid()));
           recv->global2antenna.at(idEpoch) = antenna->local2antennaFrame * inverse(starCamera.at(i).rotary);
           recv->offset.at(idEpoch)         = recv->global2local.at(idEpoch).transform(starCamera.at(i).rotary.rotate(antenna->position - platform.referencePoint(times.at(idEpoch))));
@@ -196,9 +206,6 @@ void GnssReceiverGeneratorLowEarthOrbiter::preprocessing(Gnss *gnss, Parallel::C
 {
   try
   {
-    if(fileNameObs.empty())
-      return;
-
     logStatus<<"init observations"<<Log::endl;
     if(recv->isMyRank())
     {
@@ -206,7 +213,8 @@ void GnssReceiverGeneratorLowEarthOrbiter::preprocessing(Gnss *gnss, Parallel::C
       {
         recv->createTracks(gnss->transmitters, minObsCountPerTrack, {GnssType::L5_G});
         std::vector<Vector3d> posApriori = recv->pos;
-        recv->pos = recv->estimateInitialClockErrorFromCodeObservations(gnss->transmitters, gnss->funcRotationCrf2Trf, gnss->funcReduceModels, huber, huberPower, TRUE/*estimateKinematicPosition*/);
+        if(fileNameClock.empty())
+          recv->pos = recv->estimateInitialClockErrorFromCodeObservations(gnss->transmitters, gnss->funcRotationCrf2Trf, gnss->funcReduceModels, huber, huberPower, TRUE/*estimateKinematicPosition*/);
         // observation equations based on positions from code observations
         GnssReceiver::ObservationEquationList eqn(*recv, gnss->transmitters, gnss->funcRotationCrf2Trf, gnss->funcReduceModels, GnssObservation::RANGE | GnssObservation::PHASE);
         recv->pos = std::move(posApriori); // restore apriori positions
