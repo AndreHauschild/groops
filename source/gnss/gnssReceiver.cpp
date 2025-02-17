@@ -636,7 +636,22 @@ void GnssReceiver::simulateObservations(NoiseGeneratorPtr noiseClock, NoiseGener
           const GnssObservationEquation &eqn = *eqnList(idTrans, idEpoch);
           GnssObservation *obs = observation(idTrans, idEpoch);
           for(UInt idType=0; idType<obs->size(); idType++)
-            if(obs->at(idType).type.isInList(eqn.types, idx))
+          	if(obs->at(idType).type == GnssType::SNR)
+            {
+              // Simple C/N0 model
+              // Zenith-angle dependent quadratic model
+              // --------------------------------------
+              const Double zen_min = 80.0*DEG2RAD;  // [rad]
+              const Double cn0_min = 30.0;          // [dB-Hz]
+              const Double cn0_max = 45.0;          // [dB-Hz]
+
+              Double cn0 = cn0_max + pow((PI/2-eqn.elevationRecvAnt)/zen_min,2)*(cn0_min-cn0_max);
+
+              // Reduce C/N0 for GPS P(Y) signal
+              // --------------------------------------
+              obs->at(idType).observation = cn0 - (obs->at(idType).type == GnssType::W? 10.0 : 0);
+            }
+            else if(obs->at(idType).type.isInList(eqn.types, idx))
               obs->at(idType).observation = -eqn.l(idx) + eqn.sigma(idx) * eps(idEpoch, GnssType::index(typesTrans, obs->at(idType).type));
         }
     }
