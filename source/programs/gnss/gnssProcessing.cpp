@@ -180,7 +180,7 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
           }
           catch(std::exception &/*e*/)
           {
-            logWarningOnce<<"Unable to read ISL observations <"<<fileNameObsIsl(fileNameVariableList)<<">."<<Log::endl;
+            logWarning<<"Unable to read ISL observations <"<<fileNameObsIsl(fileNameVariableList)<<">."<<Log::endl;
             continue;
           }
         }
