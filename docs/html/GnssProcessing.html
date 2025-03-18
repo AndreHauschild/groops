@@ -92,7 +92,7 @@ or the normal equation structure, which affects all subsequent steps.
 A minimal example consists of following steps:
 <ul>
 
-  <li><a class="groops-class" href="gnssProcessingStepType.html#estimate">estimate</a>: iterative float solution with outlier downeighting
+  <li><a class="groops-class" href="gnssProcessingStepType.html#estimate">estimate</a>: iterative float solution with outlier downweighting
   </li><li>
 <a class="groops-class" href="gnssProcessingStepType.html#resolveAmbiguities">resolveAmbiguities</a>:
         fix ambiguities to integer and remove them from the normals
@@ -112,8 +112,9 @@ A minimal example consists of following steps:
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">transmitter</div></div></td><td><a href="gnssTransmitterGeneratorType.html">gnssTransmitterGenerator</a></td><td>constellation of GNSS satellites</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">receiver</div></div></td><td><a href="gnssReceiverGeneratorType.html">gnssReceiverGenerator</a></td><td>ground station network or LEO satellite</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">earthRotation</div></div></td><td><a href="earthRotationType.html">earthRotation</a></td><td>apriori earth rotation</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">parametrization</div></div></td><td><a href="gnssParametrizationType.html">gnssParametrization</a></td><td>models and parameters</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">processingStep</div></div></td><td><a href="gnssProcessingStepType.html">gnssProcessingStep</a></td><td>steps are processed consecutively</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileObservationsIsl</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">parametrization</div></div></td><td><a href="gnssParametrizationType.html">gnssParametrization</a></td><td>models and parameters</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">processingStep</div></div></td><td><a href="gnssProcessingStepType.html">gnssProcessingStep</a></td><td>steps are processed consecutively</td></tr>
 </table>
 This program is <a class="groops-ref" href="general.parallelization.html">parallelized</a>.
 

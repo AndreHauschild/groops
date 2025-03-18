@@ -10,6 +10,8 @@
 */
 /***********************************************/
 
+#define DEBUG 1
+
 #include "base/import.h"
 #include "base/planets.h"
 #include "config/config.h"
@@ -54,10 +56,14 @@ void Gnss::init(std::vector<GnssType> simulationTypes, const std::vector<Time> &
 
     // init receivers
     // --------------
-    receivers = receiverGenerator->receivers(simulationTypes, times, timeMargin, transmitters, earthRotation, comm);
-    for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
-      receivers.at(idRecv)->id_ = idRecv;
+    if(receiverGenerator)
+    {
+      receivers = receiverGenerator->receivers(simulationTypes, times, timeMargin, transmitters, earthRotation, comm);
+      for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
+        receivers.at(idRecv)->id_ = idRecv;
+    }
     synchronizeTransceivers(comm);
+    synchronizeTransceiversIsl(comm);
 
     // init parametrization
     // --------------------
@@ -65,7 +71,8 @@ void Gnss::init(std::vector<GnssType> simulationTypes, const std::vector<Time> &
     if(parametrization)
     {
       parametrization->init(this, comm);
-      funcReduceModels = std::bind(&GnssParametrization::observationCorrections, parametrization, std::placeholders::_1);
+      funcReduceModels    = std::bind(&GnssParametrization::observationCorrections,    parametrization, std::placeholders::_1);
+      funcReduceModelsIsl = std::bind(&GnssParametrization::observationCorrectionsIsl, parametrization, std::placeholders::_1);
     }
   }
   catch(std::exception &e)
@@ -152,6 +159,8 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
     }
 
     // adjust signal biases to available observation types
+    // NOTE: if no observations are found, the biases are not adjusted and
+    //       a-priori values are retained!!
     // ---------------------------------------------------
     for(auto trans : transmitters)
     {
@@ -195,6 +204,87 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
 
 /***********************************************/
 
+void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
+{
+  try
+  {
+
+    // collect ISL observations
+    // ------------------------
+    std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types)
+    typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
+    for(auto recvTerminal : transmitters)
+    {
+      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      {
+        if (idTrans == recvTerminal->idTrans()) continue;
+        for(UInt idEpoch=0; idEpoch<recvTerminal->idEpochSize(); idEpoch++)
+        {
+          auto obs = recvTerminal->observationIsl(idTrans, idEpoch);
+          if(obs)
+          {
+            const GnssType typeIsl = GnssType("C1C") + transmitters.at(idTrans)->PRN();
+            if(!typeIsl.isInList(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans)))
+              typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).push_back(typeIsl);
+          }
+        }
+        std::sort(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).begin(), typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).end());
+      }
+    }
+
+    // adjust signal biases to available observation types
+    // NOTE: if no observations are found, a-priori biases
+    //       are removed at this point!
+    // ---------------------------------------------------
+    for(auto sendTerminal : transmitters)
+    {
+      std::vector<GnssType> types;
+      for(auto &typesTrans : typesRecvTransIsl)
+        for(GnssType type : typesTrans.at(sendTerminal->idTrans()))
+          if(type == GnssType::RANGE && !type.isInList(types))
+            types.push_back(type);
+
+      sendTerminal->signalBiasIslTx.biases = sendTerminal->signalBiasIslTx.compute(types); // apriori signal bias
+      sendTerminal->signalBiasIslTx.types  = types;
+    }
+
+#if DEBUG> 0
+    for(auto sendTerminal : transmitters)
+      for(UInt i=0; i<sendTerminal->signalBiasIslTx.types.size(); i++)
+        logInfo<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
+               <<sendTerminal->signalBiasIslTx.types.at(i).str()<< " : "
+               <<sendTerminal->signalBiasIslTx.biases.at(i)%" %6.2f"s<<Log::endl;
+#endif
+
+    for(auto recvTerminal : transmitters)
+    {
+      std::vector<GnssType> types;
+      for(auto &typesTrans : typesRecvTransIsl.at(recvTerminal->idTrans()))
+        for(GnssType type : typesTrans)
+          if(type == GnssType::RANGE && !type.isInList(types))
+            types.push_back(type & ~GnssType::PRN);
+      std::sort(types.begin(), types.end());
+
+      recvTerminal->signalBiasIslRx.biases = recvTerminal->signalBiasIslRx.compute(types); // apriori signal bias
+      recvTerminal->signalBiasIslRx.types  = types;
+    }
+
+#if DEBUG> 0
+    for(auto sendTerminal : transmitters)
+      for(UInt i=0; i<sendTerminal->signalBiasIslRx.types.size(); i++)
+        logInfo<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<sendTerminal->name()<<" "
+               <<sendTerminal->signalBiasIslRx.types.at(i).str()<< " : "
+               <<sendTerminal->signalBiasIslRx.biases.at(i)%" %6.2f"s<<Log::endl;
+#endif
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 {
   try
@@ -225,19 +315,31 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
               for(UInt idEpoch : normalEquationInfo.idEpochs)
                 if(trans->useable(idEpoch) && recv->useable(idEpoch) && recv->observation(trans->idTrans(), idEpoch))
                   countEpoch(idEpoch)++;
+
+          // Count ISL observations to other transmitters
+          // TODO: this does not cover all necessary cases!
+          for(const auto &recv : transmitters)
+            if(trans->idTrans()!=recv->idTrans())
+              for(UInt idEpoch : normalEquationInfo.idEpochs)
+                if(trans->useable(idEpoch) && recv->useable(idEpoch) &&
+                    (recv->observationIsl(trans->idTrans(), idEpoch) ||
+                     trans->observationIsl(recv->idTrans(), idEpoch)))
+                  countEpoch(idEpoch)++;
           Parallel::reduceSum(countEpoch, 0, normalEquationInfo.comm);
           Parallel::broadCast(countEpoch, 0, normalEquationInfo.comm);
 
           for(UInt idEpoch : normalEquationInfo.idEpochs)
             if(trans->useable(idEpoch) && (countEpoch(idEpoch) < transCountEpoch.at(trans->idTrans())))
             {
-              // logWarningOnce<<trans->name()<<" disabled epoch "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
               disabledEpochsTrans++;
               trans->disable(idEpoch, "failed parametrization requirements");
               mustSync = TRUE;
               for(const auto &recv : receivers)
                 if(recv->isMyRank() && recv->observation(trans->idTrans(), idEpoch))
                   recv->deleteObservation(trans->idTrans(), idEpoch);
+              for(const auto &recv : transmitters)
+                if(recv->observationIsl(trans->idTrans(), idEpoch))
+                  recv->deleteObservationIsl(trans->idTrans(), idEpoch);
             }
 
           UInt epochCount = 0;
@@ -250,9 +352,14 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
             trans->disable("not enough estimable epochs ("+epochCount%"%i)"s);
             mustSync = TRUE;
             for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
+            {
               for(const auto &recv : receivers)
                 if(recv->isMyRank() && recv->observation(trans->idTrans(), idEpoch))
                   recv->deleteObservation(trans->idTrans(), idEpoch);
+              for(const auto &recv : transmitters)
+                if(recv->observationIsl(trans->idTrans(), idEpoch))
+                  recv->deleteObservationIsl(trans->idTrans(), idEpoch);
+            }
           }
         }
 
@@ -270,7 +377,6 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
                   count++;
               if(count < recvCountEpoch.at(recv->idRecv()))
               {
-                // logWarning<<recv->name()<<" disabled epoch "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
                 disabledEpochsRecv++;
                 recv->disable(idEpoch, "failed parametrization requirements");
                 mustSync = TRUE;
@@ -295,6 +401,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
       // synchronize transceivers
       synchronizeTransceivers(normalEquationInfo.comm);
+      synchronizeTransceiversIsl(normalEquationInfo.comm);
       Parallel::reduceSum(disabledEpochsRecv, 0, normalEquationInfo.comm);
       if(!Parallel::isMaster(normalEquationInfo.comm))
         disabledEpochsRecv = 0;
@@ -368,12 +475,45 @@ Bool Gnss::basicObservationEquations(const GnssNormalEquationInfo &/*normalEquat
 
 /***********************************************/
 
+Bool Gnss::basicObservationEquationsIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, UInt idRecv, UInt idTrans, UInt idEpoch, GnssObservationEquationIsl &eqn) const
+{
+  try
+  {
+    if(!transmitters.at(idRecv)->observationIsl(idTrans, idEpoch))
+      return FALSE;
+    eqn.compute(*transmitters.at(idRecv)->observationIsl(idTrans, idEpoch), *transmitters.at(idRecv), *transmitters.at(idTrans),
+                funcReduceModelsIsl, idEpoch, TRUE);
+    return TRUE;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void Gnss::designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const
 {
   try
   {
     if(eqn.l.rows())
       parametrization->designMatrix(normalEquationInfo, eqn, A);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void Gnss::designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    if(eqn.l.rows())
+      parametrization->designMatrixIsl(normalEquationInfo, eqn, A);
   }
   catch(std::exception &e)
   {

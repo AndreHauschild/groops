@@ -1576,6 +1576,57 @@ Name & Type & Annotation\\
 \end{tabularx}
 
 
+\subsection{SignalBiasesIsl}\label{gnssParametrizationType:signalBiasesIsl}
+Each inter-satellite-link observation contains a bias for ISL terminal of the transmitting and receiving satellite
+\begin{equation}
+  [\tau\nu a]_r^s(t) = \dots + \text{bias}[\tau\nu a]^s + \text{bias}[\tau\nu a]_r + \dots
+\end{equation}
+This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.
+
+The \configFile{inputfileSignalBiasTransmitter/Receiver}{gnssSignalBias} are read
+for each satellite. The transmitter and receiver biases are stored in separate files.
+The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
+(Infos regarding the variable \verb|{prn}| can be found in
+\configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType}).
+The bias files must contain one bias with the \verb|{C1C}| observation code.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileTransmitIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileReceiveIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileTransmitIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileReceiveIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hline
+\end{tabularx}
+
+
+\subsection{IslBiases}\label{gnssParametrizationType:islBiases}
+TODO!
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~nameConstraint & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitTerminalZeroMean & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveTerminalZeroMean & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~sigmaZeroMeanConstraint & \hfuzz=500pt double & \hfuzz=500pt (0 = unconstrained) sigma [m] for constraint over all selected biases\\
+\hline
+\end{tabularx}
+
+
 \subsection{Ambiguities}\label{gnssParametrizationType:ambiguities}
 Sets up an ambiguity parameter for each track and phase observation type.
 \begin{equation}
@@ -2331,9 +2382,11 @@ Name & Type & Annotation\\
 
 \subsection{WriteResiduals}\label{gnssProcessingStepType:writeResiduals}
 Writes the \file{observation residuals}{instrument} for all
-\configClass{selectReceivers}{platformSelectorType}.
-For for each station a file is written. The file name is interpreted as
-a template with the variable \verb|{station}| being replaced by the station name.
+\configClass{selectReceivers}{platformSelectorType} for GNSS observations and all
+\configClass{selectTransmitters}{platformSelectorType} for ISL observations.
+One file is written for each station and transmitter. The file name is interpreted as
+a template with the variable \verb|{station}| being replaced by the station name
+or \verb|{prn}| being replaced by the satellite PRN.
 
 
 \keepXColumns
@@ -2343,6 +2396,8 @@ Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~selectReceivers & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used stations\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~selectTransmitter & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used transmitters\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileResidualsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hline
 \end{tabularx}
 
@@ -2702,6 +2757,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileObservations & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt approximate positions\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileStarCamera & \hfuzz=500pt filename & \hfuzz=500pt satellite attitude\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileClock & \hfuzz=500pt filename & \hfuzz=500pt satellite clock offset\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~sigmaFactorPhase & \hfuzz=500pt expression & \hfuzz=500pt PHASE: factor = f(FREQ, ELE, SNR, ROTI, dTEc, IONOINDEX)\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~sigmaFactorCode & \hfuzz=500pt expression & \hfuzz=500pt CODE: factor = f(FREQ, ELE, SNR, ROTI, dTEc, IONOINDEX)\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~supportsIntegerAmbiguities & \hfuzz=500pt boolean & \hfuzz=500pt receiver tracks full cycle integer ambiguities\\
@@ -2775,6 +2831,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~ignoreObservation & \hfuzz=500pt  & \hfuzz=500pt ignore observation if no matching pattern is found\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~useNearestFrequency & \hfuzz=500pt  & \hfuzz=500pt use pattern of nearest frequency if no matching pattern is found\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~throwException & \hfuzz=500pt  & \hfuzz=500pt throw exception if no matching pattern is found\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileIslTerminalDefintion & \hfuzz=500pt filename & \hfuzz=500pt phase centers and variations (ANTEX like)\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileSignalDefintion & \hfuzz=500pt filename & \hfuzz=500pt transmitted signal types\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileAttitude & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\

@@ -68,6 +68,7 @@ inline LoopPlatformEquipment::LoopPlatformEquipment(Config &config)
       if(readConfigChoiceElement(config, "slrStation",          choice, "loop over SLR stations"))          type = PlatformEquipment::SLRSTATION;
       if(readConfigChoiceElement(config, "slrRetroReflector",   choice, "loop over laser retroreflectors")) type = PlatformEquipment::LASERRETROREFLECTOR;
       if(readConfigChoiceElement(config, "satelliteIdentifier", choice, "loop over satellite identifiers")) type = PlatformEquipment::SATELLITEIDENTIFIER;
+      if(readConfigChoiceElement(config, "islTerminal",         choice, "loop over ISL terminals"))         type = PlatformEquipment::ISLTERMINAL;
       if(readConfigChoiceElement(config, "other",               choice, "loop over other types"))           type = PlatformEquipment::OTHER;
       endChoice(config);
     }
@@ -118,7 +119,7 @@ inline Bool LoopPlatformEquipment::iteration(VariableList &varList)
         {
           case PlatformEquipment::GNSSANTENNA:  varList.setVariable(nameInfo, std::dynamic_pointer_cast<PlatformGnssAntenna>(eq)->radome); break;
           case PlatformEquipment::GNSSRECEIVER: varList.setVariable(nameInfo, std::dynamic_pointer_cast<PlatformGnssReceiver>(eq)->version); break;
-          default: break;
+          default: varList.setVariable(nameInfo,""); break;
         }
       }
       break;

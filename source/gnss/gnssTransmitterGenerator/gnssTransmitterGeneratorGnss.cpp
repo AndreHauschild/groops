@@ -30,9 +30,9 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
   {
     std::string choice;
 
-    readConfig(config, "inputfileTransmitterList",  fileNamesTransmitterList, Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterList.gps.txt", "ascii file with transmitter PRNs, used to loop variable {prn}");
-    readConfig(config, "inputfileTransmitterInfo",  fileNameTransmitterInfo,  Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterInfo/igs/igs20/transmitterInfo_igs20.{prn}.xml", "variable {prn} available");
-    readConfig(config, "inputfileAntennaDefintion", fileNameAntennaDef,       Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/antennaDefinition/igs/igs20/antennaDefinition_igs20.dat", "phase centers and variations (ANTEX like)");
+    readConfig(config, "inputfileTransmitterList",      fileNamesTransmitterList, Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterList.gps.txt", "ascii file with transmitter PRNs, used to loop variable {prn}");
+    readConfig(config, "inputfileTransmitterInfo",      fileNameTransmitterInfo,  Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterInfo/igs/igs20/transmitterInfo_igs20.{prn}.xml", "variable {prn} available");
+    readConfig(config, "inputfileAntennaDefintion",     fileNameAntennaDef,       Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/antennaDefinition/igs/igs20/antennaDefinition_igs20.dat", "phase centers and variations (ANTEX like)");
     if(readConfigChoice(config, "noAntennaPatternFound", choice, Config::MUSTSET, "useNearestFrequency", "what should happen is no antenna pattern is found for an observation"))
     {
       if(readConfigChoiceElement(config, "ignoreObservation",   choice, "ignore observation if no matching pattern is found"))
@@ -43,11 +43,12 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
         noPatternFoundAction = GnssAntennaDefinition::NoPatternFoundAction::THROW_EXCEPTION;
       endChoice(config);
     }
-    readConfig(config, "inputfileSignalDefintion",  fileNameSignalDef,        Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
-    readConfig(config, "inputfileOrbit",            fileNameOrbit,            Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "inputfileAttitude",         fileNameAttitude,         Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
-    readConfig(config, "inputfileClock",            fileNameClock,            Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "interpolationDegree",       interpolationDegree,      Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
+    readConfig(config, "inputfileIslTerminalDefintion", fileNameIslTerminalDef, Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat", "phase centers and variations (ANTEX like)");
+    readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,          Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
+    readConfig(config, "inputfileOrbit",                fileNameOrbit,              Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "inputfileAttitude",             fileNameAttitude,           Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
+    readConfig(config, "inputfileClock",                fileNameClock,              Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "interpolationDegree",           interpolationDegree,        Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
   }
   catch(std::exception &e)
   {
@@ -72,6 +73,11 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
     if(!fileNameSignalDef.empty())
       readFileGnssReceiverDefinition(fileNameSignalDef, signalDefList);
 
+    // read ISL terminal definition
+    std::vector<GnssAntennaDefinitionPtr> islTerminalDefList;
+    if(!fileNameIslTerminalDef.empty())
+      readFileGnssAntennaDefinition(fileNameIslTerminalDef, islTerminalDefList);
+
     std::vector<std::string> transmitterList;
     for(const auto &fileNameTransmitterList : fileNamesTransmitterList)
     {
@@ -92,6 +98,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
         platform.name = prn;
         platform.fillGnssAntennaDefinition(antennaDefList);
         platform.fillGnssReceiverDefinition(signalDefList);
+        platform.fillIslTerminalDefinition(islTerminalDefList);
         Vector useableEpochs(times.size(), TRUE);
 
         // read orbit
@@ -169,6 +176,8 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
 
         std::vector<Vector3d>    offset(times.size());
         std::vector<Transform3d> srf2arf(times.size());
+        std::vector<Vector3d>    offsetIsl(times.size());
+        std::vector<Transform3d> srf2arfIsl(times.size());
         for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
           if(useableEpochs(idEpoch))
           {
@@ -180,6 +189,13 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
             }
             else
               useableEpochs(idEpoch) = FALSE;
+
+            auto islTerminal = platform.findEquipment<PlatformIslTerminal>(times.at(idEpoch));
+            if(islTerminal && islTerminal->antennaDef)
+            {
+              offsetIsl.at(idEpoch)  = islTerminal->position - platform.referencePoint(times.at(idEpoch));
+              srf2arfIsl.at(idEpoch) = islTerminal->local2terminalFrame;
+            }
           }
 
         // test useable
@@ -194,7 +210,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
           logWarningOnce<<platform.markerName<<"."<<platform.markerNumber<<": "<<useableEpochs.rows()-countUseableEpochs<<" epochs disabled due to missing orbit/attitude/clock data"<<Log::endl;
 
         transmitters.push_back(std::make_shared<GnssTransmitter>(GnssType("***"+platform.markerNumber), platform, noPatternFoundAction,
-                                                                 useableEpochs, clock, offset, crf2srf, srf2arf, timesPosVel, pos, vel, interpolationDegree));
+                                                                 useableEpochs, clock, offset, crf2srf, srf2arf, offsetIsl, srf2arfIsl, timesPosVel, pos, vel, interpolationDegree));
         countTrans++;
       }
       catch(std::exception &e)
