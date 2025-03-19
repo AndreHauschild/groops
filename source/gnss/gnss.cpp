@@ -214,6 +214,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
     typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
     for(auto recvTerminal : transmitters)
     {
+      logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<recvTerminal->name()<<" "<<recvTerminal->idTrans()<<Log::endl;
       for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
       {
         if (idTrans == recvTerminal->idTrans()) continue;

@@ -339,7 +339,7 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
 
       // inter satellite links
       // ---------------------
-      if(!constraintsOnly)
+      if(!constraintsOnly && Parallel::isMaster(normalEquationInfo.comm))
         for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
         {
           // all observation equations for this epoch
