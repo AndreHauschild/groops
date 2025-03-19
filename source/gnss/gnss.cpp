@@ -123,9 +123,9 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
     Vector recvProcess(receivers.size());
     for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
       if(receivers.at(idRecv)->isMyRank())
-        recvProcess(idRecv) = Parallel::myRank(comm)+1;
-    Parallel::reduceSum(recvProcess, 0, comm);
-    Parallel::broadCast(recvProcess, 0, comm);
+        recvProcess(idRecv) = Parallel::myRank(comm)+1; // process number for each receiver
+    Parallel::reduceSum(recvProcess, 0, comm); // get process number ( all others have zero )
+    Parallel::broadCast(recvProcess, 0, comm); // distribute
 
     // synchronize transceivers
     // ------------------------
@@ -155,7 +155,7 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
           std::sort(typesRecvTrans.at(recv->idRecv()).at(idTrans).begin(), typesRecvTrans.at(recv->idRecv()).at(idTrans).end());
         }
       if(recv->useable())
-        Parallel::broadCast(typesRecvTrans.at(recv->idRecv()), static_cast<UInt>(recvProcess(recv->idRecv())-1), comm);
+        Parallel::broadCast(typesRecvTrans.at(recv->idRecv()), static_cast<UInt>(recvProcess(recv->idRecv())-1), comm); // synchronize types of this process to all others
     }
 
     // adjust signal biases to available observation types
@@ -211,7 +211,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
 
     // collect ISL observations
     // ------------------------
-    std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types)
     typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
     for(auto recvTerminal : transmitters)
     {
