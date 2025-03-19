@@ -95,7 +95,7 @@ public:
   /// Destructor.
  ~GnssReceiverGenerator();
 
-  /** @brief Iniatialize and returns a vector of receivers. */
+  /** @brief Initialize and returns a vector of receivers. */
   std::vector<GnssReceiverPtr> receivers(std::vector<GnssType> simulationTypes, const std::vector<Time> &times, const Time &timeMargin,
                                          const std::vector<GnssTransmitterPtr> &transmitters, EarthRotationPtr earthRotation,
                                          Parallel::CommunicatorPtr comm);

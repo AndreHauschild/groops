@@ -3226,6 +3226,11 @@
 								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="inputfileObservationsIsl" type="filename" minOccurs="0" default="islReceiver_{loopTime:%D}.{prn}.dat">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="interpolationDegree" type="uint" minOccurs="0" default="7">
 							<xs:annotation>
 								<xs:documentation>for orbit interpolation and velocity calculation</xs:documentation>
@@ -12036,11 +12041,6 @@
 						<xs:element name="earthRotation" type="earthRotationType">
 							<xs:annotation>
 								<xs:documentation>apriori earth rotation</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="inputfileObservationsIsl" type="filename" minOccurs="0" default="islReceiver_{loopTime:%D}.{prn}.dat">
-							<xs:annotation>
-								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="parametrization" type="gnssParametrizationType" maxOccurs="unbounded" default="1">

@@ -88,14 +88,12 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     GnssParametrizationPtr      gnssParametrization;
     EarthRotationPtr            earthRotation;
     GnssProcessingStepPtr       processingSteps;
-    FileName                    fileNameObsIsl;
 
     readConfig(config, "timeSeries",               timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
     readConfig(config, "timeMargin",               marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
     readConfig(config, "transmitter",              transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
     readConfig(config, "receiver",                 receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
     readConfig(config, "earthRotation",            earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
-    readConfig(config, "inputfileObservationsIsl", fileNameObsIsl,       Config::OPTIONAL, "islReceiver_{loopTime:%D}.{prn}.dat", "variable {prn} available");
     readConfig(config, "parametrization",          gnssParametrization,  Config::MUSTSET,  "1",   "models and parameters");
     readConfig(config, "processingStep",           processingSteps,      Config::MUSTSET,  "",    "steps are processed consecutively");
     if(isCreateSchema(config)) return;
@@ -159,35 +157,6 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
         countTracks += recv->tracks.size();
     Parallel::reduceSum(countTracks, 0, comm);
     logInfo<<"  number of tracks: "<<countTracks<<Log::endl;
-
-    // inter satellite links
-    // ---------------------
-    VariableList fileNameVariableList;
-    fileNameVariableList.setVariable("prn", "***");
-    if(!fileNameObsIsl(fileNameVariableList).empty())
-    {
-      Parallel::barrier(comm);
-      logStatus<<"read inter satellite link observations"<<Log::endl;
-      Log::Timer timer(gnss->transmitters.size());
-      for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
-        if(idTrans%Parallel::size(comm) == Parallel::myRank(comm)) // distribute to nodes
-        {
-          timer.loopStep(idTrans);
-          fileNameVariableList.setVariable("prn", gnss->transmitters.at(idTrans)->name());
-          try
-          {
-            gnss->transmitters.at(idTrans)->readObservationsIsl(fileNameObsIsl(fileNameVariableList), gnss->transmitters, times, seconds2time(marginSeconds));
-          }
-          catch(std::exception &/*e*/)
-          {
-            logWarning<<"Unable to read ISL observations <"<<fileNameObsIsl(fileNameVariableList)<<">."<<Log::endl;
-            continue;
-          }
-        }
-      Parallel::barrier(comm);
-      timer.loopEnd();
-    }
-    gnss->synchronizeTransceiversIsl(comm);
 
     // Processing steps
     // ----------------

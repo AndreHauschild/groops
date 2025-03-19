@@ -44,11 +44,12 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
       endChoice(config);
     }
     readConfig(config, "inputfileIslTerminalDefintion", fileNameIslTerminalDef, Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat", "phase centers and variations (ANTEX like)");
-    readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,          Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
-    readConfig(config, "inputfileOrbit",                fileNameOrbit,              Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "inputfileAttitude",             fileNameAttitude,           Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
-    readConfig(config, "inputfileClock",                fileNameClock,              Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "interpolationDegree",           interpolationDegree,        Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
+    readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,      Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
+    readConfig(config, "inputfileOrbit",                fileNameOrbit,          Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "inputfileAttitude",             fileNameAttitude,       Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
+    readConfig(config, "inputfileClock",                fileNameClock,          Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "inputfileObservationsIsl",      fileNameObsIsl,         Config::OPTIONAL, "islReceiver_{loopTime:%D}.{prn}.dat", "variable {prn} available");
+    readConfig(config, "interpolationDegree",           interpolationDegree,    Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
   }
   catch(std::exception &e)
   {
@@ -58,7 +59,8 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
 
 /***********************************************/
 
-void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vector<GnssTransmitterPtr> &transmitters)
+void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Time &timeMargin, Parallel::CommunicatorPtr comm,
+                                        std::vector<GnssTransmitterPtr> &transmitters)
 {
   try
   {
@@ -219,11 +221,41 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
       }
     } // for(idTrans)
 
+
+    // inter satellite links
+    // ---------------------
+    fileNameVariableList.setVariable("prn", "***");
+    if(!fileNameObsIsl(fileNameVariableList).empty())
+    {
+      Parallel::barrier(comm);
+      logStatus<<"read inter satellite link observations"<<Log::endl;
+      Log::Timer timer(transmitters.size());
+      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+        if(idTrans%Parallel::size(comm) == Parallel::myRank(comm)) // distribute to nodes
+        {
+          GnssTransmitterPtr &trans = transmitters.at(idTrans);
+          timer.loopStep(idTrans);
+          fileNameVariableList.setVariable("prn", trans->name());
+          try
+          {
+            trans->readObservationsIsl(fileNameObsIsl(fileNameVariableList), transmitters, times, timeMargin);
+          }
+          catch(std::exception &/*e*/)
+          {
+            logWarning<<"Unable to read ISL observations <"<<fileNameObsIsl(fileNameVariableList)<<">."<<Log::endl;
+            continue;
+          }
+        }
+      Parallel::barrier(comm);
+      timer.loopEnd();
+    }
+
     if(!countTrans)
     {
       fileNameVariableList.setVariable("prn", "***");
       logWarningOnce<<"Initialization of all satellites failed. Wrong file name <"<<fileNameOrbit(fileNameVariableList)<<">?"<<Log::endl;
     }
+    logWarning<<"  "<<countTrans<<" of "<<transmitterList.size()<<" transmitters used"<<Log::endl;
   }
   catch(std::exception &e)
   {
