@@ -214,6 +214,15 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
               <<Log::endl;
 #endif
 
+    // distribute process id of transmitters
+    // -------------------------------------
+    Vector recvProcess(transmitters.size());
+    for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      if(transmitters.at(idTrans)->isMyRank())
+        recvProcess(idTrans) = Parallel::myRank(comm)+1; // process number for each transmitter
+    Parallel::reduceSum(recvProcess, 0, comm); // get process number ( all others have zero )
+    Parallel::broadCast(recvProcess, 0, comm); // distribute
+
     // collect ISL observations
     // ------------------------
     typesRecvTransIsl.clear();
@@ -222,37 +231,39 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
     Log::Timer timer(transmitters.size());
     for(auto recvTerminal : transmitters)
     {
-      if (recvTerminal->idEpochSize()==0) continue;
-      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      if(recvTerminal->isMyRank())
       {
-        for(UInt idEpoch=0; idEpoch<recvTerminal->idEpochSize(); idEpoch++)
+        if(recvTerminal->idEpochSize()==0) continue;
+        for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
         {
-          auto obs = recvTerminal->observationIsl(idTrans, idEpoch);
-          if(obs)
+          for(UInt idEpoch=0; idEpoch<recvTerminal->idEpochSize(); idEpoch++)
           {
-            const GnssType typeIsl = GnssType("C1C") + transmitters.at(idTrans)->PRN();
-            if(!typeIsl.isInList(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans)))
-              typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).push_back(typeIsl);
+            auto obs = recvTerminal->observationIsl(idTrans, idEpoch);
+            if(obs)
+            {
+              const GnssType typeIsl = GnssType("C1C") + transmitters.at(idTrans)->PRN();
+              if(!typeIsl.isInList(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans)))
+                typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).push_back(typeIsl);
+            }
           }
+          std::sort(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).begin(), typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).end());
+  #if DEBUG > 0
+          if(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()>0)
+            logWarning<<"synchronizeTransceiversIsl()"<<" ISL terminal "
+                      <<" rcv "<<recvTerminal->name()
+                      <<" trx "<<transmitters.at(idTrans)->name()
+                      <<typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()%" nTypes %2i"s
+                      <<Parallel::myRank(comm)%" (idProc %2i)"s
+                      <<Log::endl;
+  #endif
         }
-        std::sort(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).begin(), typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).end());
-#if DEBUG > 0
-        if(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()>0)
-          logWarning<<"synchronizeTransceiversIsl()"<<" ISL terminal "
-                    <<" rcv "<<recvTerminal->name()
-                    <<" trx "<<transmitters.at(idTrans)->name()
-                    <<typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()%" nTypes %2i"s
-                    <<Parallel::myRank(comm)%" (idProc %2i)"s
-                    <<Log::endl;
-#endif
-      }
-      if(recvTerminal->useable())
-      {
-        logWarning<<"synchronizeTransceiversIsl()"<<" send "
-                  <<" rcv "<<recvTerminal->name()
-                  <<Parallel::myRank(comm)%" (idProc %2i)"s
-                  <<Log::endl;
-        Parallel::send(typesRecvTransIsl.at(recvTerminal->idTrans()), 0, comm); // send to master process
+        if(recvTerminal->useable())
+        {
+          if(recvProcess(recvTerminal->idTrans())-1 == Parallel::myRank(comm))
+            Parallel::send(typesRecvTransIsl.at(recvTerminal->idTrans()), 0, comm); // send to master process
+          if(Parallel::isMaster(comm))
+            Parallel::receive(typesRecvTransIsl.at(recvTerminal->idTrans()), static_cast<UInt>(recvProcess(recvTerminal->idTrans())-1), comm); // receive from other processes
+        }
       }
     }
     Parallel::broadCast(typesRecvTransIsl, 0, comm); // send to all processes

@@ -234,6 +234,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
         if(idTrans%Parallel::size(comm) == Parallel::myRank(comm)) // distribute to nodes
         {
           GnssTransmitterPtr &trans = transmitters.at(idTrans);
+          trans->isMyRank_ = TRUE;
           timer.loopStep(idTrans);
           fileNameVariableList.setVariable("prn", trans->name());
           try

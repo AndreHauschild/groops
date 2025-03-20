@@ -44,6 +44,7 @@ class GnssTransmitter : public GnssTransceiver
   std::vector<Transform3d> srf2arfIsl;
 
 public:
+  Bool              isMyRank_;
   std::vector<Time> timesPosVel;
   Matrix            pos, vel; // CoM in CRF (epoch times (x,y,z))
 
@@ -55,13 +56,16 @@ public:
                   const std::vector<Time> &timesPosVel, const_MatrixSliceRef position, const_MatrixSliceRef velocity, UInt interpolationDegree)
   : GnssTransceiver(platform, noPatternFoundAction, useableEpochs),
     type(prn), polynomial(timesPosVel, interpolationDegree, TRUE/*throwException*/, FALSE/*leastSquares*/, -(interpolationDegree+1.1), -1.1, 1e-7),
-    clk(clock), offset(offset), crf2srf(crf2srf), srf2arf(srf2arf), offsetIsl(offsetIsl), srf2arfIsl(srf2arfIsl), timesPosVel(timesPosVel), pos(position), vel(velocity) {}
+    clk(clock), offset(offset), crf2srf(crf2srf), srf2arf(srf2arf), offsetIsl(offsetIsl), srf2arfIsl(srf2arfIsl), timesPosVel(timesPosVel), pos(position), vel(velocity),
+    isMyRank_(FALSE) {}
 
   /// Destructor.
   virtual ~GnssTransmitter();
 
   /** @brief Identify number in the GNSS system. */
   UInt idTrans() const {return id_;}
+
+  Bool isMyRank() const {return isMyRank_;}
 
   /** @brief PRN number of satellite.
   *  = prn + GnssType::SYSTEM. */
