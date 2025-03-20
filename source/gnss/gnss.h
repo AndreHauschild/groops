@@ -57,7 +57,8 @@ public:
   std::function<void(GnssObservationEquationIsl &eqn)> funcReduceModelsIsl;
   std::function<Rotary3d(const Time &time)>            funcRotationCrf2Trf;
   Matrix                          eop;             // Matrix eop columns: xp, yp, sp, deltaUT, LOD, X, Y, S
-  std::vector<std::vector<std::vector<GnssType>>> typesRecvTrans; // for each receiver and transmitter: used types (receiver types)
+  std::vector<std::vector<std::vector<GnssType>>> typesRecvTrans;    // for each receiver and transmitter: used types (receiver types)
+  std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types)
 
   void init(std::vector<GnssType> simulationTypes, const std::vector<Time> &times, const Time &timeMargin,
             GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,

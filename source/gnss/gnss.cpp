@@ -10,7 +10,7 @@
 */
 /***********************************************/
 
-#define DEBUG 1
+#define DEBUG 0
 
 #include "base/import.h"
 #include "base/planets.h"
@@ -203,21 +203,28 @@ void Gnss::synchronizeTransceivers(Parallel::CommunicatorPtr comm)
 
 /***********************************************/
 
-void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
+void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 {
   try
   {
 
+#if DEBUG > 0
+    logWarning<<"synchronizeTransceiversIsl() start"
+              <<Parallel::myRank(comm)%" (idProc %2i)"s
+              <<Log::endl;
+#endif
+
     // collect ISL observations
     // ------------------------
-    std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types)
+    typesRecvTransIsl.clear();
     typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
+    Parallel::barrier(comm);
+    Log::Timer timer(transmitters.size());
     for(auto recvTerminal : transmitters)
     {
-      logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<recvTerminal->name()<<" "<<recvTerminal->idTrans()<<Log::endl;
+      if (recvTerminal->idEpochSize()==0) continue;
       for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
       {
-        if (idTrans == recvTerminal->idTrans()) continue;
         for(UInt idEpoch=0; idEpoch<recvTerminal->idEpochSize(); idEpoch++)
         {
           auto obs = recvTerminal->observationIsl(idTrans, idEpoch);
@@ -229,8 +236,34 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
           }
         }
         std::sort(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).begin(), typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).end());
+#if DEBUG > 0
+        if(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()>0)
+          logWarning<<"synchronizeTransceiversIsl()"<<" ISL terminal "
+                    <<" rcv "<<recvTerminal->name()
+                    <<" trx "<<transmitters.at(idTrans)->name()
+                    <<typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()%" nTypes %2i"s
+                    <<Parallel::myRank(comm)%" (idProc %2i)"s
+                    <<Log::endl;
+#endif
+      }
+      if(recvTerminal->useable())
+      {
+        logWarning<<"synchronizeTransceiversIsl()"<<" send "
+                  <<" rcv "<<recvTerminal->name()
+                  <<Parallel::myRank(comm)%" (idProc %2i)"s
+                  <<Log::endl;
+        Parallel::send(typesRecvTransIsl.at(recvTerminal->idTrans()), 0, comm); // send to master process
       }
     }
+    Parallel::broadCast(typesRecvTransIsl, 0, comm); // send to all processes
+    Parallel::barrier(comm);
+    timer.loopEnd();
+
+#if DEBUG > 0
+    logWarning<<"synchronizeTransceiversIsl() mid"
+              <<Parallel::myRank(comm)%" idProc %2i"s
+              <<Log::endl;
+#endif
 
     // adjust signal biases to available observation types
     // NOTE: if no observations are found, a-priori biases are removed!
@@ -252,7 +285,9 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
       for(UInt i=0; i<sendTerminal->signalBiasIslTx.types.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
                   <<sendTerminal->signalBiasIslTx.types.at(i).str()<< " : "
-                  <<sendTerminal->signalBiasIslTx.biases.at(i)%" %6.2f"s<<Log::endl;
+                  <<sendTerminal->signalBiasIslTx.biases.at(i)%" %6.2f"s
+                  <<Parallel::myRank(comm)%" idProc %2i"s
+                  <<Log::endl;
 #endif
 
     for(auto recvTerminal : transmitters)
@@ -273,8 +308,17 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr /*comm*/)
       for(UInt i=0; i<recvTerminal->signalBiasIslRx.types.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<recvTerminal->name()<<" "
                   <<recvTerminal->signalBiasIslRx.types.at(i).str()<< " : "
-                  <<recvTerminal->signalBiasIslRx.biases.at(i)%" %6.2f"s<<Log::endl;
+                  <<recvTerminal->signalBiasIslRx.biases.at(i)%" %6.2f"s
+                  <<Parallel::myRank(comm)%" idProc %2i"s
+                  <<Log::endl;
 #endif
+
+#if DEBUG> 0
+    logWarning<<"synchronizeTransceiversIsl() end"
+              <<Parallel::myRank(comm)%" idProc %2i"s
+              <<Log::endl;
+#endif
+
   }
   catch(std::exception &e)
   {
