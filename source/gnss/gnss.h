@@ -85,6 +85,7 @@ public:
 
   /** @brief sorted list of used types. */
   std::vector<GnssType> types(const GnssType mask=GnssType::ALL) const;
+  std::vector<GnssType> typesIsl(const GnssType mask=GnssType::ALL) const;
 
   std::vector<Byte> selectTransmitters(PlatformSelectorPtr selector);
   std::vector<Byte> selectReceivers(PlatformSelectorPtr selector);

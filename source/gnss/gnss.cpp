@@ -685,6 +685,27 @@ std::vector<GnssType> Gnss::types(const GnssType mask) const
 }
 
 /***********************************************/
+
+std::vector<GnssType> Gnss::typesIsl(const GnssType mask) const
+{
+  try
+  {
+    std::vector<GnssType> types;
+    for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
+      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+        for(GnssType type : typesRecvTransIsl.at(idRecv).at(idTrans))
+          if(!type.isInList(types))
+             types.push_back(type & mask);
+    std::sort(types.begin(), types.end());
+    return types;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
 /***********************************************/
 
 std::vector<Byte> Gnss::selectTransmitters(PlatformSelectorPtr selector)
