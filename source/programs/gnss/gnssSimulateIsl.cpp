@@ -80,39 +80,48 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     Gnss gnss;
     gnss.init({}, times, seconds2time(marginSeconds), transmitterGenerator, receiverGenerator, earthRotation, gnssParametrization, comm);
 
+    // distribute transmitters to nodes
+    // --------------------------------
+    for(UInt idTrans=0; idTrans<gnss.transmitters.size(); idTrans++)
+      if(idTrans%Parallel::size(comm) == Parallel::myRank(comm)) // distribute to nodes
+        gnss.transmitters.at(idTrans)->isMyRank_ = TRUE;
+
+    VariableList fileNameVariableList;
+    fileNameVariableList.setVariable("prn", "***");
+    logInfo<<"Load ISL schedule files <"<<fileNameSchedule(fileNameVariableList)<<">"<<Log::endl;
+
     // inter satellite links
     // ---------------------
     for(auto recv : gnss.transmitters)
-    {
-
-      // Loading ISL schedule file
-      // -------------------------
-      VariableList fileNameVariableList;
-      fileNameVariableList.setVariable("prn", recv->name());
-      logInfo<<"Load ISL schedule "<<fileNameSchedule(fileNameVariableList)<<Log::endl;
-
-      GnssReceiverArc scheduleIsl;
-      try
+      if (recv->isMyRank())
       {
-        readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
-      }
-      catch(std::exception &/*e*/)
-      {
-        logWarningOnce<<"Unable to read ISL schedule <"<<fileNameSchedule(fileNameVariableList)<<">, skipping satellite."<<Log::endl;
-        continue;
-      }
-      if(!scheduleIsl.size())
-      {
-        logWarning<<"no scheduled ISLs found"<<Log::endl;
-        continue;
+        // Loading ISL schedule file
+        // -------------------------
+        fileNameVariableList.setVariable("prn", recv->name());
+        GnssReceiverArc scheduleIsl;
+        try
+        {
+          readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
+        }
+        catch(std::exception &/*e*/)
+        {
+          logWarning<<"Unable to read ISL schedule <"<<fileNameSchedule(fileNameVariableList)<<">, skipping satellite."<<Log::endl;
+          continue;
+        }
+        if(!scheduleIsl.size())
+        {
+          logWarning<<"no scheduled ISLs found"<<Log::endl;
+          continue;
+        }
+
+        // Simulate ISL observations
+        // -------------------------
+        recv->simulateObservationsIsl(noiseObs,gnss.transmitters,times,scheduleIsl,gnss.funcReduceModelsIsl);
       }
 
-      // Simulate ISL observations
-      // -------------------------
-      recv->simulateObservationsIsl(noiseObs,gnss.transmitters,times,scheduleIsl,gnss.funcReduceModelsIsl);
-
-    }
+    Parallel::barrier(comm);
     gnss.synchronizeTransceiversIsl(comm);
+    Parallel::barrier(comm);
     logInfo<<"  transmitter: "<<std::count_if(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto t) {return t->useable();})<<Log::endl;
     if(!std::any_of(gnss.transmitters.begin(), gnss.transmitters.end(), [](auto trans){return trans->useable();}))
     {
@@ -120,15 +129,42 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
       return;
     }
 
+    // count observation types
+    // -----------------------
+    logInfo<<"types and number of ISL observations:"<<Log::endl;
+    std::vector<GnssType> types = gnss.typesIsl(~(GnssType::PRN + GnssType::FREQ_NO));
+    Vector countTypes(types.size());
+    for(auto recv : gnss.transmitters)
+      if(recv->isMyRank())
+        for(UInt idEpoch=0; idEpoch<recv->idEpochSize(); idEpoch++)
+          for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
+          {
+            auto obs = recv->observationIsl(idTrans, idEpoch);
+            if(obs)
+            {
+              const GnssType typeIsl = GnssType("C1C") + gnss.transmitters.at(idTrans)->PRN();
+              const UInt idx = GnssType::index(types, typeIsl);
+              if(idx != NULLINDEX)
+                countTypes(idx)++;
+            }
+          }
+    Parallel::reduceSum(countTypes, 0, comm);
+
+    for(UInt idType=0; idType<types.size(); idType++)
+      logInfo<<"  ISL"<<types.at(idType).str().substr(3)<<":"<<countTypes(idType)%"%10i"s<<Log::endl;
+    logInfo<<"        + ========="<<Log::endl;
+    logInfo<<"  total:"<<sum(countTypes)%"%11i"s<<Log::endl;
+
     // Write observations
     // ------------------
     if(!fileNameIsl.empty())
     {
       VariableList fileNameVariableList;
-      fileNameVariableList.setVariable("prn", "****");
+      fileNameVariableList.setVariable("prn", "***");
       logStatus<<"write ISL observations to files <"<<fileNameIsl(fileNameVariableList)<<">"<<Log::endl;
+
       for(auto recv : gnss.transmitters)
-        if(recv->useable())
+        if(recv->useable() && recv->isMyRank())
         {
 
           GnssReceiverArc arc;
