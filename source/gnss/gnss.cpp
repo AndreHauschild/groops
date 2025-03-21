@@ -691,7 +691,7 @@ std::vector<GnssType> Gnss::typesIsl(const GnssType mask) const
   try
   {
     std::vector<GnssType> types;
-    for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
+    for(UInt idRecv=0; idRecv<transmitters.size(); idRecv++)
       for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
         for(GnssType type : typesRecvTransIsl.at(idRecv).at(idTrans))
           if(!type.isInList(types))
