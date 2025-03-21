@@ -256,7 +256,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
       fileNameVariableList.setVariable("prn", "***");
       logWarningOnce<<"Initialization of all satellites failed. Wrong file name <"<<fileNameOrbit(fileNameVariableList)<<">?"<<Log::endl;
     }
-    logWarning<<"  "<<countTrans<<" of "<<transmitterList.size()<<" transmitters used"<<Log::endl;
+    logStatus<<"  "<<countTrans<<" of "<<transmitterList.size()<<" transmitters used"<<Log::endl;
   }
   catch(std::exception &e)
   {
