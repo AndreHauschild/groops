@@ -210,7 +210,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
 #if DEBUG > 0
     logWarning<<"synchronizeTransceiversIsl() start"
-              <<Parallel::myRank(comm)%" (idProc %2i)"s
               <<Log::endl;
 #endif
 
@@ -246,11 +245,10 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
           std::sort(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).begin(), typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).end());
   #if DEBUG > 0
           if(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()>0)
-            logWarning<<"synchronizeTransceiversIsl()"<<" ISL terminal "
-                      <<" rcv "<<recvTerminal->name()
-                      <<" trx "<<transmitters.at(idTrans)->name()
+            logWarning<<"synchronizeTransceiversIsl()"<<" ISL "
+                      <<recvTerminal->name()<<" <- "
+                      <<transmitters.at(idTrans)->name()
                       <<typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()%" nTypes %2i"s
-                      <<Parallel::myRank(comm)%" (idProc %2i)"s
                       <<Log::endl;
   #endif
         }
@@ -261,7 +259,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
 #if DEBUG > 0
     logWarning<<"synchronizeTransceiversIsl() mid"
-              <<Parallel::myRank(comm)%" idProc %2i"s
               <<Log::endl;
 #endif
 
@@ -286,7 +283,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
                   <<sendTerminal->signalBiasIslTx.types.at(i).str()<< " : "
                   <<sendTerminal->signalBiasIslTx.biases.at(i)%" %6.2f"s
-                  <<Parallel::myRank(comm)%" idProc %2i"s
                   <<Log::endl;
 #endif
 
@@ -309,13 +305,11 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
         logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<recvTerminal->name()<<" "
                   <<recvTerminal->signalBiasIslRx.types.at(i).str()<< " : "
                   <<recvTerminal->signalBiasIslRx.biases.at(i)%" %6.2f"s
-                  <<Parallel::myRank(comm)%" idProc %2i"s
                   <<Log::endl;
 #endif
 
 #if DEBUG> 0
     logWarning<<"synchronizeTransceiversIsl() end"
-              <<Parallel::myRank(comm)%" idProc %2i"s
               <<Log::endl;
 #endif
 
