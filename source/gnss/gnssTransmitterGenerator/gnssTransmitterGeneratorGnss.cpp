@@ -231,6 +231,8 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
       logStatus<<"read inter satellite link observations"<<Log::endl;
       Log::Timer timer(transmitters.size());
       for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+        // TODO: the node distribution should be done in the transmitter loop before, to ensure
+        //       that isMyRank_ is set correctly even without ISL observations.
         if(idTrans%Parallel::size(comm) == Parallel::myRank(comm)) // distribute to nodes
         {
           GnssTransmitterPtr &trans = transmitters.at(idTrans);
