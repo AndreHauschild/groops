@@ -271,7 +271,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       for(auto &typesTrans : typesRecvTransIsl)
         for(GnssType type : typesTrans.at(sendTerminal->idTrans()))
           if(type == GnssType::RANGE && !type.isInList(types))
-            types.push_back(type);
+            types.push_back(type+sendTerminal->PRN());
 
       sendTerminal->signalBiasIslTx.biases = sendTerminal->signalBiasIslTx.compute(types); // apriori signal bias
       sendTerminal->signalBiasIslTx.types  = types;
