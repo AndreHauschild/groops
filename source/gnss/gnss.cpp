@@ -227,13 +227,10 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
     // ------------------------
     typesRecvTransIsl.clear();
     typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
-    Parallel::barrier(comm);
-    Log::Timer timer(transmitters.size());
     for(auto recvTerminal : transmitters)
     {
       if(recvTerminal->isMyRank())
       {
-        if(recvTerminal->idEpochSize()==0) continue;
         for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
         {
           for(UInt idEpoch=0; idEpoch<recvTerminal->idEpochSize(); idEpoch++)
@@ -257,18 +254,10 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                       <<Log::endl;
   #endif
         }
-        if(recvTerminal->useable())
-        {
-          if(recvProcess(recvTerminal->idTrans())-1 == Parallel::myRank(comm))
-            Parallel::send(typesRecvTransIsl.at(recvTerminal->idTrans()), 0, comm); // send to master process
-          if(Parallel::isMaster(comm))
-            Parallel::receive(typesRecvTransIsl.at(recvTerminal->idTrans()), static_cast<UInt>(recvProcess(recvTerminal->idTrans())-1), comm); // receive from other processes
-        }
       }
+      if(recvTerminal->useable())
+        Parallel::broadCast(typesRecvTransIsl.at(recvTerminal->idTrans()), static_cast<UInt>(recvProcess(recvTerminal->idTrans())-1), comm); // synchronize types of this process to all others
     }
-    Parallel::broadCast(typesRecvTransIsl, 0, comm); // send to all processes
-    Parallel::barrier(comm);
-    timer.loopEnd();
 
 #if DEBUG > 0
     logWarning<<"synchronizeTransceiversIsl() mid"
