@@ -65,6 +65,7 @@ public:
   /** @brief Identify number in the GNSS system. */
   UInt idTrans() const {return id_;}
 
+  /** @brief Returns true if transmitter is assigned to current node. */
   Bool isMyRank() const {return isMyRank_;}
 
   /** @brief PRN number of satellite.
