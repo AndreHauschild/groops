@@ -151,7 +151,7 @@ void GnssProcessingStep::process(GnssProcessingStep::State &state)
 
 GnssProcessingStep::State::State(GnssPtr gnss, Parallel::CommunicatorPtr comm) :
   gnss(gnss), normalEquationInfo(gnss->times.size(), gnss->receivers.size(), gnss->transmitters.size(), comm),
-  changedNormalEquationInfo(TRUE), sigmaType(gnss->receivers.size()), sigmaFactor(gnss->receivers.size())
+  changedNormalEquationInfo(TRUE), sigmaType(gnss->receivers.size()), sigmaFactor(gnss->receivers.size()), sigmaFactorIsl(gnss->transmitters.size())
 {
   try
   {
@@ -943,6 +943,48 @@ void GnssProcessingStep::State::residualsStatistics(UInt idRecv, UInt idTrans,
                       outlierCount.at(idx)++;
                   }
               } // for(idTrans, idEpoch)
+
+    for(UInt i=0; i<types.size(); i++)
+    {
+      Parallel::reduceSum(ePe.at(i),          0, normalEquationInfo.comm);
+      Parallel::reduceSum(redundancy.at(i),   0, normalEquationInfo.comm);
+      Parallel::reduceSum(obsCount.at(i),     0, normalEquationInfo.comm);
+      Parallel::reduceSum(outlierCount.at(i), 0, normalEquationInfo.comm);
+    }
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void GnssProcessingStep::State::residualsStatisticsIsl(UInt idRecv,
+                                                       std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
+                                                       std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount)
+{
+  try
+  {
+    for(auto recv : gnss->transmitters)
+      if(recv->isMyRank() && ((idRecv == NULLINDEX) || (idRecv == recv->idTrans())))
+        for(UInt idEpoch : normalEquationInfo.idEpochs)
+          if(recv->useable(idEpoch))
+            for(auto trans : gnss->transmitters)
+              if(recv->observationIsl(trans->idTrans(), idEpoch))
+              {
+                const GnssObservationIsl &obs = *recv->observationIsl(trans->idTrans(), idEpoch);
+                const GnssType typeIsl = GnssType("C1C")+trans->PRN();
+                UInt idx;
+                if((obs.sigma0 > 0) && (typeIsl.isInList(types, idx)))
+                {
+                  ePe.at(idx)        += std::pow(obs.residual/obs.sigma, 2);
+                  redundancy.at(idx) += obs.redundancy;
+                  obsCount.at(idx)++;
+                  if(obs.sigma > obs.sigma0)
+                    outlierCount.at(idx)++;
+                }
+              } // for(trans, idEpoch)
 
     for(UInt i=0; i<types.size(); i++)
     {

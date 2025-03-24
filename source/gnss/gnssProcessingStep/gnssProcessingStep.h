@@ -77,6 +77,7 @@ public:
     UInt                               obsCount; // at master (after solve)
     std::vector<std::vector<GnssType>> sigmaType;
     std::vector<std::vector<Double>>   sigmaFactor; // for each receiver and type
+    std::vector<Double>                sigmaFactorIsl; // for each transmitter
 
     /** @brief Constructor. */
     State(GnssPtr gnss, Parallel::CommunicatorPtr comm);
@@ -90,6 +91,10 @@ public:
     void residualsStatistics        (UInt idRecv, UInt idTrans,
                                      std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
                                      std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount);
+    void residualsStatisticsIsl     (UInt idTrans,
+                                     std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
+                                     std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount);
+
   };
 
   /** @brief Constructor from config. */
