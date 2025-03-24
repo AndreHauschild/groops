@@ -221,6 +221,16 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
       }
     } // for(idTrans)
 
+    // Assign transmitters to nodes
+    // NOTE: this is done here to make sure that isMyRank_ 
+    //       is set correctly even without ISL observations.   
+    // ----------------------------
+    for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      if(idTrans%Parallel::size(comm) == Parallel::myRank(comm))
+      {
+        GnssTransmitterPtr &trans = transmitters.at(idTrans);
+        trans->isMyRank_ = TRUE;
+      }
 
     // inter satellite links
     // ---------------------
@@ -231,12 +241,9 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
       logStatus<<"read inter satellite link observations"<<Log::endl;
       Log::Timer timer(transmitters.size());
       for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
-        // TODO: the node distribution should be done in the transmitter loop before, to ensure
-        //       that isMyRank_ is set correctly even without ISL observations.
-        if(idTrans%Parallel::size(comm) == Parallel::myRank(comm)) // distribute to nodes
+        if(transmitters.at(idTrans)->isMyRank())
         {
           GnssTransmitterPtr &trans = transmitters.at(idTrans);
-          trans->isMyRank_ = TRUE;
           timer.loopStep(idTrans);
           fileNameVariableList.setVariable("prn", trans->name());
           try
@@ -248,7 +255,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
             logWarning<<"Unable to read ISL observations <"<<fileNameObsIsl(fileNameVariableList)<<">."<<Log::endl;
             continue;
           }
-        }
+        } // for(idTrans)
       Parallel::barrier(comm);
       timer.loopEnd();
     }
