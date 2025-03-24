@@ -163,7 +163,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
 
     // NOTE: the a-priori values for the zero-mean constrained are stored in
     //       this function and used in the constraints() function. It cannot be
-    //       done in the init() function since the a-priori values may not yet
+    //       done in the init() function, since the a-priori values may not yet
     //       initialized at that point depending on the parametrization order of
     //       gnssParametrizationislBiases and gnssParametrizationSignalBiasesIsl
 
@@ -191,11 +191,9 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
                <<para->trans->name()<<para->trans->signalBiasesIslRx()%" %5.2fm"s<<Log::endl;
 #endif
       }
-
     applyConstraint = isEnabled(normalEquationInfo, nameConstraint) && sigmaZeroMean
                       && (countparaTransmitTerminal+countparaReceiveTerminal)
                       && countZeroMean;
-
   }
   catch(std::exception &e)
   {
