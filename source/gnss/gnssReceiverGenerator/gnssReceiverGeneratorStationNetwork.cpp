@@ -207,42 +207,6 @@ void GnssReceiverGeneratorStationNetwork::init(std::vector<GnssType> simulationT
                 recv->disable(idEpoch, "missing antenna/accuracy patterns");
             }
 
-            recv->preprocessingInfo("init()");
-
-            auto rotationCrf2Trf = std::bind(&EarthRotation::rotaryMatrix, earthRotation, std::placeholders::_1);
-            if(isSimulation)
-            {
-              recv->simulateZeroObservations(simulationTypes, transmitters, rotationCrf2Trf, elevationCutOff,
-                                             useType, ignoreType, GnssObservation::RANGE | GnssObservation::PHASE);
-            }
-            else
-            {
-              recv->readObservations(fileNameObs(fileNameVariableList), transmitters, rotationCrf2Trf, timeMargin, elevationCutOff,
-                                     useType, ignoreType, GnssObservation::RANGE | GnssObservation::PHASE);
-            }
-
-            auto enoughEpochs = [&]()
-            {
-              // count epochs with observations
-              UInt countEpochs = 0;
-              for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
-                if(recv->useable(idEpoch))
-                  countEpochs++;
-              return (countEpochs*recv->observationSampling >= minEstimableEpochsRatio*times.size()*medianSampling(times).seconds());
-            };
-
-            if(!fileNameObs.empty())
-            {
-              auto rotationCrf2Trf = std::bind(&EarthRotation::rotaryMatrix, earthRotation, std::placeholders::_1);
-              recv->readObservations(fileNameObs(fileNameVariableList), transmitters, rotationCrf2Trf, timeMargin, elevationCutOff,
-                  useType, ignoreType, GnssObservation::RANGE | GnssObservation::PHASE);
-
-              if(!enoughEpochs()) {
-                logWarning<<"Not enough valid epochs with observations, disabling receiver "<<receiversWithAlternatives.at(i).at(k)->name()<<Log::endl;
-                continue;
-              }
-            }
-
             // clock file
             // ----------
             if(!fileNameClock.empty())
@@ -276,6 +240,35 @@ void GnssReceiverGeneratorStationNetwork::init(std::vector<GnssType> simulationT
                 logWarning<<"Unable to read clock file <"<<fileNameClock(fileNameVariableList)<<">, disabling receiver."<<Log::endl;
                 continue;
               }
+            }
+            
+            recv->preprocessingInfo("init()");
+
+            auto rotationCrf2Trf = std::bind(&EarthRotation::rotaryMatrix, earthRotation, std::placeholders::_1);
+            if(isSimulation)
+            {
+              recv->simulateZeroObservations(simulationTypes, transmitters, rotationCrf2Trf, elevationCutOff,
+                                             useType, ignoreType, GnssObservation::RANGE | GnssObservation::PHASE);
+            }
+            else
+            {
+              recv->readObservations(fileNameObs(fileNameVariableList), transmitters, rotationCrf2Trf, timeMargin, elevationCutOff,
+                                     useType, ignoreType, GnssObservation::RANGE | GnssObservation::PHASE);
+            }
+
+            auto enoughEpochs = [&]()
+            {
+              // count epochs with observations
+              UInt countEpochs = 0;
+              for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
+                if(recv->useable(idEpoch))
+                  countEpochs++;
+              return (countEpochs*recv->observationSampling >= minEstimableEpochsRatio*times.size()*medianSampling(times).seconds());
+            };
+	
+            if(!enoughEpochs()) {
+              logWarning<<"Not enough valid epochs with observations, disabling receiver "<<receiversWithAlternatives.at(i).at(k)->name()<<Log::endl;
+              continue;
             }
 
             // found valid station
