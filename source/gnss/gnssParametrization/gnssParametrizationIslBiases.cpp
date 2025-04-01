@@ -161,7 +161,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
 
     // Initialize a-priori values
 
-    // NOTE: the a-priori values for the zero-mean constrained are stored in
+    // NOTE: the a-priori values for the zero-mean constraint are stored in
     //       this function and used in the constraints() function. It cannot be
     //       done in the init() function, since the a-priori values may not yet
     //       initialized at that point depending on the parametrization order of
