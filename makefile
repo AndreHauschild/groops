@@ -11,6 +11,7 @@
 #   2022/12/09  AHA  Created
 #   2024/11/12  AHA  Add build target for documentation
 #   2024/11/12  AHA  Remove and re-create xsd schema file
+#   2025/04/10  AHA  Avoid using rm -rf *
 #
 #-------------------------------------------------------------------------------
 
@@ -81,7 +82,7 @@ doc:
 # Clean up
 
 clean:
-	if [ -d "$(GROOPS_bin)" ]; then cd $(GROOPS_bin); rm -f *; fi
-	if [ -d "$(GROOPS_bld)" ]; then cd $(GROOPS_bld); make clean; fi
+	if [ -d "$(GROOPS_bin)" ]; then cd $(GROOPS_bin); rm -f ./*; fi
+	if [ -d "$(GROOPS_bld)" ]; then cd $(GROOPS_bld); make clean; rm -rf ./*; fi
 	cd $(GROOPS_gui); make clean
 	
