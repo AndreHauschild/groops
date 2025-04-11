@@ -330,6 +330,68 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
     if(!parametrization)
       throw(Exception("no parametrization given"));
 
+    // distribute process id of receivers and transmitters
+    // ---------------------------------------------------
+    Vector recvProcess(receivers.size());
+    for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
+      if(receivers.at(idRecv)->isMyRank())
+        recvProcess(idRecv) = Parallel::myRank(normalEquationInfo.comm)+1;
+    Parallel::reduceSum(recvProcess, 0, normalEquationInfo.comm);
+    Parallel::broadCast(recvProcess, 0, normalEquationInfo.comm);
+
+    Vector transProcess(transmitters.size());
+    for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      if(transmitters.at(idTrans)->isMyRank())
+        transProcess(idTrans) = Parallel::myRank(normalEquationInfo.comm)+1;
+    Parallel::reduceSum(transProcess, 0, normalEquationInfo.comm);
+    Parallel::broadCast(transProcess, 0, normalEquationInfo.comm);
+
+    // Build connection matrix for receivers and transmitters
+    // ------------------------------------------------------
+    UInt nTrans = transmitters.size();
+    UInt nRecv = receivers.size();
+
+    for(UInt idEpoch : normalEquationInfo.idEpochs)
+    {
+      // logStatus<<"Link setup "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
+      std::vector<std::vector<std::vector<UInt>>> links(nRecv+nTrans);
+      // GNSS observations transmitter -> receiver
+      // -----------------------------------------
+      for(const auto &recv : receivers)
+      {
+        if(normalEquationInfo.estimateReceiver.at(recv->idRecv()) && recv->useable(idEpoch) && recv->isMyRank())
+          for(const auto &trans : transmitters)
+            if(trans->useable(idEpoch) && recv->observation(trans->idTrans(),idEpoch))
+            {
+              std::vector<UInt> a(nRecv+nTrans,0);
+              a.at(recv->idRecv()  ) =  1;
+              a.at(trans->idTrans()) = -1;
+              links.at(recv->idRecv()).push_back(a);
+            }
+        if(recv->useable(idEpoch))
+          Parallel::broadCast(links.at(recv->idRecv()), static_cast<UInt>(recvProcess(recv->idRecv())-1), normalEquationInfo.comm);
+      }
+      // ISL observations transmitter -> transmitter
+      // -------------------------------------------
+      for(const auto &recv : transmitters)
+      {
+        if(recv->useable(idEpoch) && recv->isMyRank())
+          for(const auto &trans : transmitters)
+            if(trans->idTrans()!=recv->idTrans() && trans->useable(idEpoch) && recv->observationIsl(trans->idTrans(),idEpoch))
+            {
+              std::vector<UInt> a(nRecv+nTrans,0);
+              a.at(recv->idTrans() ) =  1;
+              a.at(trans->idTrans()) = -1;
+              links.at(recv->idTrans()).push_back(a);
+            }
+        if(recv->useable(idEpoch))
+          Parallel::broadCast(links.at(recv->idTrans()), static_cast<UInt>(transProcess(recv->idTrans())-1), normalEquationInfo.comm);
+      }
+      Parallel::barrier(normalEquationInfo.comm);
+      // TODO: choose one station or satellite as reference.
+      // TODO: convert to matrix and make SVD to determine null-space!
+    }
+
     // disable unuseable transmitters/receivers/epochs
     // -----------------------------------------------
     // check number of required observations
@@ -450,22 +512,6 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
     for(auto recv : receivers)
       if(!recv->useable())
         normalEquationInfo.estimateReceiver.at(recv->idRecv()) = FALSE;
-
-    // distribute process id of receivers and transmitters
-    // ---------------------------------------------------
-    Vector recvProcess(receivers.size());
-    for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
-      if(receivers.at(idRecv)->isMyRank())
-        recvProcess(idRecv) = Parallel::myRank(normalEquationInfo.comm)+1;
-    Parallel::reduceSum(recvProcess, 0, normalEquationInfo.comm);
-    Parallel::broadCast(recvProcess, 0, normalEquationInfo.comm);
-
-    Vector transProcess(transmitters.size());
-    for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
-      if(transmitters.at(idTrans)->isMyRank())
-        transProcess(idTrans) = Parallel::myRank(normalEquationInfo.comm)+1;
-    Parallel::reduceSum(transProcess, 0, normalEquationInfo.comm);
-    Parallel::broadCast(transProcess, 0, normalEquationInfo.comm);
 
     // init parameters
     // ---------------
