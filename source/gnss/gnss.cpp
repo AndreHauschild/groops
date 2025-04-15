@@ -322,6 +322,8 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
 /***********************************************/
 
+#define DEBUG 1
+
 void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 {
   try
@@ -348,13 +350,17 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
     // Build connection matrix for receivers and transmitters
     // ------------------------------------------------------
+    UInt nRecv  = receivers.size();
     UInt nTrans = transmitters.size();
-    UInt nRecv = receivers.size();
 
     for(UInt idEpoch : normalEquationInfo.idEpochs)
     {
-      // logStatus<<"Link setup "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
-      std::vector<std::vector<std::vector<UInt>>> links(nRecv+nTrans);
+#if DEBUG > 0
+      logStatus<<"setup links "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
+#endif
+      links.clear();
+      links.resize(nRecv+nTrans);
+
       // GNSS observations transmitter -> receiver
       // -----------------------------------------
       for(const auto &recv : receivers)
@@ -363,9 +369,9 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           for(const auto &trans : transmitters)
             if(trans->useable(idEpoch) && recv->observation(trans->idTrans(),idEpoch))
             {
-              std::vector<UInt> a(nRecv+nTrans,0);
-              a.at(recv->idRecv()  ) =  1;
-              a.at(trans->idTrans()) = -1;
+              Vector a(nRecv+nTrans,0);
+              a.at(recv->idRecv()        ) =  1;
+              a.at(nRecv+trans->idTrans()) = -1;
               links.at(recv->idRecv()).push_back(a);
             }
         if(recv->useable(idEpoch))
@@ -379,17 +385,98 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           for(const auto &trans : transmitters)
             if(trans->idTrans()!=recv->idTrans() && trans->useable(idEpoch) && recv->observationIsl(trans->idTrans(),idEpoch))
             {
-              std::vector<UInt> a(nRecv+nTrans,0);
-              a.at(recv->idTrans() ) =  1;
-              a.at(trans->idTrans()) = -1;
-              links.at(recv->idTrans()).push_back(a);
+              Vector a(nRecv+nTrans,0);
+              a.at(nRecv+recv->idTrans() ) =  1;
+              a.at(nRecv+trans->idTrans()) = -1;
+              links.at(nRecv+recv->idTrans()).push_back(a);
+#if DEBUG > 0
+              logWarning<<"Link  "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<"<-"<<trans->name()<<Log::endl;
+#endif
             }
         if(recv->useable(idEpoch))
-          Parallel::broadCast(links.at(recv->idTrans()), static_cast<UInt>(transProcess(recv->idTrans())-1), normalEquationInfo.comm);
+          Parallel::broadCast(links.at(nRecv+recv->idTrans()), static_cast<UInt>(transProcess(recv->idTrans())-1), normalEquationInfo.comm);
       }
       Parallel::barrier(normalEquationInfo.comm);
-      // TODO: choose one station or satellite as reference.
-      // TODO: convert to matrix and make SVD to determine null-space!
+
+      if(Parallel::isMaster(normalEquationInfo.comm))
+      {
+        // Select reference
+        // ----------------
+        if(receivers.size())
+          for(const auto &recv : receivers)
+            if(normalEquationInfo.estimateReceiver.at(recv->idRecv()) && recv->useable(idEpoch))
+            {
+              Vector a(nRecv+nTrans,0);
+              a.at(recv->idRecv()) =  1;
+              links.at(recv->idRecv()).push_back(a);
+#if DEBUG > 0
+              logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
+#endif
+              break;
+            }
+        else
+          for(const auto &recv : transmitters)
+            if(recv->useable(idEpoch))
+            {
+              Vector a(nRecv+nTrans,0);
+              a.at(nRecv+recv->idTrans()) =  1;
+              links.at(nRecv+recv->idTrans()).push_back(a);
+#if DEBUG > 0
+              logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
+#endif
+              break;
+            }
+        // Select reference
+        // ----------------
+        UInt nLinks=0;
+        for(const auto &recv : receivers)
+        {
+          nLinks+=links.at(recv->idRecv()).size();
+#if DEBUG > 0
+          logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
+                   <<links.at(recv->idRecv()).size()%" %3i"s<<Log::endl;
+#endif
+        }
+        for(const auto &recv : transmitters)
+        {
+          nLinks+=links.at(nRecv+recv->idTrans()).size();
+#if DEBUG > 0
+          logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
+                   <<links.at(nRecv+recv->idTrans()).size()%" %3i"s<<Log::endl;
+#endif
+        }
+#if DEBUG > 0
+        logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<"     "
+                 <<nLinks%" %3i"s<<Log::endl;
+#endif
+        Matrix A(nLinks,nRecv+nTrans);
+        nLinks=0;
+        for(const auto &recv : receivers)
+          for(UInt i=0; i<links.at(recv->idRecv()).size(); i++)
+          {
+#if DEBUG > 0
+            logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
+                     <<i%" %3i"s<<links.at(recv->idRecv()).size()%" (%3i)"s<<Log::endl;
+#endif
+            for(UInt j=0; j<nRecv+nTrans; j++)
+              A(nLinks+i,j) = links.at(recv->idRecv()).at(i)(j);
+            nLinks++;
+          }
+        for(const auto &recv : transmitters)
+          for(UInt i=0; i<links.at(nRecv+recv->idTrans()).size(); i++)
+          {
+#if DEBUG > 0
+            logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
+                     <<i%" %3i"s<<links.at(nRecv+recv->idTrans()).size()%" (%3i)"s<<Log::endl;
+#endif
+            for(UInt j=0; j<nRecv+nTrans; j++)
+              A(nLinks+i,j) = links.at(nRecv+recv->idTrans()).at(i)(j);
+            nLinks++;
+          }
+
+        // TODO: make SVD to determine null-space!
+
+      } // isMaster(comm)
     }
 
     // disable unuseable transmitters/receivers/epochs
