@@ -481,7 +481,11 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           nLinks+=links.at(nRecv+recv->idTrans()).size();
         }
 
-        // TODO: make SVD to determine null-space!
+        Matrix Q = A; // copy contents of A
+        Matrix U, Vt;
+        Vector e = singularValueDecomposition(Q, U, Vt, TRUE);
+
+        // TODO: determine null space and eliminated corresponding transmitters and receivers
 
       } // isMaster(comm)
     }
