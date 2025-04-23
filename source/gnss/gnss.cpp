@@ -426,8 +426,8 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 #endif
               break;
             }
-        // Select reference
-        // ----------------
+        // Construct matrix with all links
+        // -------------------------------
         UInt nLinks=0;
         for(const auto &recv : receivers)
         {
@@ -481,14 +481,31 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           nLinks+=links.at(nRecv+recv->idTrans()).size();
         }
 
-        Matrix Q = A; // copy contents of A
+        Matrix Q(nRecv+nTrans,nRecv+nTrans);
         Matrix U, Vt;
-        Vector e = singularValueDecomposition(Q, U, Vt, TRUE);
 
-        // TODO: determine null space and eliminated corresponding transmitters and receivers
+        singularValueDecomposition(A, U, Vt, TRUE);
+        matMult(1,Vt.trans(),Vt,Q);
+
+        for(const auto &recv : receivers)
+          if(round(Q(recv->idRecv(),recv->idRecv()))<1)
+          {
+            recv->disable(idEpoch, "insufficient observations");
+            logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
+                   <<recv->name()<<Log::endl;
+          }
+        for(const auto &trans : transmitters)
+          if(round(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans()))<1)
+          {
+            trans->disable(idEpoch, "insufficient observations");
+            logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
+                   <<trans->name()<<Log::endl;
+          }
 
       } // isMaster(comm)
     }
+
+    // TODO: add synchronization to other nodes!
 
     // disable unuseable transmitters/receivers/epochs
     // -----------------------------------------------

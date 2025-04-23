@@ -30,6 +30,41 @@ GnssTransmitter::~GnssTransmitter()
 
 /***********************************************/
 
+void GnssTransmitter::disable(UInt idEpoch, const std::string &reason)
+{
+  try
+  {
+    GnssTransceiver::disable(idEpoch, reason);
+    if(idEpoch < observations_.size())
+      observations_.at(idEpoch).clear();
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void GnssTransmitter::disable(const std::string &reason)
+{
+  try
+  {
+    GnssTransceiver::disable(reason);
+    if(!reason.empty() && isMyRank())
+      disableReason = reason;
+    isMyRank_ = FALSE;
+    observations_.clear();
+    observations_.shrink_to_fit();
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 GnssObservationIsl *GnssTransmitter::observationIsl(UInt idTrans, UInt idEpoch) const
 {
   if((idEpoch < observations_.size()) && (idTrans < observations_.at(idEpoch).size()))

@@ -47,6 +47,7 @@ public:
   Bool              isMyRank_;
   std::vector<Time> timesPosVel;
   Matrix            pos, vel; // CoM in CRF (epoch times (x,y,z))
+  std::string       disableReason;
 
   GnssTransmitter(GnssType prn, const Platform &platform,
                   GnssAntennaDefinition::NoPatternFoundAction noPatternFoundAction,
@@ -64,6 +65,12 @@ public:
 
   /** @brief Identify number in the GNSS system. */
   UInt idTrans() const {return id_;}
+
+  /** @brief Disable given epoch (or all epochs). */
+  void disable(UInt idEpoch, const std::string &reason) override;
+
+  /** @brief Disable transmitter completely. */
+  void disable(const std::string &reason) override;
 
   /** @brief Returns true if transmitter is assigned to current node. */
   Bool isMyRank() const {return isMyRank_;}
