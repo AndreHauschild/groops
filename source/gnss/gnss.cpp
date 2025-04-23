@@ -398,8 +398,12 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
       }
       Parallel::barrier(normalEquationInfo.comm);
 
+      Matrix Q(nRecv+nTrans,nRecv+nTrans);
+      UInt mustSync = 0;
+
       if(Parallel::isMaster(normalEquationInfo.comm))
       {
+
         // Select reference
         // ----------------
         if(receivers.size())
@@ -426,6 +430,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 #endif
               break;
             }
+
         // Construct matrix with all links
         // -------------------------------
         UInt nLinks=0;
@@ -481,31 +486,41 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           nLinks+=links.at(nRecv+recv->idTrans()).size();
         }
 
-        Matrix Q(nRecv+nTrans,nRecv+nTrans);
         Matrix U, Vt;
-
         singularValueDecomposition(A, U, Vt, TRUE);
         matMult(1,Vt.trans(),Vt,Q);
 
-        for(const auto &recv : receivers)
-          if(round(Q(recv->idRecv(),recv->idRecv()))<1)
-          {
-            recv->disable(idEpoch, "insufficient observations");
-            logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
-                   <<recv->name()<<Log::endl;
-          }
-        for(const auto &trans : transmitters)
-          if(round(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans()))<1)
-          {
-            trans->disable(idEpoch, "insufficient observations");
-            logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
-                   <<trans->name()<<Log::endl;
-          }
+      } // if(Parallel::isMaster(normalEquationInfo.comm))
 
-      } // isMaster(comm)
-    }
+      Parallel::broadCast(Q, 0, normalEquationInfo.comm);
 
-    // TODO: add synchronization to other nodes!
+      /*
+      for(const auto &recv : receivers)
+        if(round(Q(recv->idRecv(),recv->idRecv()))<1)
+        {
+          mustSync = TRUE;
+          recv->disable(idEpoch, "insufficient observations");
+          logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
+                 <<recv->name()<<Log::endl;
+        }
+       */
+      for(const auto &trans : transmitters)
+        if(int(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())+0.5)==0)
+        {
+          mustSync = TRUE;
+          trans->disable(idEpoch, "insufficient observations");
+          logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
+                 <<trans->name()<<Log::endl;
+        }
+
+      if(mustSync)
+      {
+        // synchronize transceivers
+        synchronizeTransceivers(normalEquationInfo.comm);
+        synchronizeTransceiversIsl(normalEquationInfo.comm);
+      }
+
+    } // for(UInt idEpoch : normalEquationInfo.idEpochs)
 
     // disable unuseable transmitters/receivers/epochs
     // -----------------------------------------------
