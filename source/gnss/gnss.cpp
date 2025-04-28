@@ -399,8 +399,6 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
       Parallel::barrier(normalEquationInfo.comm);
 
       Matrix Q(nRecv+nTrans,nRecv+nTrans);
-      UInt mustSync = 0;
-
       if(Parallel::isMaster(normalEquationInfo.comm))
       {
 
@@ -507,20 +505,16 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
       for(const auto &trans : transmitters)
         if(int(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())+0.5)==0)
         {
-          mustSync = TRUE;
           trans->disable(idEpoch, "insufficient observations");
           logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
                  <<trans->name()<<Log::endl;
         }
 
-      if(mustSync)
-      {
-        // synchronize transceivers
-        synchronizeTransceivers(normalEquationInfo.comm);
-        synchronizeTransceiversIsl(normalEquationInfo.comm);
-      }
-
     } // for(UInt idEpoch : normalEquationInfo.idEpochs)
+
+    // synchronize transceivers
+    synchronizeTransceivers(normalEquationInfo.comm);
+    synchronizeTransceiversIsl(normalEquationInfo.comm);
 
     // disable unuseable transmitters/receivers/epochs
     // -----------------------------------------------
