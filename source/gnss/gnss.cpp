@@ -10,7 +10,8 @@
 */
 /***********************************************/
 
-#define DEBUG 0
+#define DEBUG_SYNC_ISL 0
+#define DEBUG          1
 
 #include "base/import.h"
 #include "base/planets.h"
@@ -208,7 +209,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
   try
   {
 
-#if DEBUG > 0
+#if DEBUG_SYNC_ISL > 0
     logWarning<<"synchronizeTransceiversIsl() start"
               <<Log::endl;
 #endif
@@ -243,7 +244,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
             }
           }
           std::sort(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).begin(), typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).end());
-  #if DEBUG > 0
+  #if DEBUG_SYNC_ISL > 0
           if(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()>0)
             logWarning<<"synchronizeTransceiversIsl()"<<" ISL "
                       <<recvTerminal->name()<<" <- "
@@ -257,7 +258,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
         Parallel::broadCast(typesRecvTransIsl.at(recvTerminal->idTrans()), static_cast<UInt>(recvProcess(recvTerminal->idTrans())-1), comm); // synchronize types of this process to all others
     }
 
-#if DEBUG > 0
+#if DEBUG_SYNC_ISL > 0
     logWarning<<"synchronizeTransceiversIsl() mid"
               <<Log::endl;
 #endif
@@ -277,7 +278,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       sendTerminal->signalBiasIslTx.types  = types;
     }
 
-#if DEBUG> 0
+#if DEBUG_SYNC_ISL > 0
     for(auto sendTerminal : transmitters)
       for(UInt i=0; i<sendTerminal->signalBiasIslTx.types.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
@@ -299,7 +300,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       recvTerminal->signalBiasIslRx.types  = types;
     }
 
-#if DEBUG> 0
+#if DEBUG_SYNC_ISL > 0
     for(auto recvTerminal : transmitters)
       for(UInt i=0; i<recvTerminal->signalBiasIslRx.types.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<recvTerminal->name()<<" "
@@ -308,7 +309,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                   <<Log::endl;
 #endif
 
-#if DEBUG> 0
+#if DEBUG_SYNC_ISL > 0
     logWarning<<"synchronizeTransceiversIsl() end"
               <<Log::endl;
 #endif
@@ -321,8 +322,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 }
 
 /***********************************************/
-
-#define DEBUG 0
 
 void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 {
@@ -355,7 +354,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
     for(UInt idEpoch : normalEquationInfo.idEpochs)
     {
-#if DEBUG > 0
+#if DEBUG > 1
       logStatus<<"setup links "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 #endif
       links.clear();
@@ -389,7 +388,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
               a.at(nRecv+recv->idTrans() ) =  1;
               a.at(nRecv+trans->idTrans()) = -1;
               links.at(nRecv+recv->idTrans()).push_back(a);
-#if DEBUG > 0
+#if DEBUG > 1
               logWarning<<"Link  "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<"<-"<<trans->name()<<Log::endl;
 #endif
             }
@@ -435,7 +434,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         for(const auto &recv : receivers)
         {
           nLinks+=links.at(recv->idRecv()).size();
-#if DEBUG > 0
+#if DEBUG > 1
           logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
                    <<links.at(recv->idRecv()).size()%" %3i"s<<Log::endl;
 #endif
@@ -443,12 +442,12 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         for(const auto &recv : transmitters)
         {
           nLinks+=links.at(nRecv+recv->idTrans()).size();
-#if DEBUG > 0
+#if DEBUG > 1
           logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
                    <<links.at(nRecv+recv->idTrans()).size()%" %3i"s<<Log::endl;
 #endif
         }
-#if DEBUG > 0
+#if DEBUG > 1
         logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<"     "
                  <<nLinks%" %3i"s<<Log::endl;
 #endif
@@ -458,7 +457,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         {
           for(UInt i=0; i<links.at(recv->idRecv()).size(); i++)
           {
-#if DEBUG > 0
+#if DEBUG > 1
             logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
                      <<(nLinks+i)%" %3i"s<<links.at(recv->idRecv()).size()%" (%3i)"s<<Log::endl;
 #endif
@@ -474,7 +473,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         {
           for(UInt i=0; i<links.at(nRecv+recv->idTrans()).size(); i++)
           {
-#if DEBUG > 0
+#if DEBUG > 1
             logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
                      <<(nLinks+i)%" %3i"s<<links.at(nRecv+recv->idTrans()).size()%" (%3i)"s<<Log::endl;
 #endif
@@ -506,8 +505,10 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         if(int(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())+0.5)==0)
         {
           trans->disable(idEpoch, "insufficient observations");
+#if DEBUG > 0
           logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
                  <<trans->name()<<Log::endl;
+#endif
         }
 
     } // for(UInt idEpoch : normalEquationInfo.idEpochs)
