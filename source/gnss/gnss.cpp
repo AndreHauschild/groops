@@ -354,7 +354,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
     for(UInt idEpoch : normalEquationInfo.idEpochs)
     {
-#if DEBUG > 1
+#if DEBUG > 10
       logStatus<<"setup links "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 #endif
       links.clear();
@@ -388,7 +388,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
               a.at(nRecv+recv->idTrans() ) =  1;
               a.at(nRecv+trans->idTrans()) = -1;
               links.at(nRecv+recv->idTrans()).push_back(a);
-#if DEBUG > 1
+#if DEBUG > 10
               logWarning<<"Link  "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<"<-"<<trans->name()<<Log::endl;
 #endif
             }
@@ -410,7 +410,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
               Vector a(nRecv+nTrans,0);
               a.at(recv->idRecv()) =  1;
               links.at(recv->idRecv()).push_back(a);
-#if DEBUG > 0
+#if DEBUG > 10
               logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
 #endif
               break;
@@ -422,7 +422,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
               Vector a(nRecv+nTrans,0);
               a.at(nRecv+recv->idTrans()) =  1;
               links.at(nRecv+recv->idTrans()).push_back(a);
-#if DEBUG > 0
+#if DEBUG > 10
               logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
 #endif
               break;
@@ -434,7 +434,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         for(const auto &recv : receivers)
         {
           nLinks+=links.at(recv->idRecv()).size();
-#if DEBUG > 1
+#if DEBUG > 10
           logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
                    <<links.at(recv->idRecv()).size()%" %3i"s<<Log::endl;
 #endif
@@ -442,12 +442,12 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         for(const auto &recv : transmitters)
         {
           nLinks+=links.at(nRecv+recv->idTrans()).size();
-#if DEBUG > 1
+#if DEBUG > 10
           logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
                    <<links.at(nRecv+recv->idTrans()).size()%" %3i"s<<Log::endl;
 #endif
         }
-#if DEBUG > 1
+#if DEBUG > 10
         logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<"     "
                  <<nLinks%" %3i"s<<Log::endl;
 #endif
@@ -458,7 +458,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         {
           for(UInt i=0; i<links.at(recv->idRecv()).size(); i++)
           {
-#if DEBUG > 1
+#if DEBUG > 10
             logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
                      <<(nLinks+i)%" %3i"s<<links.at(recv->idRecv()).size()%" (%3i)"s<<Log::endl;
 #endif
@@ -474,7 +474,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         {
           for(UInt i=0; i<links.at(nRecv+recv->idTrans()).size(); i++)
           {
-#if DEBUG > 1
+#if DEBUG > 10
             logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
                      <<(nLinks+i)%" %3i"s<<links.at(nRecv+recv->idTrans()).size()%" (%3i)"s<<Log::endl;
 #endif
