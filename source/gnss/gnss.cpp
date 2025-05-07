@@ -11,7 +11,7 @@
 /***********************************************/
 
 #define DEBUG_SYNC_ISL 0
-#define DEBUG          1
+#define DEBUG          2
 
 #include "base/import.h"
 #include "base/planets.h"
@@ -451,6 +451,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<"     "
                  <<nLinks%" %3i"s<<Log::endl;
 #endif
+
         Matrix A(nLinks,nRecv+nTrans);
         nLinks=0;
         for(const auto &recv : receivers)
@@ -491,25 +492,36 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
       Parallel::broadCast(Q, 0, normalEquationInfo.comm);
 
-      /*
       for(const auto &recv : receivers)
-        if(round(Q(recv->idRecv(),recv->idRecv()))<1)
+        if(int(Q(recv->idRecv(),recv->idRecv())+1e-9)<1)
         {
-          mustSync = TRUE;
           recv->disable(idEpoch, "insufficient observations");
+#if DEBUG > 0
           logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
-                 <<recv->name()<<Log::endl;
+                 <<recv->name()<<Q(recv->idRecv(),recv->idRecv())%" %10.9f"s<<Log::endl;
+#endif
         }
-       */
+#if DEBUG > 1
+        else
+
+          logStatus<<"Enable  "<<times.at(idEpoch).dateTimeStr()<<" "
+                 <<recv->name()<<Q(recv->idRecv(),recv->idRecv())%" %10.9f"s<<Log::endl;
+#endif
+
       for(const auto &trans : transmitters)
-        if(int(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())+0.5)==0)
+        if(int(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())+1e-9)<1)
         {
           trans->disable(idEpoch, "insufficient observations");
 #if DEBUG > 0
           logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
-                 <<trans->name()<<Log::endl;
+                 <<trans->name()<<" "<<Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())%" %10.9f"s<<Log::endl;
 #endif
         }
+#if DEBUG > 1
+        else
+          logStatus<<"Enable  "<<times.at(idEpoch).dateTimeStr()<<" "
+                 <<trans->name()<<" "<<Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())%" %10.9f"s<<Log::endl;
+#endif
 
     } // for(UInt idEpoch : normalEquationInfo.idEpochs)
 
@@ -521,7 +533,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
     // -----------------------------------------------
     // check number of required observations
     std::vector<UInt> transCount(transmitters.size(), 0), transCountEpoch(transmitters.size(), 0);
-    std::vector<UInt> recvCount(receivers.size(), 0),     recvCountEpoch(receivers.size(), 0);
+    std::vector<UInt> recvCount(receivers.size(), 0), recvCountEpoch(receivers.size(), 0);
     parametrization->requirements(normalEquationInfo, transCount, transCountEpoch, recvCount, recvCountEpoch);
     UInt disabledEpochsTrans = 0;
     UInt disabledEpochsRecv = 0;
