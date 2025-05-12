@@ -60,7 +60,7 @@ public:
   std::vector<std::vector<std::vector<GnssType>>> typesRecvTrans;    // for each receiver and transmitter: used types (receiver types)
   std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types)
 
-  std::vector<std::vector<Vector>> links;
+  std::vector<std::vector<UInt>>  links;
 
   void init(std::vector<GnssType> simulationTypes, const std::vector<Time> &times, const Time &timeMargin,
             GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,

@@ -11,7 +11,11 @@
 /***********************************************/
 
 #define DEBUG_SYNC_ISL 0
-#define DEBUG          2
+#define DEBUG          1
+
+#include <vector>
+#include <queue>
+#include <unordered_set>
 
 #include "base/import.h"
 #include "base/planets.h"
@@ -27,6 +31,35 @@
 #include "gnss/gnssParametrization/gnssParametrization.h"
 #include "gnss/gnssTransmitterGenerator/gnssTransmitterGenerator.h"
 #include "gnss/gnssReceiverGenerator/gnssReceiverGenerator.h"
+
+/***********************************************/
+
+// Breadth-First Search (BFS)
+
+std::vector<UInt> bfs(UInt start, const std::vector<std::vector<UInt>>& graph) {
+
+  std::unordered_set<UInt> visited;
+  std::queue<UInt> q;
+  std::vector<UInt> result;
+
+  q.push(start);
+  visited.insert(start);
+
+  while (!q.empty())
+  {
+    int node = q.front();
+    q.pop();
+    result.push_back(node);
+
+    for (int neighbor : graph[node])
+      if (!visited.count(neighbor))
+      {
+        visited.insert(neighbor);
+        q.push(neighbor);
+      }
+  }
+  return result;
+}
 
 /***********************************************/
 
@@ -351,6 +384,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
     // ------------------------------------------------------
     UInt nRecv  = receivers.size();
     UInt nTrans = transmitters.size();
+    UInt nTotal = nRecv+nTrans;
 
     for(UInt idEpoch : normalEquationInfo.idEpochs)
     {
@@ -358,7 +392,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
       logStatus<<"setup links "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 #endif
       links.clear();
-      links.resize(nRecv+nTrans);
+      links.resize(nTotal);
 
       // GNSS observations transmitter -> receiver
       // -----------------------------------------
@@ -368,10 +402,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           for(const auto &trans : transmitters)
             if(trans->useable(idEpoch) && recv->observation(trans->idTrans(),idEpoch))
             {
-              Vector a(nRecv+nTrans,0);
-              a.at(recv->idRecv()        ) =  1;
-              a.at(nRecv+trans->idTrans()) = -1;
-              links.at(recv->idRecv()).push_back(a);
+              links.at(recv->idRecv()).push_back(nRecv+trans->idTrans());
             }
         if(recv->useable(idEpoch))
           Parallel::broadCast(links.at(recv->idRecv()), static_cast<UInt>(recvProcess(recv->idRecv())-1), normalEquationInfo.comm);
@@ -384,10 +415,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           for(const auto &trans : transmitters)
             if(trans->idTrans()!=recv->idTrans() && trans->useable(idEpoch) && recv->observationIsl(trans->idTrans(),idEpoch))
             {
-              Vector a(nRecv+nTrans,0);
-              a.at(nRecv+recv->idTrans() ) =  1;
-              a.at(nRecv+trans->idTrans()) = -1;
-              links.at(nRecv+recv->idTrans()).push_back(a);
+              links.at(nRecv+recv->idTrans()).push_back(nRecv+trans->idTrans());
 #if DEBUG > 10
               logWarning<<"Link  "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<"<-"<<trans->name()<<Log::endl;
 #endif
@@ -397,19 +425,18 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
       }
       Parallel::barrier(normalEquationInfo.comm);
 
-      Matrix Q(nRecv+nTrans,nRecv+nTrans);
+      std::vector<UInt> Q;
       if(Parallel::isMaster(normalEquationInfo.comm))
       {
 
         // Select reference
         // ----------------
+        int reference = -1;
         if(receivers.size())
           for(const auto &recv : receivers)
             if(normalEquationInfo.estimateReceiver.at(recv->idRecv()) && recv->useable(idEpoch))
             {
-              Vector a(nRecv+nTrans,0);
-              a.at(recv->idRecv()) =  1;
-              links.at(recv->idRecv()).push_back(a);
+              reference = recv->idRecv();
 #if DEBUG > 10
               logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
 #endif
@@ -419,108 +446,52 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           for(const auto &recv : transmitters)
             if(recv->useable(idEpoch))
             {
-              Vector a(nRecv+nTrans,0);
-              a.at(nRecv+recv->idTrans()) =  1;
-              links.at(nRecv+recv->idTrans()).push_back(a);
+              reference = nRecv+recv->idTrans();
 #if DEBUG > 10
               logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
 #endif
               break;
             }
 
-        // Construct matrix with all links
-        // -------------------------------
-        UInt nLinks=0;
-        for(const auto &recv : receivers)
-        {
-          nLinks+=links.at(recv->idRecv()).size();
-#if DEBUG > 10
-          logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
-                   <<links.at(recv->idRecv()).size()%" %3i"s<<Log::endl;
-#endif
-        }
-        for(const auto &recv : transmitters)
-        {
-          nLinks+=links.at(nRecv+recv->idTrans()).size();
-#if DEBUG > 10
-          logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
-                   <<links.at(nRecv+recv->idTrans()).size()%" %3i"s<<Log::endl;
-#endif
-        }
-#if DEBUG > 10
-        logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<"     "
-                 <<nLinks%" %3i"s<<Log::endl;
-#endif
-
-        Matrix A(nLinks,nRecv+nTrans);
-        nLinks=0;
-        for(const auto &recv : receivers)
-        {
-          for(UInt i=0; i<links.at(recv->idRecv()).size(); i++)
-          {
-#if DEBUG > 10
-            logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()
-                     <<(nLinks+i)%" %3i"s<<links.at(recv->idRecv()).size()%" (%3i)"s<<Log::endl;
-#endif
-            for(UInt j=0; j<nRecv+nTrans; j++)
+        std::vector<std::vector<UInt>> graph(nTotal);
+        if(reference != -1)
+          for (UInt i=0; i<links.size(); i++)
+            for (UInt j : links.at(i))
             {
-              A(nLinks+i,j) = links.at(recv->idRecv()).at(i)(j);
+              graph[i].push_back(j);
+              graph[j].push_back(i); // undirected
             }
 
-          }
-          nLinks+=links.at(recv->idRecv()).size();
-        }
-        for(const auto &recv : transmitters)
-        {
-          for(UInt i=0; i<links.at(nRecv+recv->idTrans()).size(); i++)
-          {
-#if DEBUG > 10
-            logStatus<<"Links "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<" "
-                     <<(nLinks+i)%" %3i"s<<links.at(nRecv+recv->idTrans()).size()%" (%3i)"s<<Log::endl;
-#endif
-            for(UInt j=0; j<nRecv+nTrans; j++)
-              A(nLinks+i,j) = links.at(nRecv+recv->idTrans()).at(i)(j);
-          }
-          nLinks+=links.at(nRecv+recv->idTrans()).size();
-        }
-
-        Matrix U, Vt;
-        singularValueDecomposition(A, U, Vt, TRUE);
-        matMult(1,Vt.trans(),Vt,Q);
+        Q = bfs(reference, graph);
 
       } // if(Parallel::isMaster(normalEquationInfo.comm))
 
       Parallel::broadCast(Q, 0, normalEquationInfo.comm);
 
       for(const auto &recv : receivers)
-        if(int(Q(recv->idRecv(),recv->idRecv())+1e-9)<1)
+        if(std::find(Q.begin(),Q.end(),recv->idRecv())==Q.end())
         {
           recv->disable(idEpoch, "insufficient observations");
 #if DEBUG > 0
-          logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
-                 <<recv->name()<<Q(recv->idRecv(),recv->idRecv())%" %10.9f"s<<Log::endl;
+          logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
 #endif
         }
 #if DEBUG > 1
         else
-
-          logStatus<<"Enable  "<<times.at(idEpoch).dateTimeStr()<<" "
-                 <<recv->name()<<Q(recv->idRecv(),recv->idRecv())%" %10.9f"s<<Log::endl;
+          logStatus<<"Enable  "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
 #endif
 
       for(const auto &trans : transmitters)
-        if(int(Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())+1e-9)<1)
+        if(std::find(Q.begin(),Q.end(),nRecv+trans->idTrans())==Q.end())
         {
           trans->disable(idEpoch, "insufficient observations");
 #if DEBUG > 0
-          logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "
-                 <<trans->name()<<" "<<Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())%" %10.9f"s<<Log::endl;
+          logStatus<<"Disable "<<times.at(idEpoch).dateTimeStr()<<" "<<trans->name()<<Log::endl;
 #endif
         }
 #if DEBUG > 1
         else
-          logStatus<<"Enable  "<<times.at(idEpoch).dateTimeStr()<<" "
-                 <<trans->name()<<" "<<Q(nRecv+trans->idTrans(),nRecv+trans->idTrans())%" %10.9f"s<<Log::endl;
+          logStatus<<"Enable  "<<times.at(idEpoch).dateTimeStr()<<" "<<trans->name()<<Log::endl;
 #endif
 
     } // for(UInt idEpoch : normalEquationInfo.idEpochs)
@@ -529,8 +500,8 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
     synchronizeTransceivers(normalEquationInfo.comm);
     synchronizeTransceiversIsl(normalEquationInfo.comm);
 
-    // disable unuseable transmitters/receivers/epochs
-    // -----------------------------------------------
+    // disable un-useable transmitters/receivers/epochs
+    // ------------------------------------------------
     // check number of required observations
     std::vector<UInt> transCount(transmitters.size(), 0), transCountEpoch(transmitters.size(), 0);
     std::vector<UInt> recvCount(receivers.size(), 0), recvCountEpoch(receivers.size(), 0);
