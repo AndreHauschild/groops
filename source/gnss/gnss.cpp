@@ -11,7 +11,7 @@
 /***********************************************/
 
 #define DEBUG_SYNC_ISL 0
-#define DEBUG          1
+#define DEBUG          0
 
 #include <vector>
 #include <queue>
