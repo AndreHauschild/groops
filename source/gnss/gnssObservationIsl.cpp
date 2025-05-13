@@ -25,7 +25,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
   try
   {
 
-    // receiver in celestial reference frame
+    // receiver position and time
     timeRecv = time - seconds2time(receiver.clockError(idEpoch));
     posRecv  = receiver.positionIsl(idEpoch, timeRecv);
     velRecv  = receiver.velocity(timeRecv);
