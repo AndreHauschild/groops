@@ -55,6 +55,11 @@ ifeq ($(OS),GNU/Linux)
   endif
 endif
 
+# Select cmake version
+#
+#CMAKE=/usr/bin/cmake
+CMAKE=cmake
+
 # Targets
 
 all: init \
@@ -81,7 +86,7 @@ doc:
 # Clean up
 
 clean:
-	if [ -d "$(GROOPS_bin)" ]; then cd $(GROOPS_bin); rm -f *; fi
-	if [ -d "$(GROOPS_bld)" ]; then cd $(GROOPS_bld); make clean; fi
+	if [ -d "$(GROOPS_bin)" ]; then cd $(GROOPS_bin); rm -f ./*; fi
+	if [ -d "$(GROOPS_bld)" ]; then cd $(GROOPS_bld); make clean; rm -rf ./*; fi
 	cd $(GROOPS_gui); make clean
 	
