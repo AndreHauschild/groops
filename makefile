@@ -67,7 +67,7 @@ init:
 	if [ ! -d "$(GROOPS_bld)" ]; then mkdir -p $(GROOPS_bld); fi
 	
 groops_:
-	cd $(GROOPS_bld); cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../..; $(PMAKE); make install
+	cd $(GROOPS_bld); cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../..; $(PMAKE); $(PMAKE) install
 	rm groops.xsd; groops --xsd groops.xsd
 	
 
@@ -83,5 +83,5 @@ doc:
 
 clean:
 	if [ -d "$(GROOPS_bin)" ]; then cd $(GROOPS_bin); rm -f ./*; fi
-	if [ -d "$(GROOPS_bld)" ]; then cd $(GROOPS_bld); make clean; rm -rf ./*; fi
-	cd $(GROOPS_gui); make clean
+	if [ -d "$(GROOPS_bld)" ]; then cd $(GROOPS_bld); $(PMAKE) clean; rm -rf ./*; fi
+	cd $(GROOPS_gui); $(PMAKE) clean
