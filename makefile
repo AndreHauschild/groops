@@ -11,6 +11,7 @@
 #   2022/12/09  AHA  Created
 #   2024/11/12  AHA  Add build target for documentation
 #   2024/11/12  AHA  Remove and re-create xsd schema file
+#   2025/04/10  AHA  Avoid using rm -rf *
 #
 #-------------------------------------------------------------------------------
 
@@ -54,11 +55,6 @@ ifeq ($(OS),GNU/Linux)
     QMAKE = qmake-qt5  # if qmake is not available (e.g. openSuse)
   endif
 endif
-
-# Select cmake version
-#
-#CMAKE=/usr/bin/cmake
-CMAKE=cmake
 
 # Targets
 
