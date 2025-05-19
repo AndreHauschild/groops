@@ -8,8 +8,10 @@
 - New class:        PlotDegreeAmplitudes: degreeAmplitudesSimple.
 - New option:       GnssAntennaNormalsConstraint: gnssType selection for TEC constraint.
 - New option:       PlotAxisLabeled: majorTickSpacing, minorTickSpacing, gridLineSpacing.
+- New option:       GNSS/SLR: optional disabling of stations without precise apriori positions.
 - File format:      TideGeneratingPotential includes now degree 3 tides.
 - File format:      Each file is now readable/writable in JSON format as well.
+- File format:      Removed deprecated GnssStationInfo (replaced by Platform).
 - Bugfix:           GUI: fixed Ctrl+Shift+Up/Down for variables.
 - Bugfix:           slrParametrizationRangeBiasStationSatellite: Fix station index.
 - Bugfix:           parameterNames: fixed wrong order.
@@ -17,6 +19,7 @@
 - Bugfix:           GnssOrbex2StarCamera: reads now free format.
 - Bugfix:           GnssNormals2Sinex: fixed parser error.
 - Bugfix:           GnssParametrizationIonosphereSTEC: constant sigmaSTEC>0 was evaluated always to one.
+- Bugfix:           ParameterVector2GnssAntennaDefinition: Sometimes the parameters were assigned incorrectly.
 - Other:            GUI: offer links for numbers and strings of different types.
 - Other:            GUI: Open multiple config files with the file selector.
 - Other:            gnss: set margin for polynomial orbit interpolation to 1e-7 seconds.

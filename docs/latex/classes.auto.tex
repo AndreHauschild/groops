@@ -2706,6 +2706,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileReceiverDefinition & \hfuzz=500pt filename & \hfuzz=500pt observed signal types\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileAccuracyDefinition & \hfuzz=500pt filename & \hfuzz=500pt elevation and azimuth dependent accuracy\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileStationPosition & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available.\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~disableStationWithoutPosition & \hfuzz=500pt boolean & \hfuzz=500pt drop stations without apriori position\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileClock & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileObservations & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~loadingDisplacement & \hfuzz=500pt \hyperref[gravityfieldType]{gravityfield} & \hfuzz=500pt loading deformation\\
@@ -8840,6 +8841,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileStationList & \hfuzz=500pt filename & \hfuzz=500pt ascii file with station names\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileStationInfo & \hfuzz=500pt filename & \hfuzz=500pt station metadata\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileStationPosition & \hfuzz=500pt filename & \hfuzz=500pt station position\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~disableStationWithoutPosition & \hfuzz=500pt boolean & \hfuzz=500pt drop stations without apriori position\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileObservations & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} \{satellite\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~accuracy & \hfuzz=500pt expression & \hfuzz=500pt [m] used for weighting, variables: \{residual\}, \{accuracy\}, \{redundancy\}, \{laserWavelength\}, \{azimut\}, \{elevation\}\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~loadingDisplacement & \hfuzz=500pt \hyperref[gravityfieldType]{gravityfield} & \hfuzz=500pt loading deformation\\
@@ -9576,8 +9578,8 @@ Name & Type & Annotation\\
 \subsection{MendesAndPavlis}\label{troposphereType:mendesAndPavlis}
 
 Tropospheric delays based on the Mendes-Pavlis model that employs meteorological data.
-(Mendes et al. (2002), DOI: \href{https://doi.org/10.1029/2001GL014394}{10.1029/2001GL014394} and
-Mendes & Pavlis (2004), DOI:\href{https://doi.org/10.1029/2004GL020308}{110.1029/2004GL020308})
+(Mendes et al. (2002), \href{https://doi.org/10.1029/2001GL014394}{10.1029/2001GL014394} and
+Mendes and Pavlis (2004), \href{https://doi.org/10.1029/2004GL020308}{110.1029/2004GL020308})
 
 The meteorological data have to be provided via \configFile{inputfileStationMeteorology}{instrument}.
 This file contains the temperature, air pressure and humidity and must be first generated using the
