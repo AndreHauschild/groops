@@ -403,6 +403,9 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
             if(trans->useable(idEpoch) && recv->observation(trans->idTrans(),idEpoch))
             {
               links.at(recv->idRecv()).push_back(nRecv+trans->idTrans());
+#if DEBUG > 10
+              logWarning<<"Link  "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<"<-"<<trans->name()<<Log::endl;
+#endif
             }
         if(recv->useable(idEpoch))
           Parallel::broadCast(links.at(recv->idRecv()), static_cast<UInt>(recvProcess(recv->idRecv())-1), normalEquationInfo.comm);
@@ -433,36 +436,45 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         // ----------------
         int reference = -1;
         if(receivers.size())
+        {
           for(const auto &recv : receivers)
             if(normalEquationInfo.estimateReceiver.at(recv->idRecv()) && recv->useable(idEpoch))
             {
               reference = recv->idRecv();
 #if DEBUG > 10
-              logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
+              logWarningOnce<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
 #endif
               break;
             }
-        else
-          for(const auto &recv : transmitters)
-            if(recv->useable(idEpoch))
+        }
+        else if(transmitters.size())
+        {
+          for(const auto &trans : transmitters)
+            if(trans->useable(idEpoch))
             {
-              reference = nRecv+recv->idTrans();
+              reference = nRecv+trans->idTrans();
 #if DEBUG > 10
-              logStatus<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<recv->name()<<Log::endl;
+              logWarningOnce<<"Pivot "<<times.at(idEpoch).dateTimeStr()<<" "<<trans->name()<<Log::endl;
 #endif
               break;
             }
+        }
+        else
+          logWarningOnce<<"no receiver/satellite found as reference at "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 
-        std::vector<std::vector<UInt>> graph(nTotal);
-        if(reference != -1)
-          for (UInt i=0; i<links.size(); i++)
-            for (UInt j : links.at(i))
-            {
-              graph[i].push_back(j);
-              graph[j].push_back(i); // undirected
-            }
+        if (reference!=-1)
+        {
+          std::vector<std::vector<UInt>> graph(nTotal);
+          if(reference != -1)
+            for (UInt i=0; i<links.size(); i++)
+              for (UInt j : links.at(i))
+              {
+                graph[i].push_back(j);
+                graph[j].push_back(i);
+              }
 
-        Q = bfs(reference, graph);
+          Q = bfs(reference, graph);
+        }
 
       } // if(Parallel::isMaster(normalEquationInfo.comm))
 
