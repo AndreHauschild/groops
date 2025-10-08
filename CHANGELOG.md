@@ -9,6 +9,7 @@
 - New option:       GnssAntennaNormalsConstraint: gnssType selection for TEC constraint.
 - New option:       PlotAxisLabeled: majorTickSpacing, minorTickSpacing, gridLineSpacing.
 - New option:       GNSS/SLR: optional disabling of stations without precise apriori positions.
+- New option:       condition->fileExist: minimumSize.
 - File format:      TideGeneratingPotential includes now degree 3 tides.
 - File format:      Each file is now readable/writable in JSON format as well.
 - File format:      Removed deprecated GnssStationInfo (replaced by Platform).
@@ -26,8 +27,12 @@
 - Other:            gnss: simulation considers more apriori models (e.g. TEC maps).
 - Other:            IGRF: Updated International Geomagnetic Reference Field (IGRF) to 14th Generation Release
 - Other:            GNSS: Improved setup of ambiguity parameters. Considers splitted network, splitted observations (e.g. L2LG, L2WG).
+- Other:            GNSS: More stable estimation of ambiguities. Faster ambiguity resolution (decorrelation step).
 - Other:            Store more double digits in xml format.
 - Other:            NormalsEliminate: regularize unused eliminated parameters.
+- Other:            Sinex2StationPosition: Apply frequencies to all intervals.
+- Other:            GNSS: apriori ionospheric map is interpolated in solar-geomagentic frame.
+- Other:            Tle2Orbit: Use closest record if multiple records for the same satellites are given.
 
 
 # Release 2024-06-24
