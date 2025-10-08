@@ -37,7 +37,7 @@ Each step is processed consecutively. Some steps allow the selection of paramete
 or the normal equation structure, which affects all subsequent steps.
 A minimal example consists of following steps:
 \begin{itemize}
-  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downeighting
+  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downweighting
   \item \configClass{resolveAmbiguities}{gnssProcessingStepType:resolveAmbiguities}:
         fix ambiguities to integer and remove them from the normals
   \item \configClass{estimate}{gnssProcessingStepType:estimate}: few iteration for final outlier downweighting
@@ -89,13 +89,13 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     EarthRotationPtr            earthRotation;
     GnssProcessingStepPtr       processingSteps;
 
-    readConfig(config, "timeSeries",      timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
-    readConfig(config, "timeMargin",      marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
-    readConfig(config, "transmitter",     transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
-    readConfig(config, "receiver",        receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
-    readConfig(config, "earthRotation",   earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
-    readConfig(config, "parametrization", gnssParametrization,  Config::MUSTSET,  "",    "models and parameters");
-    readConfig(config, "processingStep",  processingSteps,      Config::MUSTSET,  "",    "steps are processed consecutively");
+    readConfig(config, "timeSeries",               timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
+    readConfig(config, "timeMargin",               marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
+    readConfig(config, "transmitter",              transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
+    readConfig(config, "receiver",                 receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
+    readConfig(config, "earthRotation",            earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
+    readConfig(config, "parametrization",          gnssParametrization,  Config::MUSTSET,  "1",   "models and parameters");
+    readConfig(config, "processingStep",           processingSteps,      Config::MUSTSET,  "",    "steps are processed consecutively");
     if(isCreateSchema(config)) return;
 
     // ============================
@@ -108,6 +108,7 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     gnss->init({}, times, seconds2time(marginSeconds), transmitterGenerator, receiverGenerator, earthRotation, gnssParametrization, comm);
     receiverGenerator->preprocessing(gnss.get(), comm);
     gnss->synchronizeTransceivers(comm);
+    gnss->synchronizeTransceiversIsl(comm);
     transmitterGenerator = nullptr;
     receiverGenerator    = nullptr;
     gnssParametrization  = nullptr;
@@ -125,9 +126,9 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
       return;
     }
 
-    // count observation types
-    // -----------------------
-    logInfo<<"types and number of observations:"<<Log::endl;
+    // count GNSS observation types
+    // ----------------------------
+    logInfo<<"types and number of GNSS observations:"<<Log::endl;
     std::vector<GnssType> types = gnss->types(~(GnssType::PRN + GnssType::FREQ_NO));
     Vector countTypes(types.size());
     for(auto recv : gnss->receivers)
@@ -157,6 +158,35 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
         countTracks += recv->tracks.size();
     Parallel::reduceSum(countTracks, 0, comm);
     logInfo<<"  number of tracks: "<<countTracks<<Log::endl;
+
+    if(gnss->typesIsl(~(GnssType::PRN + GnssType::FREQ_NO)).size()>0)
+    {
+      // count ISL observation types
+      // ---------------------------
+      logInfo<<"types and number of ISL observations:"<<Log::endl;
+      types = gnss->typesIsl(~(GnssType::PRN + GnssType::FREQ_NO));
+      countTypes = Vector(types.size());
+      for(auto recv : gnss->transmitters)
+        if(recv->isMyRank())
+          for(UInt idEpoch=0; idEpoch<recv->idEpochSize(); idEpoch++)
+            for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
+            {
+              auto obs = recv->observationIsl(idTrans, idEpoch);
+              if(obs)
+              {
+                const GnssType typeIsl = GnssType("C1C") + gnss->transmitters.at(idTrans)->PRN();
+                const UInt idx = GnssType::index(types, typeIsl);
+                if(idx != NULLINDEX)
+                  countTypes(idx)++;
+              }
+            }
+      Parallel::reduceSum(countTypes, 0, comm);
+
+      for(UInt idType=0; idType<types.size(); idType++)
+        logInfo<<"  ISL"<<types.at(idType).str().substr(3)<<":"<<countTypes(idType)%"%10i"s<<Log::endl;
+      logInfo<<"        + ========="<<Log::endl;
+      logInfo<<"  total:"<<sum(countTypes)%"%11i"s<<Log::endl;
+    }
 
     // Processing steps
     // ----------------

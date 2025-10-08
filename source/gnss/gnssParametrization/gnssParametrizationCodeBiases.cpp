@@ -320,7 +320,7 @@ void GnssParametrizationCodeBiases::initParameter(GnssNormalEquationInfo &normal
       if(parameterCount)
       {
         UInt idxClocks = parameterCount;
-        // indicies of transmitter clocks
+        // indices of transmitter clocks
         std::vector<UInt> idxClockTrans(gnss->transmitters.size(), NULLINDEX);
         for(auto trans : gnss->transmitters)
           if(trans->useable())

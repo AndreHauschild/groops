@@ -67,6 +67,25 @@ void Platform::fillGnssAntennaDefinition(const std::vector<GnssAntennaDefinition
 
 /***********************************************/
 
+void Platform::fillIslTerminalDefinition(const std::vector<GnssAntennaDefinitionPtr> &terminalList)
+{
+  try
+  {
+    for(const auto &eq : equipments)
+    {
+      auto terminal = std::dynamic_pointer_cast<PlatformIslTerminal>(eq);
+      if(terminal)
+        terminal->antennaDef = GnssAntennaDefinition::find(terminalList, terminal->name, terminal->serial,"");
+    }
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void Platform::fillGnssAccuracyDefinition(const std::vector<GnssAntennaDefinitionPtr> &antennaList)
 {
   try
@@ -118,6 +137,7 @@ PlatformEquipmentPtr PlatformEquipment::create(Type type)
       case SLRSTATION:          return std::make_shared<PlatformSlrStation>();
       case LASERRETROREFLECTOR: return std::make_shared<PlatformLaserRetroReflector>();
       case SATELLITEIDENTIFIER: return std::make_shared<PlatformSatelliteIdentifier>();
+      case ISLTERMINAL:         return std::make_shared<PlatformIslTerminal>();
       case UNDEFINED:           break;
     }
 
@@ -197,6 +217,21 @@ void PlatformLaserRetroReflector::load(InArchive &ar)
   ar>>nameValue("platform2reflectorFrame", platform2reflectorFrame);
   ar>>nameValue("dZenit",                  dZenit);
   ar>>nameValue("range",                   range);
+}
+
+/***********************************************/
+/***********************************************/
+
+void PlatformIslTerminal::save(OutArchive &ar) const
+{
+  ar<<nameValue("local2terminalFrame", local2terminalFrame);
+}
+
+/***********************************************/
+
+void PlatformIslTerminal::load(InArchive &ar)
+{
+  ar>>nameValue("local2terminalFrame", local2terminalFrame);
 }
 
 /***********************************************/

@@ -63,13 +63,16 @@ class GnssTransmitterGeneratorGnss : public GnssTransmitterGeneratorBase
 {
   std::vector<FileName> fileNamesTransmitterList;
   FileName              fileNameTransmitterInfo, fileNameAntennaDef, fileNameSignalDef;
+  FileName              fileNameIslTerminalDef;
   FileName              fileNameOrbit, fileNameAttitude, fileNameClock;
+  FileName              fileNameObsIsl;
   UInt                  interpolationDegree;
   GnssAntennaDefinition::NoPatternFoundAction noPatternFoundAction;
 
 public:
   GnssTransmitterGeneratorGnss(Config &config);
-  void init(const std::vector<Time> &times, std::vector<GnssTransmitterPtr> &transmitters) override;
+  void init(const std::vector<Time> &times, const Time &timeMargin, Parallel::CommunicatorPtr comm,
+            std::vector<GnssTransmitterPtr> &transmitters) override;
 };
 
 /***********************************************/

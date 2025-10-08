@@ -294,6 +294,42 @@ All biases for a receiver/transmitter are accumulated and written to the respect
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileSignalBiasReceiver</div></div></td><td>filename</td><td>variable {station} available</td></tr>
 </table>
 
+<h2 id="signalBiasesIsl">SignalBiasesIsl</h2><p>
+Each inter-satellite-link observation contains a bias for ISL terminal of the transmitting and receiving satellite
+\[
+  [\tau\nu a]_r^s(t) = \dots + \text{bias}[\tau\nu a]^s + \text{bias}[\tau\nu a]_r + \dots
+\]This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.</p><p>The <a class="groops-class" href="fileFormat_gnssSignalBias.html">inputfileSignalBiasTransmitter/Receiver</a> are read
+for each satellite. The transmitter and receiver biases are stored in separate files.
+The file name is interpreted as a template with the variable <code>{prn}</code> being replaced by the satellite PRN.
+(Infos regarding the variable <code>{prn}</code> can be found in
+<a class="groops-class" href="gnssTransmitterGeneratorType.html">gnssTransmitterGeneratorType</a>).
+The bias files must contain one bias with the <code>{C1C}</code> observation code.
+</p>
+<table class="table table-hover">
+<tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">name</div></div></td><td>string</td><td>used for parameter selection</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectTransmitIslTerminal</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectReceiveIslTerminal</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">outputfileTransmitIslTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">outputfileReceiveIslTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileTransmitIslTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileReceiveIslTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+</table>
+
+<h2 id="islBiases">IslBiases</h2><p>
+TODO!
+</p>
+<table class="table table-hover">
+<tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">name</div></div></td><td>string</td><td>used for parameter selection</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectTransmitIslTerminal</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectReceiveIslTerminal</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">nameConstraint</div></div></td><td>string</td><td>used for parameter selection</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectTransmitTerminalZeroMean</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectReceiveTerminalZeroMean</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">sigmaZeroMeanConstraint</div></div></td><td>double</td><td>(0 = unconstrained) sigma [m] for constraint over all selected biases</td></tr>
+</table>
+
 <h2 id="ambiguities">Ambiguities</h2><p>
 Sets up an ambiguity parameter for each track and phase observation type.
 \[
