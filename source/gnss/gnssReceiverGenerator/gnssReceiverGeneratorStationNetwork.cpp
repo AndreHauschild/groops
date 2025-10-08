@@ -127,7 +127,10 @@ void GnssReceiverGeneratorStationNetwork::init(std::vector<GnssType> simulationT
         {
           fileNameVariableList.setVariable("station", stationName.at(i).at(k));
           if(!isSimulation && !System::exists(fileNameObs(fileNameVariableList)))
+          {
+            logWarningOnce<<"Unable to read observation file <"<<fileNameObs(fileNameVariableList)<<">, disabling receiver "<<stationName.at(i).at(k)<<"."<<Log::endl;
             continue;
+          }
 
           Platform platform;
           readFilePlatform(fileNameStationInfo(fileNameVariableList), platform);
