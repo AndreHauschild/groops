@@ -80,16 +80,13 @@ public:
       StationStatistics() : arOrder(0) {}
     };
 
-    class TransmitterStatistics
+    class IslStatistics
     {
     public:
       std::vector<GnssType> sigmaTypes;
       std::vector<Double>   sigmaFactors; // for each type
-      UInt                  arOrder;
-      std::vector<GnssType> arTypes;
-      std::vector<std::vector<std::vector<Double>>> arProcesses; // for each type, order, order
 
-      TransmitterStatistics() : arOrder(0) {}
+      IslStatistics() {}
     };
 
     GnssPtr                        gnss;
@@ -100,7 +97,7 @@ public:
     Vector                         lPl;      // at master (after solve)
     UInt                           obsCount; // at master (after solve)
     std::vector<StationStatistics> stations;
-    std::vector<TransmitterStatistics> transmitters; // for each transmitter
+    std::vector<IslStatistics>     transmitters; // for each transmitter
 
     /** @brief Constructor. */
     State(GnssPtr gnss, Parallel::CommunicatorPtr comm);
