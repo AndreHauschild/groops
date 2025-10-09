@@ -58,7 +58,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 
 /***********************************************/
 
-void GnssObservationIsl::setDecorrelatedResiduals(Double residual, Double redundancy)
+void GnssObservationIsl::setHomogenizedResiduals(Double residual, Double redundancy)
 {
   this->residual   = residual * sigma;
   this->redundancy = redundancy;

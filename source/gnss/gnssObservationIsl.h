@@ -39,7 +39,7 @@ public:
 
   GnssObservationIsl() : observation(0), residual(0), redundancy(0), sigma0(1), sigma(1), terminalRecv(0), terminalSend(0) {}
 
-  void setDecorrelatedResiduals(Double residual, Double redundancy);
+  void setHomogenizedResiduals(Double residual, Double redundancy);
 };
 
 /***** CLASS ***********************************/

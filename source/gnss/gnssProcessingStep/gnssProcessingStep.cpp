@@ -926,7 +926,7 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
                 // setup observation equations
                 A.init(eqn.l.rows());
                 gnss->designMatrixIsl(normalEquationInfo, eqn, A);
-                Vector We  = eqn.l - A.mult(x); // decorrelated residuals
+                Vector We  = eqn.l - A.mult(x); // homogenized residuals
                 Matrix AWz = A.mult(Wz);        // redundancies
 
                 // redundancies
@@ -940,7 +940,7 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
                 if(norm(eqn.sigma-eqn.sigma0) < 1e-8) // without outlier
                   if(infosResidualsIsl.update(1e3*(We(0)*eqn.sigma(0) - gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->residual)))
                     infosResidualsIsl.info = "ISL"+ eqn.transmitter->name()+", ("+eqn.receiver->name()+" , "+gnss->times.at(idEpoch).dateTimeStr()+")";
-                gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->setDecorrelatedResiduals(We(0), r(0));
+                gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->setHomogenizedResiduals(We(0), r(0));
               }
         } // for(idRecv)
       } // for(idEpoch)
