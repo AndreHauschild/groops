@@ -104,7 +104,8 @@ inline void GnssProcessingStepPrintResidualStatistics::process(GnssProcessingSte
       Vector factors(types.size());
       for(UInt i=0; i<types.size(); i++)
       {
-        factors(i) = state.transmitters.at(idTrans).sigmaFactors.at(0);
+        if (i < state.transmitters.at(idTrans).sigmaFactors.size())
+          factors(i) = state.transmitters.at(idTrans).sigmaFactors.at(0);
       }
       Parallel::reduceSum(factors, 0, state.normalEquationInfo.comm);
       if(Parallel::isMaster(state.normalEquationInfo.comm))
