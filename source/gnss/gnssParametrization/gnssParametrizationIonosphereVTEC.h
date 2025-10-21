@@ -73,6 +73,7 @@ class GnssParametrizationIonosphereVTEC : public GnssParametrizationBase
   Double                                       mapR, mapH, mapAlpha;
   std::vector<std::vector<GnssParameterIndex>> indexVTEC; // for each receiver, for each epoch
   std::vector<std::vector<Double>>             VTEC;
+  Double                                       VTEC0;
 
   ParametrizationTemporalPtr                   parametrizationGradient;
   std::vector<GnssParameterIndex>              indexGradient; // for each receiver
@@ -88,6 +89,7 @@ public:
   void   initParameter(GnssNormalEquationInfo &normalEquationInfo) override;
   void   aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo, MatrixSliceRef x0) const override;
   void   designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const override;
+  void   observationCorrections(GnssObservationEquation &eqn) const override;
   Double updateParameter(const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef Wz) override;
   void   writeResults(const GnssNormalEquationInfo &normalEquationInfo, const std::string &suffix) const override;
 };

@@ -210,7 +210,7 @@ void GnssRinexNavigation2OrbitClock::run(Config &config, Parallel::CommunicatorP
             if(navData.data.at(5)(1) > 0)
               unhealthy = TRUE;
           }
-        } // for each data rectord
+        } // for each data record
 
         if(unhealthy)
         {
@@ -221,7 +221,7 @@ void GnssRinexNavigation2OrbitClock::run(Config &config, Parallel::CommunicatorP
           iter++;
       }
 
-    // disable satellties with inconsistent data records
+    // disable satellites with inconsistent data records
     // -------------------------------------------------
     for(auto iter=satellites.begin(); iter!=satellites.end();)
     {
@@ -245,7 +245,7 @@ void GnssRinexNavigation2OrbitClock::run(Config &config, Parallel::CommunicatorP
               break;
             }
           }
-        } // for each data rectord
+        } // for each data record
 
       if(unhealthy)
       {
