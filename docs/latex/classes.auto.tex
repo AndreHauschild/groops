@@ -9592,5 +9592,49 @@ Name & Type & Annotation\\
 \hline
 \end{tabularx}
 
+
+\subsection{Saastamoinen}\label{troposphereType:Saastamoinen}
+
+Tropospheric delays based on the Saastamoinen model for the zenith hydrostatic delay (Saastamoinen, 1972) and the model by Askne and Nordius for the zenith wet delay (Askne and Nordius, 1987).
+
+Saastamoinen, J. (1972) Atmospheric Correction for the Troposphere and Stratosphere in Radioranging of Satellites, in the Use of Artificial Satellites for Geodesy. Geophys. Monogr. Ser. (edited by Henriksen, S.W., et al.), 15, 247-251.
+Askne, J., and Nordius, H. (1987), Estimation of tropospheric delay for microwaves from surface weather data, Radio Sci., 22( 3), 379– 386, doi:10.1029/RS022i003p00379.
+
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileGpt & \hfuzz=500pt filename & \hfuzz=500pt gridded GPT data\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~aHeight & \hfuzz=500pt double & \hfuzz=500pt parameter a (height correction)\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~bHeight & \hfuzz=500pt double & \hfuzz=500pt parameter b (height correction)\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~cHeight & \hfuzz=500pt double & \hfuzz=500pt parameter c (height correction)\\
+\hline
+\end{tabularx}
+
+
+\subsection{Hopfield}\label{troposphereType:Hopfield}
+
+Tropospheric delays based on a simplified version of the Hopfield model (Hopfield, 1969) assuming identical and constant meteorological parameters at all stations.
+
+Hopfield, H.S. (1969) Two-Quartic Tropospheric Refractivity Profile for Correcting Satellite Data. Journal of Geophysical Research, 74, 4487-4499
+http://dx.doi.org/10.1029/JC074i018p04487
+
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileGpt & \hfuzz=500pt filename & \hfuzz=500pt gridded GPT data\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~aHeight & \hfuzz=500pt double & \hfuzz=500pt parameter a (height correction)\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~bHeight & \hfuzz=500pt double & \hfuzz=500pt parameter b (height correction)\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~cHeight & \hfuzz=500pt double & \hfuzz=500pt parameter c (height correction)\\
+\hline
+\end{tabularx}
+
 \clearpage
 %==================================
