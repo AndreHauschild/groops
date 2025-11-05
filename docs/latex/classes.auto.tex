@@ -6204,10 +6204,15 @@ are sequently appended.
 
 
 \subsection{PerRevolution}\label{parametrizationAccelerationType:perRevolution}
-Oscillation once, twice, ... per revolution in Satellite Reference Frame (SRF)
-with the argument of latitude as input angle.  If the attitude of the satellite
-is not provided the Celestial Reference Frame (CRF) is used instead.
-Paramters are estimated in $[nm/s^2=10^{-9}\,m/s^2]$.
+Oscillation once, twice, ... per revolution with the argument of latitude as input 
+angle. By default, the terms are estimated in the Satellite Reference Frame (SRF).
+If the attitude of the satellite is not provided the Celestial Reference Frame
+(CRF) is used instead (TBC!!). Alternatively the orbital reference frame can be selected.
+As for non circular orbit the position and velocity are not exact normal, the default 
+for the orbital frame is the x-axis to be exact along velocity and the z-axis forms 
+a right hand system (not exact nadir). Alternatively, the orbital frame is setup with 
+the z-axis exact nadir and x-axis approximates along-track. 
+Parameters are estimated in $[nm/s^2=10^{-9}\,m/s^2]$.
 
 The \file{parameter names}{parameterName} are
 \begin{itemize}
@@ -6230,6 +6235,10 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~estimateY & \hfuzz=500pt boolean & \hfuzz=500pt cross\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~estimateZ & \hfuzz=500pt boolean & \hfuzz=500pt radial\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~interval & \hfuzz=500pt \hyperref[timeSeriesType]{timeSeries} & \hfuzz=500pt setup new parameters each interval\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~satellite attitude & \hfuzz=500pt choice & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~Satellite Reference Frame (SRF) & \hfuzz=500pt  & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~Orbital Reference Frame (exact along and nearly nadir) & \hfuzz=500pt  & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~Orbital Reference Frame (nearly along and exact nadir) & \hfuzz=500pt  & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~perArc & \hfuzz=500pt boolean & \hfuzz=500pt \\
 \hline
 \end{tabularx}

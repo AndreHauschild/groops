@@ -78,10 +78,15 @@ are sequently appended.
 </p>
 
 <h2 id="perRevolution">PerRevolution</h2><p>
-Oscillation once, twice, ... per revolution in Satellite Reference Frame (SRF)
-with the argument of latitude as input angle.  If the attitude of the satellite
-is not provided the Celestial Reference Frame (CRF) is used instead.
-Paramters are estimated in $[nm/s^2=10^{-9}\,m/s^2]$.</p><p>The <a class="groops-file" href="fileFormat_parameterName.html">parameter names</a> are
+Oscillation once, twice, ... per revolution with the argument of latitude as input 
+angle. By default, the terms are estimated in the Satellite Reference Frame (SRF).
+If the attitude of the satellite is not provided the Celestial Reference Frame
+(CRF) is used instead (TBC!!). Alternatively the orbital reference frame can be selected.
+As for non circular orbit the position and velocity are not exact normal, the default 
+for the orbital frame is the x-axis to be exact along velocity and the z-axis forms 
+a right hand system (not exact nadir). Alternatively, the orbital frame is setup with 
+the z-axis exact nadir and x-axis approximates along-track. 
+Parameters are estimated in $[nm/s^2=10^{-9}\,m/s^2]$.</p><p>The <a class="groops-file" href="fileFormat_parameterName.html">parameter names</a> are
 <ul>
 
 <li><code>*:perRevolution.cos(&lt;order>*u).x::&lt;interval></code>,
@@ -105,6 +110,10 @@ Paramters are estimated in $[nm/s^2=10^{-9}\,m/s^2]$.</p><p>The <a class="groops
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">estimateY</div></div></td><td>boolean</td><td>cross</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">estimateZ</div></div></td><td>boolean</td><td>radial</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">interval</div></div></td><td><a href="timeSeriesType.html">timeSeries</a></td><td>setup new parameters each interval</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">satellite attitude</div></div></td><td>choice</td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">Satellite Reference Frame (SRF)</div></div></td><td></td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">Orbital Reference Frame (exact along and nearly nadir)</div></div></td><td></td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">Orbital Reference Frame (nearly along and exact nadir)</div></div></td><td></td><td></td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">perArc</div></div></td><td>boolean</td><td></td></tr>
 </table>
 

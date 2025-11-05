@@ -6988,6 +6988,15 @@
 								<xs:documentation>setup new parameters each interval</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="satellite attitude">
+							<xs:complexType>
+								<xs:choice>
+									<xs:element name="Satellite Reference Frame (SRF)"/>
+									<xs:element name="Orbital Reference Frame (exact along and nearly nadir)"/>
+									<xs:element name="Orbital Reference Frame (nearly along and exact nadir)"/>
+								</xs:choice>
+							</xs:complexType>
+						</xs:element>
 						<xs:element name="perArc" type="boolean" minOccurs="0" default="0"/>
 					</xs:sequence>
 				</xs:complexType>

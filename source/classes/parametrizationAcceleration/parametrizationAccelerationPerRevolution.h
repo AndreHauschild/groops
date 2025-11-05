@@ -2,7 +2,7 @@
 /**
 * @file parametrizationAccelerationPerRevolution.h
 *
-* @brief Oscillation per revoultion.
+* @brief Oscillation per revolution.
 *
 * @author Torsten Mayer-Guerr
 * @date 2014-03-18
@@ -17,10 +17,15 @@
 #ifdef DOCSTRING_ParametrizationAcceleration
 static const char *docstringParametrizationAccelerationPerRevolution = R"(
 \subsection{PerRevolution}\label{parametrizationAccelerationType:perRevolution}
-Oscillation once, twice, ... per revolution in Satellite Reference Frame (SRF)
-with the argument of latitude as input angle.  If the attitude of the satellite
-is not provided the Celestial Reference Frame (CRF) is used instead.
-Paramters are estimated in $[nm/s^2=10^{-9}\,m/s^2]$.
+Oscillation once, twice, ... per revolution with the argument of latitude as input 
+angle. By default, the terms are estimated in the Satellite Reference Frame (SRF).
+If the attitude of the satellite is not provided the Celestial Reference Frame
+(CRF) is used instead (TBC!!). Alternatively the orbital reference frame can be selected.
+As for non circular orbit the position and velocity are not exact normal, the default 
+for the orbital frame is the x-axis to be exact along velocity and the z-axis forms 
+a right hand system (not exact nadir). Alternatively, the orbital frame is setup with 
+the z-axis exact nadir and x-axis approximates along-track. 
+Parameters are estimated in $[nm/s^2=10^{-9}\,m/s^2]$.
 
 The \file{parameter names}{parameterName} are
 \begin{itemize}
@@ -43,7 +48,7 @@ The \file{parameter names}{parameterName} are
 
 /***** CLASS ***********************************/
 
-/** @brief Oscillation per revoultion.
+/** @brief Oscillation per revolution.
 * @ingroup parametrizationAccelerationGroup
 * @see ParametrizationAcceleration */
 class ParametrizationAccelerationPerRevolution : public ParametrizationAccelerationBase
@@ -52,6 +57,8 @@ class ParametrizationAccelerationPerRevolution : public ParametrizationAccelerat
   UInt               idxStart, idxEnd;
   UInt               order, countAxis;
   Bool               estimateX, estimateY, estimateZ;
+  Bool               isOrbitalFrame;
+  Bool               isNadirPointing;
   Bool               perArc;
 
 public:
@@ -79,6 +86,19 @@ inline ParametrizationAccelerationPerRevolution::ParametrizationAccelerationPerR
     readConfig(config, "estimateY", estimateY,  Config::DEFAULT,  "1", "cross");
     readConfig(config, "estimateZ", estimateZ,  Config::DEFAULT,  "1", "radial");
     readConfig(config, "interval",  timeSeries, Config::DEFAULT,  "",  "setup new parameters each interval");
+
+    std::string choice;
+    readConfigChoice(config, "satellite attitude", choice, Config::MUSTSET, "", "");
+    isOrbitalFrame = TRUE;
+    isNadirPointing = TRUE;
+    if(readConfigChoiceElement(config, "Satellite Reference Frame (SRF)", choice, ""))
+      isOrbitalFrame = FALSE;
+    if(readConfigChoiceElement(config, "Orbital Reference Frame (exact along and nearly nadir)", choice, ""))
+      isNadirPointing = FALSE;
+    if(readConfigChoiceElement(config, "Orbital Reference Frame (nearly along and exact nadir)", choice, ""))
+      isNadirPointing = TRUE;
+    endChoice(config);
+
     readConfig(config, "perArc",    perArc,     Config::DEFAULT,  "0", "");
     if(isCreateSchema(config)) return;
 
@@ -162,7 +182,7 @@ inline void ParametrizationAccelerationPerRevolution::compute(SatelliteModelPtr 
     if((time<times.at(idxStart))||(time>=times.at(idxEnd)))
       return;
 
-    // findex index (interval)
+    // find index (interval)
     UInt idx = idxStart;
     while(time>=times.at(idx+1))
       idx++;
@@ -173,7 +193,16 @@ inline void ParametrizationAccelerationPerRevolution::compute(SatelliteModelPtr 
     Vector3d y = crossProduct(z, x);
     Double   u = atan2(inner(position,y), inner(position,x));
 
-    const Matrix rotary = (rotEarth*rotSat).matrix();
+    Matrix rotary;
+    if (isOrbitalFrame)
+    {
+      Vector3d y = normalize(crossProduct(velocity, position)); // cross
+      Vector3d x = normalize((isNadirPointing) ? crossProduct(position, y) : velocity);  // along
+      rotary = Rotary3d(x, y).matrix();
+    }
+    else  // Use satellite reference frame
+      rotary = (rotEarth*rotSat).matrix();
+
     Matrix R(3, countAxis);
     UInt idxAxis = 0;
     if(estimateX) copy(rotary.column(0),  R.column(idxAxis++));
