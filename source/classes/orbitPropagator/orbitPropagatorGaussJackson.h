@@ -20,7 +20,7 @@ static const char *docstringOrbitPropagatorGaussJackson = R"(
 \subsection{GaussJackson}
 This class implements the Gauss-Jackson multi-step predictor-corrector method to
 propagate a satellite orbit under the influence of \configClass{Forces}{forcesType}.
-Satellite is assumed to be oriented along-track. Implementation is based on [1].
+Satellite is assumed to be oriented according to nominal yaw-steering. Implementation is based on [1].
 [1] Berry, Matthew M., and Liam M. Healy. 2004. “Implementation of Gauss-Jackson Integration for Orbit Propagation.”
 )";
 #endif
