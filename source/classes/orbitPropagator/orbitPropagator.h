@@ -72,8 +72,18 @@ public:
   * @param position of the satellite
   * @param velocity of the satellite
   * @param satellite model of the satellite
+  * @param ephemerides Position of Sun and Moon.
   * @returns Rotary3d satellite orientation, with x as along-track, y cross-track and z perpendicular.  */
-  virtual Rotary3d orientation(const Time &time, const Vector3d &position, const Vector3d &velocity, SatelliteModelPtr satellite) const;
+  virtual Rotary3d orientationRTN(const Time &time, const Vector3d &position, const Vector3d &velocity, SatelliteModelPtr satellite, EphemeridesPtr ephemerides) const;
+
+  /** @brief Generic orientation definition in SRF assuming standard yaw steering.
+  * @param time of evaluation
+  * @param position of the satellite
+  * @param velocity of the satellite
+  * @param satellite model of the satellite
+  * @param ephemerides Position of Sun and Moon.
+  * @returns Rotary3d satellite orientation, with z towards nadir, y perpendicular to nadir and sun vector and x perpendicular to y and z.  */
+  virtual Rotary3d orientationYAW(const Time &time, const Vector3d &position, const Vector3d &velocity, SatelliteModelPtr satellite, EphemeridesPtr ephemerides) const;
 
   static Arc flip(const Arc &arc);
 
