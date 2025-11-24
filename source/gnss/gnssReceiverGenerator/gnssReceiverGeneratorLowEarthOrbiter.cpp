@@ -55,7 +55,7 @@ GnssReceiverGeneratorLowEarthOrbiter::GnssReceiverGeneratorLowEarthOrbiter(Confi
     readConfig(config, "wavelengthFactor",             wavelengthFactor,        Config::DEFAULT,  "1.",   "factor to account for half-wavelength observations (collected by codeless squaring techniques)");
     readConfig(config, "useType",                      useType,                 Config::OPTIONAL, "",     "only use observations that match any of these patterns");
     readConfig(config, "ignoreType",                   ignoreType,              Config::OPTIONAL, "",     "ignore observations that match any of these patterns");
-    readConfig(config, "extraType",                    extraType,               Config::OPTIONAL, "*5*G", "ignore observations in pre-processing that match any of these patterns");
+    readConfig(config, "extraType",                    extraType,               Config::OPTIONAL, "L5*G", "ignore observations in pre-processing that match any of these patterns");
     readConfig(config, "elevationCutOff",              elevationCutOff,         Config::DEFAULT,  "0",    "[degree] ignore observations below cutoff");
     readConfig(config, "minObsCountPerTrack",          minObsCountPerTrack,     Config::DEFAULT,  "20",   "tracks with less number of epochs with observations are dropped");
     if(readConfigSequence(config, "preprocessing", Config::MUSTSET, "", "settings for preprocessing of observations/stations"))
