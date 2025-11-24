@@ -2859,6 +2859,11 @@
 								<xs:documentation>ignore observations that match any of these patterns</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="extraType" type="gnssType" minOccurs="0" default="L5*G" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>ignore observations in pre-processing that match any of these patterns</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="elevationCutOff" type="angle" minOccurs="0" default="5">
 							<xs:annotation>
 								<xs:documentation>[degree] ignore observations below cutoff</xs:documentation>
@@ -3022,6 +3027,11 @@
 						<xs:element name="ignoreType" type="gnssType" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>ignore observations that match any of these patterns</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="extraType" type="gnssType" minOccurs="0" default="L5*G" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>ignore observations in pre-processing that match any of these patterns</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="elevationCutOff" type="angle" minOccurs="0" default="0">
