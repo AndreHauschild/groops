@@ -66,7 +66,7 @@ GnssReceiverGeneratorStationNetwork::GnssReceiverGeneratorStationNetwork(Config 
     readConfig(config, "inputfilePotentialLoadLoveNumber",   potentialName,           Config::OPTIONAL, "{groopsDataDir}/loading/loadLoveNumbers_Gegout97.txt", "if full potential is given and not only loading potential");
     readConfig(config, "useType",                            useType,                 Config::OPTIONAL, "",     "only use observations that match any of these patterns");
     readConfig(config, "ignoreType",                         ignoreType,              Config::OPTIONAL, "",     "ignore observations that match any of these patterns");
-    readConfig(config, "extraType",                          extraType,               Config::OPTIONAL, "*5*G", "ignore observations in pre-processing that match any of these patterns");
+    readConfig(config, "extraType",                          extraType,               Config::OPTIONAL, "L5*G", "ignore observations in pre-processing that match any of these patterns");
     readConfig(config, "elevationCutOff",                    elevationCutOff,         Config::DEFAULT,  "5",    "[degree] ignore observations below cutoff");
     readConfig(config, "elevationTrackMinimum",              elevationTrackMinimum,   Config::DEFAULT,  "15",   "[degree] ignore tracks that never exceed minimum elevation");
     readConfig(config, "minObsCountPerTrack",                minObsCountPerTrack,     Config::DEFAULT,  "60",   "tracks with less number of epochs with observations are dropped");
