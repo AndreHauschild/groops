@@ -249,6 +249,48 @@ static PlatformEquipmentPtr createEquipmentSatelliteIdentifier(Config &config)
 
 /***********************************************/
 
+static PlatformEquipmentPtr createEquipmentIslTerminal(Config &config)
+{
+  try
+  {
+    auto var = new PlatformIslTerminal();
+    Angle angleX, angleY, angleZ;
+    Bool  flipx, flipy, flipz;
+
+    readConfig(config, "name",      var->name,         Config::MUSTSET,  "",  "");
+    readConfig(config, "serial",    var->serial,       Config::OPTIONAL, "",  "");
+    readConfig(config, "comment",   var->comment,      Config::OPTIONAL, "",  "");
+    readConfig(config, "timeStart", var->timeStart,    Config::OPTIONAL, "",  "");
+    readConfig(config, "timeEnd",   var->timeEnd,      Config::OPTIONAL, "",  "");
+    readConfig(config, "positionX", var->position.x(), Config::MUSTSET,  "0", "[m] ARP in north, east, up or vehicle system");
+    readConfig(config, "positionY", var->position.y(), Config::MUSTSET,  "0", "[m] ARP in north, east, up or vehicle system");
+    readConfig(config, "positionZ", var->position.z(), Config::MUSTSET,  "0", "[m] ARP in north, east, up or vehicle system");
+    readConfig(config, "rotationX", angleX,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed antenna system");
+    readConfig(config, "rotationY", angleY,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed antenna system");
+    readConfig(config, "rotationZ", angleZ,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed antenna system");
+    readConfig(config, "flipX",     flipx,             Config::DEFAULT,  "0", "flip x-axis (after rotation)");
+    readConfig(config, "flipY",     flipy,             Config::DEFAULT,  "0", "flip y-axis (after rotation)");
+    readConfig(config, "flipZ",     flipz,             Config::DEFAULT,  "0", "flip z-axis (after rotation)");
+    if(isCreateSchema(config))
+      return PlatformEquipmentPtr(var);
+
+    if(var->timeEnd == Time())
+      var->timeEnd = date2time(2500,1,1);
+    var->local2terminalFrame = rotaryZ(angleZ) * rotaryY(angleY) * rotaryX(angleX);
+    if(flipx) var->local2terminalFrame = flipX() * var->local2terminalFrame;
+    if(flipy) var->local2terminalFrame = flipY() * var->local2terminalFrame;
+    if(flipz) var->local2terminalFrame = flipZ() * var->local2terminalFrame;
+
+    return PlatformEquipmentPtr(var);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 static PlatformEquipmentPtr createEquipmentOther(Config &config)
 {
   try
@@ -296,6 +338,8 @@ static Bool readConfig(Config &config, const std::string &name, PlatformEquipmen
         var = createEquipmentSlrStation(config);
       if(readConfigChoiceElement(config, "satelliteIdentifier", type, ""))
         var = createEquipmentSatelliteIdentifier(config);
+      if(readConfigChoiceElement(config, "islTerminal",         type, ""))
+        var = createEquipmentIslTerminal(config);
       if(readConfigChoiceElement(config, "other",               type, ""))
         var = createEquipmentOther(config);
       endChoice(config);
@@ -343,10 +387,11 @@ void PlatformCreate::run(Config &config, Parallel::CommunicatorPtr /*comm*/)
 {
   try
   {
-    FileName fileNamePlatform;
-    Platform platform;
+    FileName fileNamePlatformOut,fileNamePlatformIn;
+    Platform platform,platformIn;
 
-    readConfig(config, "outputfilePlatform", fileNamePlatform,            Config::MUSTSET,  "",  "");
+    readConfig(config, "outputfilePlatform", fileNamePlatformOut,         Config::MUSTSET,  "",  "");
+    readConfig(config, "inputfilePlatform",  fileNamePlatformIn,          Config::OPTIONAL,  "",  "");
     readConfig(config, "markerName",         platform.markerName,         Config::MUSTSET,  "",  "");
     readConfig(config, "markerNumber",       platform.markerNumber,       Config::OPTIONAL, "",  "");
     readConfig(config, "comment",            platform.comment,            Config::OPTIONAL, "",  "");
@@ -357,19 +402,36 @@ void PlatformCreate::run(Config &config, Parallel::CommunicatorPtr /*comm*/)
     readConfig(config, "referencePoint",     platform.referencePoints,    Config::OPTIONAL, "",  "e.g. center of mass in satellite frame");
     if(isCreateSchema(config)) return;
 
-    // check reference points
-    // ----------------------
-    if(platform.referencePoints.size())
+    // Read a-priori platform file
+    // ---------------------------
+    if(!fileNamePlatformIn.empty())
     {
-      for(UInt i=0; i<platform.referencePoints.size()-1; i++)
-        if(platform.referencePoints.at(i).timeEnd == Time())
-          platform.referencePoints.at(i).timeEnd = platform.referencePoints.at(i+1).timeStart;
-      if(platform.referencePoints.back().timeEnd == Time())
-        platform.referencePoints.back().timeEnd = date2time(2500,1,1);
+      logStatus<<"read platform from <"<<fileNamePlatformIn<<">"<<Log::endl;
+      readFilePlatform(fileNamePlatformIn, platformIn);
+      if(platform.referencePoints.size())
+        for(UInt i=0; i<platform.referencePoints.size(); i++)
+          platformIn.referencePoints.push_back(platform.referencePoints.at(i));
+      if(platform.equipments.size())
+        for(UInt i=0; i<platform.equipments.size(); i++)
+          platformIn.equipments.push_back(platform.equipments.at(i));
+    }
+    else {
+      platformIn = platform;
     }
 
-    logStatus<<"write platform to <"<<fileNamePlatform<<">"<<Log::endl;
-    writeFilePlatform(fileNamePlatform, platform);
+    // check reference points
+    // ----------------------
+    if(platformIn.referencePoints.size())
+    {
+      for(UInt i=0; i<platformIn.referencePoints.size()-1; i++)
+        if(platformIn.referencePoints.at(i).timeEnd == Time())
+          platformIn.referencePoints.at(i).timeEnd = platformIn.referencePoints.at(i+1).timeStart;
+      if(platformIn.referencePoints.back().timeEnd == Time())
+        platformIn.referencePoints.back().timeEnd = date2time(2500,1,1);
+    }
+
+    logStatus<<"write platform to <"<<fileNamePlatformOut<<">"<<Log::endl;
+    writeFilePlatform(fileNamePlatformOut, platformIn);
   }
   catch(std::exception &e)
   {

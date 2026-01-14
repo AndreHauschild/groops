@@ -39,6 +39,8 @@ public:
    UInt           id_; // set by Gnss::init()
    Platform       platform;
    GnssSignalBias signalBias;
+   GnssSignalBias signalBiasIslTx;
+   GnssSignalBias signalBiasIslRx;
 
 public:
   /// Constructor.
@@ -49,6 +51,9 @@ public:
 
   /** @brief name. */
   std::string name() const {return platform.name;}
+
+  /** @brief marker number. */
+  std::string markerNumber() const {return platform.markerNumber;}
 
   /** @brief Is the platform usable at given epoch (or all epochs). */
   Bool useable(UInt idEpoch=NULLINDEX) const {return countUseableEpochs && ((idEpoch == NULLINDEX) || useableEpochs(idEpoch));}
@@ -62,13 +67,27 @@ public:
   /** @brief Allowed signal types. Empty if no  definition was provided. */
   std::vector<GnssType> definedTypes(const Time &time) const;
 
+  /** @brief Signal bias corrections.
+  * observed range = range + bias. */
+  Vector signalBiases(const std::vector<GnssType> &type) const;
+
   /** @brief Direction dependent corrections.
   * observed range = range (ARPs of transmitter and receiver) + antennaVariations. */
   Vector antennaVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
   /** @brief Direction (and other parameters) dependent standard deviation.
-  * @a azmiut and @a elevation must be given in the antenna frame (left-handed). */
+  * @a azimuth and @a elevation must be given in the antenna frame (left-handed). */
   Vector accuracy(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
+
+  /** @brief ISL terminal bias corrections.
+  * observed range = range + bias. */
+  Double signalBiasesIslTx() const;
+  Double signalBiasesIslRx() const;
+
+  /** @brief Direction dependent corrections for ISL observations.
+  * observed range = range (ARPs of ISL transmit and receive terminal) + islTerminalVariations. */
+  Double islTerminalVariations(const Time &time, Angle azimut, Angle elevation) const;
+
 
   void save(OutArchive &oa) const;
   void load(InArchive  &ia);
@@ -131,21 +150,30 @@ inline std::vector<GnssType> GnssTransceiver::definedTypes(const Time &time) con
 
 /***********************************************/
 
+inline Vector GnssTransceiver::signalBiases(const std::vector<GnssType> &types) const
+{
+  try
+  {
+    return signalBias.compute(types);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 inline Vector GnssTransceiver::antennaVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &types) const
 {
   try
   {
-    Vector corr(types.size());
-    corr += signalBias.compute(types);
-
     auto antenna = platform.findEquipment<PlatformGnssAntenna>(time);
     if(!antenna)
       throw(Exception(platform.markerName+"."+platform.markerNumber+": no antenna definition found at "+time.dateTimeStr()));
     if(!antenna->antennaDef)
       throw(Exception("no antenna definition for "+antenna->str()));
-    corr += antenna->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
-
-    return corr;
+    return antenna->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
   }
   catch(std::exception &e)
   {
@@ -174,11 +202,76 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 
 /***********************************************/
 
+inline Double GnssTransceiver::signalBiasesIslTx() const
+{
+  try
+  {
+    // ISL observation code for biases
+    // TODO: avoid using observation types here!
+    // -----------------------------------------
+    const std::vector<GnssType> types = { GnssType("C1C***") };
+    Vector corr(types.size());
+    corr += signalBiasIslTx.compute(types);
+    return corr.at(0);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+inline Double GnssTransceiver::signalBiasesIslRx() const
+{
+  try
+  {
+    // ISL observation code for biases
+    // TODO: avoid using observation types here!
+    // -----------------------------------------
+    const std::vector<GnssType> types = { GnssType("C1C***") };
+    Vector corr(types.size());
+    corr += signalBiasIslRx.compute(types);
+    return corr.at(0);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+inline Double GnssTransceiver::islTerminalVariations(const Time &time, Angle azimut, Angle elevation) const
+{
+  try
+  {
+    // ISL observation code for antenna corrections
+    // TODO: avoid using observation types here!
+    // --------------------------------------------
+    const std::vector<GnssType> types = { GnssType("C1C***") };
+    auto terminal = platform.findEquipment<PlatformIslTerminal>(time);
+    if(!terminal)
+      throw(Exception(platform.markerName+"."+platform.markerNumber+": no ISL terminal definition found at "+time.dateTimeStr()));
+    if(!terminal->antennaDef)
+      throw(Exception("no ISL terminal definition for "+terminal->str()));
+    return terminal->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction).at(0);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 inline void GnssTransceiver::save(OutArchive &oa) const
 {
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
+  oa<<nameValue("signalBiasIslRx",    signalBiasIslRx);
+  oa<<nameValue("signalBiasIslTx",    signalBiasIslTx);
 }
 
 /***********************************************/
@@ -188,6 +281,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
+  ia>>nameValue("signalBiasIslRx",    signalBiasIslRx);
+  ia>>nameValue("signalBiasIslTx",    signalBiasIslTx);
 }
 
 /***********************************************/
