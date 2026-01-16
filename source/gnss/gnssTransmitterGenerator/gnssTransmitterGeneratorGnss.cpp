@@ -45,11 +45,11 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
     }
     readConfig(config, "inputfileIslTerminalDefintion", fileNameIslTerminalDef, Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat", "phase centers and variations (ANTEX like)");
     readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,      Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
-    readConfig(config, "inputfileClockFrequencyScale",  fileNameScale,       Config::OPTIONAL, "",                                 "variable {prn} available");
+    readConfig(config, "inputfileClockFrequencyScale",  fileNameScale,          Config::OPTIONAL, "",                                 "variable {prn} available");
     readConfig(config, "inputfileOrbit",                fileNameOrbit,          Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
     readConfig(config, "inputfileAttitude",             fileNameAttitude,       Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
     readConfig(config, "inputfileClock",                fileNameClock,          Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "interpolateClock",              interpolateClock,    Config::DEFAULT,  "1", "linear interpolation of missing epochs");
+    readConfig(config, "interpolateClock",              interpolateClock,       Config::DEFAULT,  "1", "linear interpolation of missing epochs");
     readConfig(config, "inputfileObservationsIsl",      fileNameObsIsl,         Config::OPTIONAL, "islReceiver_{loopTime:%D}.{prn}.dat", "variable {prn} available");
     readConfig(config, "interpolationDegree",           interpolationDegree,    Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
   }

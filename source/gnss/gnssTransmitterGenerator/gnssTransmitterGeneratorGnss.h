@@ -67,7 +67,7 @@ class GnssTransmitterGeneratorGnss : public GnssTransmitterGeneratorBase
   std::vector<FileName> fileNamesTransmitterList;
   FileName              fileNameTransmitterInfo, fileNameAntennaDef, fileNameSignalDef;
   FileName              fileNameIslTerminalDef;
-  FileName              fileNameOrbit, fileNameAttitude, fileNameClock, fileNameScale;;
+  FileName              fileNameOrbit, fileNameAttitude, fileNameClock, fileNameScale;
   FileName              fileNameObsIsl;
   Bool                  interpolateClock;
   UInt                  interpolationDegree;
