@@ -2407,8 +2407,8 @@ Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~selectReceivers & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used stations\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~selectTransmitter & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used transmitters\\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileResidualsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitter & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used transmitters\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileResidualsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hline
 \end{tabularx}
 
@@ -2853,6 +2853,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileAttitude & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileClock & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~interpolateClock & \hfuzz=500pt boolean & \hfuzz=500pt linear interpolation of missing epochs\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileObservationsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~interpolationDegree & \hfuzz=500pt uint & \hfuzz=500pt for orbit interpolation and velocity calculation\\
 \hline
 \end{tabularx}
@@ -4178,6 +4179,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~slrStation & \hfuzz=500pt  & \hfuzz=500pt loop over SLR stations\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~slrRetroReflector & \hfuzz=500pt  & \hfuzz=500pt loop over laser retroreflectors\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~satelliteIdentifier & \hfuzz=500pt  & \hfuzz=500pt loop over satellite identifiers\\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~islTerminal & \hfuzz=500pt  & \hfuzz=500pt loop over ISL terminals\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~other & \hfuzz=500pt  & \hfuzz=500pt loop over other types\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~variableLoopName & \hfuzz=500pt string & \hfuzz=500pt variable with name\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~variableLoopSerial & \hfuzz=500pt string & \hfuzz=500pt variable with serial\\
