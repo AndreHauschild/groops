@@ -89,13 +89,13 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     EarthRotationPtr            earthRotation;
     GnssProcessingStepPtr       processingSteps;
 
-    readConfig(config, "timeSeries",               timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
-    readConfig(config, "timeMargin",               marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
-    readConfig(config, "transmitter",              transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
-    readConfig(config, "receiver",                 receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
-    readConfig(config, "earthRotation",            earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
-    readConfig(config, "parametrization",          gnssParametrization,  Config::MUSTSET,  "1",   "models and parameters");
-    readConfig(config, "processingStep",           processingSteps,      Config::MUSTSET,  "",    "steps are processed consecutively");
+    readConfig(config, "timeSeries",      timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
+    readConfig(config, "timeMargin",      marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
+    readConfig(config, "transmitter",     transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
+    readConfig(config, "receiver",        receiverGenerator,    Config::MUSTSET,  "",    "ground station network or LEO satellite");
+    readConfig(config, "earthRotation",   earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
+    readConfig(config, "parametrization", gnssParametrization,  Config::MUSTSET,  "1",   "models and parameters");
+    readConfig(config, "processingStep",  processingSteps,      Config::MUSTSET,  "",    "steps are processed consecutively");
     if(isCreateSchema(config)) return;
 
     // ============================

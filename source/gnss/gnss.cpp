@@ -516,7 +516,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
     // ------------------------------------------------
     // check number of required observations
     std::vector<UInt> transCount(transmitters.size(), 0), transCountEpoch(transmitters.size(), 0);
-    std::vector<UInt> recvCount(receivers.size(), 0), recvCountEpoch(receivers.size(), 0);
+    std::vector<UInt> recvCount(receivers.size(), 0),     recvCountEpoch(receivers.size(), 0);
     parametrization->requirements(normalEquationInfo, transCount, transCountEpoch, recvCount, recvCountEpoch);
     UInt disabledEpochsTrans = 0;
     UInt disabledEpochsRecv = 0;
