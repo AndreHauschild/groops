@@ -70,7 +70,6 @@ init:
 groops_:
 	cd $(GROOPS_bld); cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../..; $(PMAKE); $(PMAKE) install
 	rm groops.xsd; $(GROOPS_bin)/groops --xsd groops.xsd
-	
 
 groopsgui_:
 	cd $(GROOPS_gui); $(QMAKE); $(PMAKE)
