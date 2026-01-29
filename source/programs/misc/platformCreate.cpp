@@ -391,7 +391,7 @@ void PlatformCreate::run(Config &config, Parallel::CommunicatorPtr /*comm*/)
     Platform platform,platformIn;
 
     readConfig(config, "outputfilePlatform", fileNamePlatformOut,         Config::MUSTSET,  "",  "");
-    readConfig(config, "inputfilePlatform",  fileNamePlatformIn,          Config::OPTIONAL,  "",  "");
+    readConfig(config, "inputfilePlatform",  fileNamePlatformIn,          Config::OPTIONAL, "",  "");
     readConfig(config, "markerName",         platform.markerName,         Config::MUSTSET,  "",  "");
     readConfig(config, "markerNumber",       platform.markerNumber,       Config::OPTIONAL, "",  "");
     readConfig(config, "comment",            platform.comment,            Config::OPTIONAL, "",  "");
