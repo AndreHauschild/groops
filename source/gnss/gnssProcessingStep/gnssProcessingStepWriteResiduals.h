@@ -212,10 +212,14 @@ inline void GnssProcessingStepWriteResiduals::process(GnssProcessingStep::State 
                   for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType+=3)
                   {
                     epoch.observation.insert(epoch.observation.end(), {0., 0., 1.});
-                    epoch.observation.at(epoch.observation.size()-3) = obs.residual;
-                    epoch.observation.at(epoch.observation.size()-2) = obs.redundancy;
-                    epoch.observation.at(epoch.observation.size()-1) = obs.sigma/obs.sigma0;
-                    break;
+                    const GnssType typeIsl = GnssType("C1C") + state.gnss->transmitters.at(idTrans)->PRN();
+                    if(typeIsl == epoch.obsType.at(idType))
+                    {
+                      epoch.observation.at(epoch.observation.size()-3) = obs.residual;
+                      epoch.observation.at(epoch.observation.size()-2) = obs.redundancy;
+                      epoch.observation.at(epoch.observation.size()-1) = obs.sigma/obs.sigma0;
+                      break;
+                    }
                   }
                 } // for(idTrans)
 
