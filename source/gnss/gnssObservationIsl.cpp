@@ -131,9 +131,9 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     // antenna correction and other corrections
     // ----------------------------------------
     l -= receiver->islTerminalVariations(timeRecv, azimutRecvAnt,  elevationRecvAnt);
-    l -= receiver->signalBiasesIslRx();
+    l -= receiver->signalBiasesIslRx(terminalRecv);
     l -= transmitter->islTerminalVariations(timeTrans, azimutTrans, elevationTrans);
-    l -= transmitter->signalBiasesIslTx();
+    l -= transmitter->signalBiasesIslTx(terminalSend);
     if(reduceModels)
       reduceModels(*this);
 

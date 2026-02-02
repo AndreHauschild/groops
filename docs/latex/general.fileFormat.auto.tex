@@ -280,6 +280,22 @@ See also \program{GnssProcessing}, \program{GnssSimulateReceiver}, \program{Gnss
 
 
 %==================================
+\subsection{IslSignalBias}\label{general.fileFormat:gnssSignalBias}
+Signal biases of GNSS transmitters or receivers for different \configClass{gnssType}{gnssType}.
+
+\begin{verbatim}
+groops IslSignalBias version=20200123
+          2 # number of terminals/biases
+# terminal   bias [m]
+# ====================================
+  0          -1.752461109688110974e-01
+  1           4.005884595055994590e-02
+ \end{verbatim}
+
+See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
+
+
+%==================================
 \subsection{GriddedData}\label{general.fileFormat:griddedData}
 List of arbitrarily distributed points defined by geographic coordinates and ellipsoidal
 height. Each point can also have an associated area

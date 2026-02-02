@@ -311,12 +311,12 @@ All biases for a receiver/transmitter are accumulated and written to the respect
 Each inter-satellite-link observation contains a bias for ISL terminal of the transmitting and receiving satellite
 \[
   [\tau\nu a]_r^s(t) = \dots + \text{bias}[\tau\nu a]^s + \text{bias}[\tau\nu a]_r + \dots
-\]This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.</p><p>The <a class="groops-class" href="fileFormat_gnssSignalBias.html">inputfileSignalBiasTransmitter/Receiver</a> are read
-for each satellite. The transmitter and receiver biases are stored in separate files.
+\]This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.</p><p>The <a class="groops-class" href="fileFormat_islSignalBias.html">inputfileSignalBiasTransmitter/Receiver</a> are read
+for each satellite. The biases of all transmitting and receiving terminals must be stored in separate files.
+The corresponding terminal must be identified by an integer number.
 The file name is interpreted as a template with the variable <code>{prn}</code> being replaced by the satellite PRN.
 (Infos regarding the variable <code>{prn}</code> can be found in
 <a class="groops-class" href="gnssTransmitterGeneratorType.html">gnssTransmitterGeneratorType</a>).
-The bias files must contain one bias with the <code>{C1C}</code> observation code.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>

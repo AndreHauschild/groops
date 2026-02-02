@@ -15,6 +15,7 @@
 
 #include "base/gnssType.h"
 #include "files/fileGnssSignalBias.h"
+#include "files/fileIslSignalBias.h"
 #include "files/filePlatform.h"
 
 /** @addtogroup gnssGroup */
@@ -39,8 +40,8 @@ public:
    UInt           id_; // set by Gnss::init()
    Platform       platform;
    GnssSignalBias signalBias;
-   GnssSignalBias signalBiasIslTx;
-   GnssSignalBias signalBiasIslRx;
+   IslSignalBias  signalBiasIslTx;
+   IslSignalBias  signalBiasIslRx;
 
 public:
   /// Constructor.
@@ -81,8 +82,8 @@ public:
 
   /** @brief ISL terminal bias corrections.
   * observed range = range + bias. */
-  Double signalBiasesIslTx() const;
-  Double signalBiasesIslRx() const;
+  Double signalBiasesIslTx(UInt terminal) const;
+  Double signalBiasesIslRx(UInt terminal) const;
 
   /** @brief Direction dependent corrections for ISL observations.
   * observed range = range (ARPs of ISL transmit and receive terminal) + islTerminalVariations. */
@@ -202,17 +203,11 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 
 /***********************************************/
 
-inline Double GnssTransceiver::signalBiasesIslTx() const
+inline Double GnssTransceiver::signalBiasesIslTx(UInt terminal) const
 {
   try
   {
-    // ISL observation code for biases
-    // TODO: avoid using observation types here!
-    // -----------------------------------------
-    const std::vector<GnssType> types = { GnssType("C1C***") };
-    Vector corr(types.size());
-    corr += signalBiasIslTx.compute(types);
-    return corr.at(0);
+    return signalBiasIslTx.compute(terminal);
   }
   catch(std::exception &e)
   {
@@ -222,17 +217,11 @@ inline Double GnssTransceiver::signalBiasesIslTx() const
 
 /***********************************************/
 
-inline Double GnssTransceiver::signalBiasesIslRx() const
+inline Double GnssTransceiver::signalBiasesIslRx(UInt terminal) const
 {
   try
   {
-    // ISL observation code for biases
-    // TODO: avoid using observation types here!
-    // -----------------------------------------
-    const std::vector<GnssType> types = { GnssType("C1C***") };
-    Vector corr(types.size());
-    corr += signalBiasIslRx.compute(types);
-    return corr.at(0);
+    return signalBiasIslRx.compute(terminal);
   }
   catch(std::exception &e)
   {
