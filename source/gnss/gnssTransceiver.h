@@ -259,8 +259,8 @@ inline void GnssTransceiver::save(OutArchive &oa) const
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
-  oa<<nameValue("signalBiasIslRx",    signalBiasIslRx);
-  oa<<nameValue("signalBiasIslTx",    signalBiasIslTx);
+  oa<<nameValue("signalBiasIsl",      signalBiasIslRx);
+  oa<<nameValue("signalBiasIsl",      signalBiasIslTx);
 }
 
 /***********************************************/
@@ -270,8 +270,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
-  ia>>nameValue("signalBiasIslRx",    signalBiasIslRx);
-  ia>>nameValue("signalBiasIslTx",    signalBiasIslTx);
+  ia>>nameValue("signalBiasIsl",      signalBiasIslRx);
+  ia>>nameValue("signalBiasIsl",      signalBiasIslTx);
 }
 
 /***********************************************/
