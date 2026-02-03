@@ -44,8 +44,8 @@ template<> void save(OutArchive &ar, const IslSignalBias &x)
   try
   {
     ar<<nameValue("count", x.terminals.size());
-    ar.comment("terminal bias [m]");
-    ar.comment("===============================");
+    ar.comment(" terminal  bias [m]");
+    ar.comment("===================================");
     for(UInt i=0; i<x.terminals.size(); i++)
     {
       ar.endLine();
