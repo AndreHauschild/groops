@@ -178,7 +178,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         countZeroMean++;
 #if DEBUG >0
         logInfo<<"initParameter() store initial transmit ISL terminal bias parameter "
-               <<para->trans->name()<<para->trans->signalBiasesIslTx(0)%" %5.2fm"s<<Log::endl;
+               <<para->trans->name()<<para->trans->signalBiasesIslTx(0)%" %5.2f m"s<<Log::endl;
 #endif
       }
 
