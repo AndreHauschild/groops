@@ -42,7 +42,7 @@ See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
 
 /***** CONSTANTS ********************************/
 
-const char *const FILE_ISLSIGNALBIAS_TYPE    = "gnssSignalBias";
+const char *const FILE_ISLSIGNALBIAS_TYPE    = "islSignalBias";
 constexpr UInt    FILE_ISLSIGNALBIAS_VERSION = std::max(UInt(20200123), FILE_BASE_VERSION);
 
 /***** TYPES ***********************************/

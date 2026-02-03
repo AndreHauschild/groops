@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GROOPS - GnssSignalBias</title>
+    <title>GROOPS - IslSignalBias</title>
 
     <!-- JQuery and Popper -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
@@ -69,19 +69,16 @@
     </header>
     <main class="container px-0 pt-2 top-buffer">
         <div id="content" class="container">
-            <h1>GnssSignalBias (file format)</h1><p>
+            <h1>IslSignalBias (file format)</h1><p>
 
 Signal biases of GNSS transmitters or receivers for different <a class="groops-class" href="gnssType.html">gnssType</a>.</p><p><pre>
-groops gnssSignalBias version=20200123
-          5 # number of signals
-# type   bias [m]
-# ===============================
- C1CG06 -1.752461109688110974e-01
- C1WG06  4.005884595055994590e-02
- C2WG06  6.597469378913034532e-02
- L1*G06 -2.736169875580296909e-02
- L2*G06  3.422596762686257871e-02
- </pre></p><p>See also <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>, <a class="groops-program" href="GnssSimulateReceiver.html">GnssSimulateReceiver</a>, <a class="groops-program" href="GnssSignalBias2Matrix.html">GnssSignalBias2Matrix</a>, <a class="groops-program" href="GnssSignalBias2SinexBias.html">GnssSignalBias2SinexBias</a>.
+groops IslSignalBias version=20200123
+          2 # number of terminals/biases
+# terminal   bias [m]
+# ====================================
+  0          -1.752461109688110974e-01
+  1           4.005884595055994590e-02
+ </pre></p><p>See also <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>, <a class="groops-program" href="GnssSimulateIsl.html">GnssSimulateIsl</a>.
 </p>
 
         </div>
