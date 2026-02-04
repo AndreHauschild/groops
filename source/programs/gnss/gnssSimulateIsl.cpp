@@ -129,11 +129,10 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
       return;
     }
 
-    // count observation types
-    // -----------------------
-    logInfo<<"types and number of ISL observations:"<<Log::endl;
-    std::vector<GnssType> types = gnss.typesIsl(~(GnssType::PRN + GnssType::FREQ_NO));
-    Vector countTypes(types.size());
+    // Count ISL observations
+    // ----------------------
+    logInfo<<"number of ISL observations:"<<Log::endl;
+    Vector countTypes(1);
     for(auto recv : gnss.transmitters)
       if(recv->isMyRank())
         for(UInt idEpoch=0; idEpoch<recv->idEpochSize(); idEpoch++)
@@ -142,18 +141,11 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
             auto obs = recv->observationIsl(idTrans, idEpoch);
             if(obs)
             {
-              const GnssType typeIsl = GnssType("C1C") + gnss.transmitters.at(idTrans)->PRN();
-              const UInt idx = GnssType::index(types, typeIsl);
-              if(idx != NULLINDEX)
-                countTypes(idx)++;
+              countTypes(0)++;
             }
           }
     Parallel::reduceSum(countTypes, 0, comm);
-
-    for(UInt idType=0; idType<types.size(); idType++)
-      logInfo<<"  ISL"<<types.at(idType).str().substr(3)<<":"<<countTypes(idType)%"%10i"s<<Log::endl;
-    logInfo<<"        + ========="<<Log::endl;
-    logInfo<<"  total:"<<sum(countTypes)%"%11i"s<<Log::endl;
+    logInfo<<"  total:"<<countTypes(0)%"%11i"s<<Log::endl;
 
     // Write observations
     // ------------------
