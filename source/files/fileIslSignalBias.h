@@ -59,7 +59,7 @@ class IslSignalBias
   std::vector<UInt>   terminals;
   std::vector<Double> biases;
 
-  Double compute(const UInt terminal) const;
+  Vector compute(const std::vector<UInt> &terminals) const;
 };
 
 /***** FUNCTIONS *******************************/

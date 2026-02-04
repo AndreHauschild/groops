@@ -43,6 +43,7 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   public:
     GnssTransmitterPtr trans;
     GnssParameterIndex index;
+    Vector             Bias;
   };
 
   Gnss                     *gnss;

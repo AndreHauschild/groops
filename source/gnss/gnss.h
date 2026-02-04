@@ -58,7 +58,9 @@ public:
   std::function<Rotary3d(const Time &time)>            funcRotationCrf2Trf;
   Matrix                          eop;             // Matrix eop columns: xp, yp, sp, deltaUT, LOD, X, Y, S
   std::vector<std::vector<std::vector<GnssType>>> typesRecvTrans;    // for each receiver and transmitter: used types (receiver types)
-  std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types)
+  std::vector<std::vector<std::vector<GnssType>>> typesRecvTransIsl; // for each receiver and transmitter: used types (ISL types) // TODO: remove this!!
+  std::vector<std::vector<std::vector<UInt>>> islTerminalRecv;    // for each receiver and transmitter: used receive terminals (UInt)
+  std::vector<std::vector<std::vector<UInt>>> islTerminalTrans;   // for each receiver and transmitter: used transmit terminals (UInt)
 
   std::vector<std::vector<UInt>>  links;
 

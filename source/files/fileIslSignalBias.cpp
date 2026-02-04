@@ -21,14 +21,18 @@ GROOPS_REGISTER_FILEFORMAT(IslSignalBias, FILE_ISLSIGNALBIAS_TYPE)
 
 /***********************************************/
 
-Double IslSignalBias::compute(const UInt terminal) const
+Vector IslSignalBias::compute(const std::vector<UInt> &terminals) const
 {
   try
   {
-    for(UInt idx=0; idx<this->terminals.size(); idx++)
-      if(this->terminals.at(idx) == terminal)
-        return biases.at(idx);
-    return 0.0;
+    Vector b(terminals.size());
+    for(UInt idTerm=0; idTerm<terminals.size(); idTerm++)
+    {
+      auto it = std::find(this->terminals.begin(), this->terminals.end(), terminals.at(idTerm));
+      if(it!=this->terminals.end())
+        b(idTerm) = biases.at(std::distance(this->terminals.begin(), it));
+    }
+    return b;
   }
   catch(std::exception &e)
   {
