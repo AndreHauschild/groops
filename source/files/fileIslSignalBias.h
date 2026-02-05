@@ -60,6 +60,8 @@ class IslSignalBias
   std::vector<Double> biases;
 
   Vector compute(const std::vector<UInt> &terminals) const;
+  Bool   isInList(UInt terminal, UInt &idx) const;
+  UInt   index(UInt terminal) const;
 };
 
 /***** FUNCTIONS *******************************/

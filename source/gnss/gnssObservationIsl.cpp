@@ -125,7 +125,7 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
       A(i, idxPosTrans+1) = k.y() * (-1+rDotTrans);  // transmitter coord y
       A(i, idxPosTrans+2) = k.z() * (-1+rDotTrans);  // transmitter coord z
       A(i, idxClockTrans) = -1.0;                    // transmitter clock correction
-      A(i, idxRange)      =  1.0;                    // range correction (???, ...)
+      A(i, idxRange)      =  1.0;                    // range correction (biases, ...)
     }  // for(i=0..obsCount)
 
     // antenna correction and other corrections

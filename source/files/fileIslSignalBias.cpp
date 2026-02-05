@@ -41,6 +41,24 @@ Vector IslSignalBias::compute(const std::vector<UInt> &terminals) const
 }
 
 /***********************************************/
+
+Bool IslSignalBias::isInList(UInt terminal, UInt &idx) const
+{
+  idx = index(terminal);
+  return (idx != NULLINDEX);
+}
+
+/***********************************************/
+
+UInt IslSignalBias::index(UInt terminal) const
+{
+  for(UInt i=0; i<terminals.size(); i++)
+    if(terminal == terminals.at(i))
+      return i;
+  return NULLINDEX;
+}
+
+/***********************************************/
 /***********************************************/
 
 template<> void save(OutArchive &ar, const IslSignalBias &x)

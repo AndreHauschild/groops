@@ -43,7 +43,6 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   public:
     GnssTransmitterPtr trans;
     GnssParameterIndex index;
-    Vector             Bias;
   };
 
   Gnss                     *gnss;
@@ -54,7 +53,7 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   Bool                      applyConstraint;
   Double                    sigmaZeroMean;
   std::vector<Parameter*>   paraTransmitTerminal, paraReceiveTerminal;
-  std::vector<Double>       x0TransmitTerminal, x0ReceiveTerminal; // a-priori values for each trans/recv terminal
+  std::vector<Vector>       x0TransmitTerminal, x0ReceiveTerminal; // a-priori values for each trans/recv terminal
 
 public:
   GnssParametrizationIslBiases(Config &config);
