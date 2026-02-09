@@ -80,6 +80,15 @@ public:
       StationStatistics() : arOrder(0) {}
     };
 
+    class IslStatistics
+    {
+    public:
+      std::vector<GnssType> sigmaTypes;
+      std::vector<Double>   sigmaFactors; // for each type
+
+      IslStatistics() {}
+    };
+
     GnssPtr                        gnss;
     GnssNormalEquationInfo         normalEquationInfo;
     Bool                           changedNormalEquationInfo;
@@ -88,6 +97,7 @@ public:
     Vector                         lPl;      // at master (after solve)
     UInt                           obsCount; // at master (after solve)
     std::vector<StationStatistics> stations;
+    std::vector<IslStatistics>     transmitters; // for each transmitter
 
     /** @brief Constructor. */
     State(GnssPtr gnss, Parallel::CommunicatorPtr comm);
@@ -102,6 +112,10 @@ public:
     void residualsStatistics        (UInt idRecv, UInt idTrans,
                                      std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
                                      std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount);
+    void residualsStatisticsIsl     (UInt idTrans,
+                                     std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
+                                     std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount);
+
   };
 
   /** @brief Constructor from config. */

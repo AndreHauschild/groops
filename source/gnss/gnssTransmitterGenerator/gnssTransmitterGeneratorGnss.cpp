@@ -43,13 +43,15 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
         noPatternFoundAction = GnssAntennaDefinition::NoPatternFoundAction::THROW_EXCEPTION;
       endChoice(config);
     }
-    readConfig(config, "inputfileSignalDefintion",     fileNameSignalDef,   Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
-    readConfig(config, "inputfileClockFrequencyScale", fileNameScale,       Config::OPTIONAL, "",                                 "variable {prn} available");
-    readConfig(config, "inputfileOrbit",               fileNameOrbit,       Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "inputfileAttitude",            fileNameAttitude,    Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
-    readConfig(config, "inputfileClock",               fileNameClock,       Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "interpolateClock",             interpolateClock,    Config::DEFAULT,  "1", "linear interpolation of missing epochs");
-    readConfig(config, "interpolationDegree",          interpolationDegree, Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
+    readConfig(config, "inputfileIslTerminalDefintion", fileNameIslTerminalDef, Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat", "phase centers and variations (ANTEX like)");
+    readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,      Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
+    readConfig(config, "inputfileClockFrequencyScale",  fileNameScale,          Config::OPTIONAL, "",                                 "variable {prn} available");
+    readConfig(config, "inputfileOrbit",                fileNameOrbit,          Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "inputfileAttitude",             fileNameAttitude,       Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
+    readConfig(config, "inputfileClock",                fileNameClock,          Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "interpolateClock",              interpolateClock,       Config::DEFAULT,  "1", "linear interpolation of missing epochs");
+    readConfig(config, "inputfileObservationsIsl",      fileNameObsIsl,         Config::OPTIONAL, "islReceiver_{loopTime:%D}.{prn}.dat", "variable {prn} available");
+    readConfig(config, "interpolationDegree",           interpolationDegree,    Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
   }
   catch(std::exception &e)
   {
@@ -59,7 +61,8 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
 
 /***********************************************/
 
-void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vector<GnssTransmitterPtr> &transmitters)
+void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Time &timeMargin, Parallel::CommunicatorPtr comm,
+                                        std::vector<GnssTransmitterPtr> &transmitters)
 {
   try
   {
@@ -73,6 +76,11 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
     std::vector<GnssReceiverDefinitionPtr> signalDefList;
     if(!fileNameSignalDef.empty())
       readFileGnssReceiverDefinition(fileNameSignalDef, signalDefList);
+
+    // read ISL terminal definition
+    std::vector<GnssAntennaDefinitionPtr> islTerminalDefList;
+    if(!fileNameIslTerminalDef.empty())
+      readFileGnssAntennaDefinition(fileNameIslTerminalDef, islTerminalDefList);
 
     std::vector<std::string> transmitterList;
     for(const auto &fileNameTransmitterList : fileNamesTransmitterList)
@@ -94,6 +102,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
         platform.name = prn;
         platform.fillGnssAntennaDefinition(antennaDefList);
         platform.fillGnssReceiverDefinition(signalDefList);
+        platform.fillIslTerminalDefinition(islTerminalDefList);
         Vector useableEpochs(times.size(), TRUE);
 
         // read orbit
@@ -194,6 +203,8 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
 
         std::vector<Vector3d>    offset(times.size());
         std::vector<Transform3d> srf2arf(times.size());
+        std::vector<Vector3d>    offsetIsl(times.size());
+        std::vector<Transform3d> srf2arfIsl(times.size());
         for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
           if(useableEpochs(idEpoch))
           {
@@ -205,6 +216,13 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
             }
             else
               useableEpochs(idEpoch) = FALSE;
+
+            auto islTerminal = platform.findEquipment<PlatformIslTerminal>(times.at(idEpoch));
+            if(islTerminal && islTerminal->antennaDef)
+            {
+              offsetIsl.at(idEpoch)  = islTerminal->position - platform.referencePoint(times.at(idEpoch));
+              srf2arfIsl.at(idEpoch) = islTerminal->local2terminalFrame;
+            }
           }
 
         // test useable
@@ -219,7 +237,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
           logWarningOnce<<platform.markerName<<"."<<platform.markerNumber<<": "<<useableEpochs.rows()-countUseableEpochs<<" epochs disabled due to missing orbit/attitude/clock data"<<Log::endl;
 
         transmitters.push_back(std::make_shared<GnssTransmitter>(GnssType("***"+platform.markerNumber), platform, noPatternFoundAction,
-                                                                 useableEpochs, clock, scale, offset, crf2srf, srf2arf, timesPosVel, pos, vel, interpolationDegree));
+                                                                 useableEpochs, clock, scale, offset, crf2srf, srf2arf, offsetIsl, srf2arfIsl, timesPosVel, pos, vel, interpolationDegree));
         countTrans++;
       }
       catch(std::exception &e)
@@ -228,11 +246,51 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, std::vec
       }
     } // for(idTrans)
 
+    // Assign transmitters to nodes
+    // NOTE: this is done here to make sure that isMyRank_
+    //       is set correctly even without ISL observations.
+    // ----------------------------
+    for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+      if(idTrans%Parallel::size(comm) == Parallel::myRank(comm))
+      {
+        GnssTransmitterPtr &trans = transmitters.at(idTrans);
+        trans->isMyRank_ = TRUE;
+      }
+
+    // inter satellite links
+    // ---------------------
+    fileNameVariableList.setVariable("prn", "***");
+    if(!fileNameObsIsl(fileNameVariableList).empty())
+    {
+      Parallel::barrier(comm);
+      logStatus<<"read inter satellite link observations"<<Log::endl;
+      Log::Timer timer(transmitters.size());
+      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
+        if(transmitters.at(idTrans)->isMyRank())
+        {
+          GnssTransmitterPtr &trans = transmitters.at(idTrans);
+          timer.loopStep(idTrans);
+          fileNameVariableList.setVariable("prn", trans->name());
+          try
+          {
+            trans->readObservationsIsl(fileNameObsIsl(fileNameVariableList), transmitters, times, timeMargin);
+          }
+          catch(std::exception &/*e*/)
+          {
+            logWarning<<"Unable to read ISL observations <"<<fileNameObsIsl(fileNameVariableList)<<">."<<Log::endl;
+            continue;
+          }
+        } // for(idTrans)
+      Parallel::barrier(comm);
+      timer.loopEnd();
+    }
+
     if(!countTrans)
     {
       fileNameVariableList.setVariable("prn", "***");
       logWarningOnce<<"Initialization of all satellites failed. Wrong file name <"<<fileNameOrbit(fileNameVariableList)<<">?"<<Log::endl;
     }
+    logStatus<<"  "<<countTrans<<" of "<<transmitterList.size()<<" transmitters used"<<Log::endl;
   }
   catch(std::exception &e)
   {
