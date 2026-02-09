@@ -1587,6 +1587,57 @@ Name & Type & Annotation\\
 \end{tabularx}
 
 
+\subsection{SignalBiasesIsl}\label{gnssParametrizationType:signalBiasesIsl}
+Each inter-satellite-link observation contains a bias for ISL terminal of the transmitting and receiving satellite
+\begin{equation}
+  [\tau\nu a]_r^s(t) = \dots + \text{bias}[\tau\nu a]^s + \text{bias}[\tau\nu a]_r + \dots
+\end{equation}
+This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.
+
+The \configFile{inputfileSignalBiasTransmitter/Receiver}{islSignalBias} are read
+for each satellite. The biases of all transmitting and receiving terminals must be stored in separate files.
+The corresponding terminal must be identified by an integer number.
+The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
+(Infos regarding the variable \verb|{prn}| can be found in
+\configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType}).
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileTransmitIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileReceiveIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileTransmitIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileReceiveIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hline
+\end{tabularx}
+
+
+\subsection{IslBiases}\label{gnssParametrizationType:islBiases}
+TODO!
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~nameConstraint & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitTerminalZeroMean & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveTerminalZeroMean & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~sigmaZeroMeanConstraint & \hfuzz=500pt double & \hfuzz=500pt (0 = unconstrained) sigma [m] for constraint over all selected biases\\
+\hline
+\end{tabularx}
+
+
 \subsection{Ambiguities}\label{gnssParametrizationType:ambiguities}
 Sets up an ambiguity parameter for each track and phase observation type.
 \begin{equation}
@@ -2342,9 +2393,11 @@ Name & Type & Annotation\\
 
 \subsection{WriteResiduals}\label{gnssProcessingStepType:writeResiduals}
 Writes the \file{observation residuals}{instrument} for all
-\configClass{selectReceivers}{platformSelectorType}.
-For for each station a file is written. The file name is interpreted as
-a template with the variable \verb|{station}| being replaced by the station name.
+\configClass{selectReceivers}{platformSelectorType} for GNSS observations and all
+\configClass{selectTransmitters}{platformSelectorType} for ISL observations.
+One file is written for each station and transmitter. The file name is interpreted as
+a template with the variable \verb|{station}| being replaced by the station name
+or \verb|{prn}| being replaced by the satellite PRN.
 
 
 \keepXColumns
@@ -2354,6 +2407,8 @@ Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~selectReceivers & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used stations\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitter & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used transmitters\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileResidualsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hline
 \end{tabularx}
 
@@ -2672,7 +2727,6 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfilePotentialLoadLoveNumber & \hfuzz=500pt filename & \hfuzz=500pt if full potential is given and not only loading potential\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~useType & \hfuzz=500pt \hyperref[gnssType]{gnssType} & \hfuzz=500pt only use observations that match any of these patterns\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~ignoreType & \hfuzz=500pt \hyperref[gnssType]{gnssType} & \hfuzz=500pt ignore observations that match any of these patterns\\
-\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~extraType & \hfuzz=500pt \hyperref[gnssType]{gnssType} & \hfuzz=500pt ignore observations in pre-processing that match any of these patterns\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~elevationCutOff & \hfuzz=500pt angle & \hfuzz=500pt [degree] ignore observations below cutoff\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~elevationTrackMinimum & \hfuzz=500pt angle & \hfuzz=500pt [degree] ignore tracks that never exceed minimum elevation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~minObsCountPerTrack & \hfuzz=500pt uint & \hfuzz=500pt tracks with less number of epochs with observations are dropped\\
@@ -2721,7 +2775,6 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~wavelengthFactor & \hfuzz=500pt double & \hfuzz=500pt factor to account for half-wavelength observations (collected by codeless squaring techniques)\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~useType & \hfuzz=500pt \hyperref[gnssType]{gnssType} & \hfuzz=500pt only use observations that match any of these patterns\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~ignoreType & \hfuzz=500pt \hyperref[gnssType]{gnssType} & \hfuzz=500pt ignore observations that match any of these patterns\\
-\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~extraType & \hfuzz=500pt \hyperref[gnssType]{gnssType} & \hfuzz=500pt ignore observations in pre-processing that match any of these patterns\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~elevationCutOff & \hfuzz=500pt angle & \hfuzz=500pt [degree] ignore observations below cutoff\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~minObsCountPerTrack & \hfuzz=500pt uint & \hfuzz=500pt tracks with less number of epochs with observations are dropped\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~preprocessing & \hfuzz=500pt sequence & \hfuzz=500pt settings for preprocessing of observations/stations\\
@@ -2792,12 +2845,14 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~ignoreObservation & \hfuzz=500pt  & \hfuzz=500pt ignore observation if no matching pattern is found\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~useNearestFrequency & \hfuzz=500pt  & \hfuzz=500pt use pattern of nearest frequency if no matching pattern is found\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~throwException & \hfuzz=500pt  & \hfuzz=500pt throw exception if no matching pattern is found\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileIslTerminalDefintion & \hfuzz=500pt filename & \hfuzz=500pt phase centers and variations (ANTEX like)\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileSignalDefintion & \hfuzz=500pt filename & \hfuzz=500pt transmitted signal types\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileClockFrequencyScale & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileAttitude & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileClock & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~interpolateClock & \hfuzz=500pt boolean & \hfuzz=500pt linear interpolation of missing epochs\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileObservationsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~interpolationDegree & \hfuzz=500pt uint & \hfuzz=500pt for orbit interpolation and velocity calculation\\
 \hline
 \end{tabularx}
@@ -4123,6 +4178,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~slrStation & \hfuzz=500pt  & \hfuzz=500pt loop over SLR stations\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~slrRetroReflector & \hfuzz=500pt  & \hfuzz=500pt loop over laser retroreflectors\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~satelliteIdentifier & \hfuzz=500pt  & \hfuzz=500pt loop over satellite identifiers\\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~islTerminal & \hfuzz=500pt  & \hfuzz=500pt loop over ISL terminals\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~other & \hfuzz=500pt  & \hfuzz=500pt loop over other types\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~variableLoopName & \hfuzz=500pt string & \hfuzz=500pt variable with name\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~variableLoopSerial & \hfuzz=500pt string & \hfuzz=500pt variable with serial\\
@@ -5800,14 +5856,14 @@ used in \program{SimulateOrbit}
 
 \subsection{Euler}
 This class implements Euler's method to propagate a satellite orbit under the influence of \configClass{Forces}{forcesType}.
-Satellite is assumed to be oriented according to nominal yaw-steering.
+Satellite is assumed to be oriented along-track.
 
 
 \subsection{RungeKutta4}
 This class implements the classical Runge-Kutta 4 method of orbit propagation
 for satellite orbit under the influence of \configClass{Forces}{forcesType}.
 No step-width control or other advanced features are implemented.
-Satellite is assumed to be oriented according to nominal yaw-steering.
+Satellite is assumed to be oriented along-track.
 See: Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 
 
@@ -5815,7 +5871,7 @@ See: Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 This class implements the Adams-Moulton class of predictor-corrector orbit propagators
 for a satellite orbit under the influence of \configClass{Forces}{forcesType} using an implicit
 Adams-Bashforth corrector. The coefficients for the propagator are derived using the equations
-given in section 4.2.3 of [1]. Satellite is assumed to be oriented according to nominal yaw-steering.
+given in section 4.2.3 of [1]. Satellite is assumed to be oriented along-track.
 [1] Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 
 
@@ -5835,8 +5891,8 @@ Name & Type & Annotation\\
 This class implements the Stoermer-Cowell class of predictor-corrector orbit propagators for a satellite orbit
 under the influence of \configClass{Forces}{forcesType}. The coefficients for the Stoermer predictor and Cowell corrector
 are derived using the equations given in section 4.2.6 of [1]. Stoermer-Cowell is a double integration algorithm,
-yielding positions directly from accelerations. It does not produce velocities. The velocities are derived using
-Adams-type propagators as suggested in [2]. Satellite is assumed to be oriented according to nominal yaw-steering.
+yielding positions directly from accelertions. It does not produce velocities. The velocities are derived using
+Adams-type propagators as suggested in [2]. Satellite is assumed to be oriented along-track.
 [1] Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 [2] Berry, Matthew M., and Liam M. Healy. 2004. “Implementation of Gauss-Jackson Integration for Orbit Propagation.”
 
@@ -5855,7 +5911,7 @@ Name & Type & Annotation\\
 \subsection{GaussJackson}
 This class implements the Gauss-Jackson multi-step predictor-corrector method to
 propagate a satellite orbit under the influence of \configClass{Forces}{forcesType}.
-Satellite is assumed to be oriented according to nominal yaw-steering. Implementation is based on [1].
+Satellite is assumed to be oriented along-track. Implementation is based on [1].
 [1] Berry, Matthew M., and Liam M. Healy. 2004. “Implementation of Gauss-Jackson Integration for Orbit Propagation.”
 
 
@@ -5874,7 +5930,7 @@ Name & Type & Annotation\\
 
 \subsection{Polynomial}\label{orbitPropagatorType:Polynomial}
 This class implements an integration Polynomial method to propagate a satellite orbit under
-the influence of \configClass{Forces}{forcesType}. Satellite is assumed to be oriented according to nominal yaw-steering.
+the influence of \configClass{Forces}{forcesType}. Satellite is assumed to be oriented along-track.
 Implementation is based on code by Torsten Mayer-Gürr.
 
 
@@ -5894,7 +5950,6 @@ Name & Type & Annotation\\
 
 \subsection{File}
 Reads an orbit from file. If the needed epochs are not given an exception is thrown.
-Satellite is assumed to be oriented according to nominal yaw-steering.
 
 
 \keepXColumns
@@ -9597,50 +9652,6 @@ programs \program{Crd2NormalPoints}, \program{Cstg2NormalPoints}, \program{Merit
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileStationMeteorology & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hline
-\end{tabularx}
-
-
-\subsection{Saastamoinen}\label{troposphereType:Saastamoinen}
-
-Tropospheric delays based on the Saastamoinen model for the zenith hydrostatic delay (Saastamoinen, 1972) and the model by Askne and Nordius for the zenith wet delay (Askne and Nordius, 1987).
-
-Saastamoinen, J. (1972) Atmospheric Correction for the Troposphere and Stratosphere in Radioranging of Satellites, in the Use of Artificial Satellites for Geodesy. Geophys. Monogr. Ser. (edited by Henriksen, S.W., et al.), 15, 247-251.
-Askne, J., and Nordius, H. (1987), Estimation of tropospheric delay for microwaves from surface weather data, Radio Sci., 22( 3), 379– 386, doi:10.1029/RS022i003p00379.
-
-
-
-\keepXColumns
-\begin{tabularx}{\textwidth}{N T A}
-\hline
-Name & Type & Annotation\\
-\hline
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileGpt & \hfuzz=500pt filename & \hfuzz=500pt gridded GPT data\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~aHeight & \hfuzz=500pt double & \hfuzz=500pt parameter a (height correction)\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~bHeight & \hfuzz=500pt double & \hfuzz=500pt parameter b (height correction)\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~cHeight & \hfuzz=500pt double & \hfuzz=500pt parameter c (height correction)\\
-\hline
-\end{tabularx}
-
-
-\subsection{Hopfield}\label{troposphereType:Hopfield}
-
-Tropospheric delays based on a simplified version of the Hopfield model (Hopfield, 1969) assuming identical and constant meteorological parameters at all stations.
-
-Hopfield, H.S. (1969) Two-Quartic Tropospheric Refractivity Profile for Correcting Satellite Data. Journal of Geophysical Research, 74, 4487-4499
-http://dx.doi.org/10.1029/JC074i018p04487
-
-
-
-\keepXColumns
-\begin{tabularx}{\textwidth}{N T A}
-\hline
-Name & Type & Annotation\\
-\hline
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileGpt & \hfuzz=500pt filename & \hfuzz=500pt gridded GPT data\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~aHeight & \hfuzz=500pt double & \hfuzz=500pt parameter a (height correction)\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~bHeight & \hfuzz=500pt double & \hfuzz=500pt parameter b (height correction)\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~cHeight & \hfuzz=500pt double & \hfuzz=500pt parameter c (height correction)\\
 \hline
 \end{tabularx}
 
