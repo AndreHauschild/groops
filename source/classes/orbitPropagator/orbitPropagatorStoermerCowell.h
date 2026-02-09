@@ -21,8 +21,8 @@ static const char *docstringOrbitPropagatorStoermerCowell = R"(
 This class implements the Stoermer-Cowell class of predictor-corrector orbit propagators for a satellite orbit
 under the influence of \configClass{Forces}{forcesType}. The coefficients for the Stoermer predictor and Cowell corrector
 are derived using the equations given in section 4.2.6 of [1]. Stoermer-Cowell is a double integration algorithm,
-yielding positions directly from accelertions. It does not produce velocities. The velocities are derived using
-Adams-type propagators as suggested in [2]. Satellite is assumed to be oriented along-track.
+yielding positions directly from accelerations. It does not produce velocities. The velocities are derived using
+Adams-type propagators as suggested in [2]. Satellite is assumed to be oriented according to nominal yaw-steering.
 [1] Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 [2] Berry, Matthew M., and Liam M. Healy. 2004. “Implementation of Gauss-Jackson Integration for Orbit Propagation.”
 )";

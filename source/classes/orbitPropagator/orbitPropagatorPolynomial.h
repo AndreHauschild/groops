@@ -19,7 +19,7 @@
 static const char *docstringOrbitPropagatorPolynomial = R"(
 \subsection{Polynomial}\label{orbitPropagatorType:Polynomial}
 This class implements an integration Polynomial method to propagate a satellite orbit under
-the influence of \configClass{Forces}{forcesType}. Satellite is assumed to be oriented along-track.
+the influence of \configClass{Forces}{forcesType}. Satellite is assumed to be oriented according to nominal yaw-steering.
 Implementation is based on code by Torsten Mayer-Gürr.
 )";
 #endif
