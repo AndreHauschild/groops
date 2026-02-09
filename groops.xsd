@@ -21295,6 +21295,37 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="SimulateStarCameraMetopSG">
+				<xs:annotation>
+					<xs:documentation>Rotation from satellite (x: along, y: cross, z: nadir) to inertial frame.</xs:documentation>
+					<xs:appinfo>tag: Simulation</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileStarCamera" type="filename">
+							<xs:annotation>
+								<xs:documentation>rotation from satellite to inertial frame (x: along, y: cross, z: nadir)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileOrbit" type="filename">
+							<xs:annotation>
+								<xs:documentation>position and velocity defines the orientation of the satellite at each epoch</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="earthRotation" type="earthRotationType">
+							<xs:annotation>
+								<xs:documentation>transformation from CRF to TRF</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="nadirPointing" type="boolean" minOccurs="0" default="1">
+							<xs:annotation>
+								<xs:documentation>false: exact along and nearly nadir, true: nearly along and exact nadir</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="SimulateStarCameraSentinel1">
 				<xs:annotation>
 					<xs:documentation>simulate star camera data for Sentinel 1</xs:documentation>
