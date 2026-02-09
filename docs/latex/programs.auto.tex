@@ -891,7 +891,7 @@ Each step is processed consecutively. Some steps allow the selection of paramete
 or the normal equation structure, which affects all subsequent steps.
 A minimal example consists of following steps:
 \begin{itemize}
-  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downeighting
+  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downweighting
   \item \configClass{resolveAmbiguities}{gnssProcessingStepType:resolveAmbiguities}:
         fix ambiguities to integer and remove them from the normals
   \item \configClass{estimate}{gnssProcessingStepType:estimate}: few iteration for final outlier downweighting
@@ -1105,6 +1105,35 @@ Name & Type & Annotation\\
 \hline
 \end{tabularx}
 
+\clearpage
+%==================================
+\subsection{GnssSimulateIsl}\label{GnssSimulateIsl}
+This program simulates inter-satellite link (ISL) observations from receivers to GNSS satellites.
+These simulated observations can then be used in \program{GnssProcessing}, for example to conduct closed-loop simulations.
+
+One or more GNSS constellations must be defined via \configClass{transmitter}{gnssTransmitterGeneratorType}.
+
+The \configClass{parametrization}{gnssParametrizationType} are used to simulate a priori models (e.g. ISL biases).
+Parameter settings and output files are ignored.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileGnssIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available, simulated observations\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~timeSeries & \hfuzz=500pt \hyperref[timeSeriesType]{timeSeries} & \hfuzz=500pt defines observation epochs\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeMargin & \hfuzz=500pt double & \hfuzz=500pt [seconds] margin to consider two times identical\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~transmitter & \hfuzz=500pt \hyperref[gnssTransmitterGeneratorType]{gnssTransmitterGenerator} & \hfuzz=500pt constellation of GNSS satellites\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~islSchedule & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available, schedule with ISL connections\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~earthRotation & \hfuzz=500pt \hyperref[earthRotationType]{earthRotation} & \hfuzz=500pt apriori earth rotation\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~parametrization & \hfuzz=500pt \hyperref[gnssParametrizationType]{gnssParametrization} & \hfuzz=500pt models and parameters\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~noiseObservation & \hfuzz=500pt \hyperref[noiseGeneratorType]{noiseGenerator} & \hfuzz=500pt [m] ISL observation noise\\
+\hline
+\end{tabularx}
+
+This program is \reference{parallelized}{general.parallelization}.
 \clearpage
 %==================================
 \subsection{GnssSimulateReceiver}\label{GnssSimulateReceiver}
@@ -4827,6 +4856,7 @@ See also \program{GnssAntex2AntennaDefinition} and \program{GnssStationLog2Platf
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfilePlatform & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfilePlatform & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~markerName & \hfuzz=500pt string & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~markerNumber & \hfuzz=500pt string & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt \\
@@ -4901,6 +4931,21 @@ Name & Type & Annotation\\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~islTerminal & \hfuzz=500pt sequence & \hfuzz=500pt \\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt \\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~serial & \hfuzz=500pt string & \hfuzz=500pt \\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt \\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt \\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt \\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~positionX & \hfuzz=500pt double & \hfuzz=500pt [m] ARP in north, east, up or vehicle system\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~positionY & \hfuzz=500pt double & \hfuzz=500pt [m] ARP in north, east, up or vehicle system\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~positionZ & \hfuzz=500pt double & \hfuzz=500pt [m] ARP in north, east, up or vehicle system\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~rotationX & \hfuzz=500pt angle & \hfuzz=500pt [degree] from local/vehicle to left-handed antenna system\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~rotationY & \hfuzz=500pt angle & \hfuzz=500pt [degree] from local/vehicle to left-handed antenna system\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~rotationZ & \hfuzz=500pt angle & \hfuzz=500pt [degree] from local/vehicle to left-handed antenna system\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~flipX & \hfuzz=500pt boolean & \hfuzz=500pt flip x-axis (after rotation)\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~flipY & \hfuzz=500pt boolean & \hfuzz=500pt flip y-axis (after rotation)\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~flipZ & \hfuzz=500pt boolean & \hfuzz=500pt flip z-axis (after rotation)\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~other & \hfuzz=500pt sequence & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~serial & \hfuzz=500pt string & \hfuzz=500pt \\
@@ -6986,6 +7031,26 @@ Name & Type & Annotation\\
 \hline
 \end{tabularx}
 
+\clearpage
+%==================================
+\subsection{OffsetOrbit}\label{OffsetOrbit}
+This program adds along-track, cross-track and radial offsets to \file{satellite}{instrument}'s positions.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~offsetPositionAlong & \hfuzz=500pt double & \hfuzz=500pt along [m]\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~offsetPositionCross & \hfuzz=500pt double & \hfuzz=500pt cross [m]\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~offsetPositionRadial & \hfuzz=500pt double & \hfuzz=500pt radial [m]\\
+\hline
+\end{tabularx}
+
+This program is \reference{parallelized}{general.parallelization}.
 \clearpage
 %==================================
 \subsection{SimulateAccelerometer}\label{SimulateAccelerometer}

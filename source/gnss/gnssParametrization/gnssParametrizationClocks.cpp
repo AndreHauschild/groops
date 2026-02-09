@@ -226,6 +226,26 @@ void GnssParametrizationClocks::designMatrix(const GnssNormalEquationInfo &/*nor
 
 /***********************************************/
 
+void GnssParametrizationClocks::designMatrixIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    // receiver clock
+    if(indexTrans.at(eqn.receiver->idTrans()).size() && indexTrans.at(eqn.receiver->idTrans()).at(eqn.idEpoch))
+      copy(eqn.A.column(GnssObservationEquationIsl::idxClockRecv,1), A.column(indexTrans.at(eqn.receiver->idTrans()).at(eqn.idEpoch)));
+
+    // transmitter clock
+    if(indexTrans.at(eqn.transmitter->idTrans()).size() && indexTrans.at(eqn.transmitter->idTrans()).at(eqn.idEpoch))
+      copy(eqn.A.column(GnssObservationEquationIsl::idxClockTrans,1), A.column(indexTrans.at(eqn.transmitter->idTrans()).at(eqn.idEpoch)));
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void GnssParametrizationClocks::constraintsEpoch(const GnssNormalEquationInfo &normalEquationInfo, UInt idEpoch, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const
 {
   try

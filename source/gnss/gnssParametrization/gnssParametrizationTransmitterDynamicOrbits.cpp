@@ -197,6 +197,38 @@ void GnssParametrizationTransmitterDynamicOrbits::designMatrix(const GnssNormalE
 
 /***********************************************/
 
+void GnssParametrizationTransmitterDynamicOrbits::designMatrixIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    // receiver
+    // --------
+    {
+      auto para = parameters.at(eqn.receiver->idTrans());
+      if(para && para->index)
+        matMult(1., eqn.A.column(GnssObservationEquationIsl::idxPosRecv, 3),
+                para->polynomial.interpolate({eqn.timeRecv}, para->PosDesign, 3),
+                A.column(para->index));
+    }
+
+    // transmitter
+    // -----------
+    {
+      auto para = parameters.at(eqn.transmitter->idTrans());
+      if(para && para->index)
+        matMult(1., eqn.A.column(GnssObservationEquationIsl::idxPosTrans, 3),
+                para->polynomial.interpolate({eqn.timeTrans}, para->PosDesign, 3),
+                A.column(para->index));
+    }
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 Double GnssParametrizationTransmitterDynamicOrbits::updateParameter(const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef /*Wz*/)
 {
   try
