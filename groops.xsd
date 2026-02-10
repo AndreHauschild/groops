@@ -21297,7 +21297,7 @@
 			</xs:element>
 			<xs:element name="SimulateStarCameraMetopSG">
 				<xs:annotation>
-					<xs:documentation>Rotation from satellite (x: along, y: cross, z: nadir) to inertial frame.</xs:documentation>
+					<xs:documentation>Simulate star camera data for Metop-SG.</xs:documentation>
 					<xs:appinfo>tag: Simulation</xs:appinfo>
 					<xs:appinfo>tag: Instrument</xs:appinfo>
 				</xs:annotation>
@@ -21305,7 +21305,7 @@
 					<xs:sequence>
 						<xs:element name="outputfileStarCamera" type="filename">
 							<xs:annotation>
-								<xs:documentation>rotation from satellite to inertial frame (x: along, y: cross, z: nadir)</xs:documentation>
+								<xs:documentation>rotation from satellite to inertial frame (x: along Earth-fixed velocity, y: cross, z: normal to Earth ellipsoid)</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileOrbit" type="filename">
@@ -21316,11 +21316,6 @@
 						<xs:element name="earthRotation" type="earthRotationType">
 							<xs:annotation>
 								<xs:documentation>transformation from CRF to TRF</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="nadirPointing" type="boolean" minOccurs="0" default="1">
-							<xs:annotation>
-								<xs:documentation>false: exact along and nearly nadir, true: nearly along and exact nadir</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
