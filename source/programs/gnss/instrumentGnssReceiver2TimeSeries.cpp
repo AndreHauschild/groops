@@ -18,8 +18,9 @@ For each epoch the first data column contains the PRN, the second the satellite 
 followed by a column for each GNSS \configClass{type}{gnssType}.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
 has several lines per observed epoch (epochs with the same time, one for each transmitter).
+If no observation is available for a selected GNSS \configClass{type}{gnssType}, NAN is inserted.
 
-The second data column of the output contains a number representating the system
+The second data column of the output contains a number representing the system
 \begin{itemize}
 \item 71: 'G', GPS
 \item 82: 'R', GLONASS
@@ -114,6 +115,10 @@ void InstrumentGnssReceiver2TimeSeries::run(Config &config, Parallel::Communicat
               else if(typeSat == GnssType::SBAS)    epochNew.values(1) = static_cast<Double>('S');
               else if(typeSat == GnssType::QZSS)    epochNew.values(1) = static_cast<Double>('J');
               else if(typeSat == GnssType::IRNSS)   epochNew.values(1) = static_cast<Double>('I');
+
+              // Fill with NAN to distinguish types which are not available
+              for (UInt iType=0; iType<types.size(); iType++)
+                epochNew.values(2+iType) = NAN;
 
               // loop over all obs for this satellite
               Bool                  found    = FALSE;
