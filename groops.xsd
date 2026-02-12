@@ -1595,7 +1595,7 @@
 			</xs:element>
 			<xs:element name="ionosphereVTEC">
 				<xs:annotation>
-					<xs:documentation>ionospheric verical delays</xs:documentation>
+					<xs:documentation>ionospheric vertical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -1631,7 +1631,7 @@
 			</xs:element>
 			<xs:element name="ionosphereMap">
 				<xs:annotation>
-					<xs:documentation>ionospheric verical delays</xs:documentation>
+					<xs:documentation>ionospheric vertical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -2859,6 +2859,11 @@
 								<xs:documentation>ignore observations that match any of these patterns</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="extraType" type="gnssType" minOccurs="0" default="L5*G" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>ignore observations in pre-processing that match any of these patterns</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="elevationCutOff" type="angle" minOccurs="0" default="5">
 							<xs:annotation>
 								<xs:documentation>[degree] ignore observations below cutoff</xs:documentation>
@@ -3022,6 +3027,11 @@
 						<xs:element name="ignoreType" type="gnssType" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>ignore observations that match any of these patterns</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="extraType" type="gnssType" minOccurs="0" default="L5*G" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>ignore observations in pre-processing that match any of these patterns</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="elevationCutOff" type="angle" minOccurs="0" default="0">
@@ -10873,6 +10883,64 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="inputfileStationMeteorology" type="filename" default="meteorology_{loopTime:%y}.{station}.dat"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="saastamoinen">
+				<xs:annotation>
+					<xs:documentation>Saastamoinen troposphere model</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="inputfileGpt" type="filename" default="{groopsDataDir}/troposphere/gpt3_grid1deg.dat">
+							<xs:annotation>
+								<xs:documentation>gridded GPT data</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="aHeight" type="double" minOccurs="0" default="2.53e-5">
+							<xs:annotation>
+								<xs:documentation>parameter a (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="bHeight" type="double" minOccurs="0" default="5.49e-3">
+							<xs:annotation>
+								<xs:documentation>parameter b (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="cHeight" type="double" minOccurs="0" default="1.14e-3">
+							<xs:annotation>
+								<xs:documentation>parameter c (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="hopfield">
+				<xs:annotation>
+					<xs:documentation>Hopfield troposphere model (simplified)</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="inputfileGpt" type="filename" default="{groopsDataDir}/troposphere/gpt3_grid1deg.dat">
+							<xs:annotation>
+								<xs:documentation>gridded GPT data</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="aHeight" type="double" minOccurs="0" default="2.53e-5">
+							<xs:annotation>
+								<xs:documentation>parameter a (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="bHeight" type="double" minOccurs="0" default="5.49e-3">
+							<xs:annotation>
+								<xs:documentation>parameter b (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="cHeight" type="double" minOccurs="0" default="1.14e-3">
+							<xs:annotation>
+								<xs:documentation>parameter c (height correction)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -21223,6 +21291,32 @@
 									</xs:element>
 								</xs:choice>
 							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SimulateStarCameraMetopSG">
+				<xs:annotation>
+					<xs:documentation>Simulate star camera data for Metop-SG.</xs:documentation>
+					<xs:appinfo>tag: Simulation</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileStarCamera" type="filename">
+							<xs:annotation>
+								<xs:documentation>rotation from satellite to inertial frame (x: along Earth-fixed velocity, y: cross, z: normal to Earth ellipsoid)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileOrbit" type="filename">
+							<xs:annotation>
+								<xs:documentation>position and velocity defines the orientation of the satellite at each epoch</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="earthRotation" type="earthRotationType">
+							<xs:annotation>
+								<xs:documentation>transformation from CRF to TRF</xs:documentation>
+							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
 				</xs:complexType>

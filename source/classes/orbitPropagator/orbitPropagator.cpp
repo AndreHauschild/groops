@@ -73,9 +73,20 @@ OrbitPropagatorPtr OrbitPropagator::create(Config &config, const std::string &na
 
 /***********************************************/
 
-Rotary3d OrbitPropagator::orientation(const Time &/*time*/, const Vector3d &position, const Vector3d &velocity, SatelliteModelPtr /*satellite*/) const
+Rotary3d OrbitPropagator::orientationRTN(const Time &/*time*/, const Vector3d &position, const Vector3d &velocity, SatelliteModelPtr /*satellite*/, EphemeridesPtr /*ephemerides*/) const
 {
   return Rotary3d(velocity, crossProduct(velocity, position));
+}
+
+/***********************************************/
+
+Rotary3d OrbitPropagator::orientationYAW(const Time &time, const Vector3d &position, const Vector3d &velocity, SatelliteModelPtr /*satellite*/, EphemeridesPtr ephemerides) const
+{
+  const Vector3d posSun = ephemerides->position(time, Ephemerides::SUN);
+  const Vector3d r = normalize(position);
+  const Vector3d n = normalize(crossProduct(position, posSun));
+
+  return Rotary3d(crossProduct(-n, -r), -n);
 }
 
 /***********************************************/
@@ -102,7 +113,7 @@ Vector3d OrbitPropagator::acceleration(const OrbitEpoch &epoch, ForcesPtr forces
 {
   try
   {
-    const Rotary3d rotSat   = orientation(epoch.time, epoch.position, epoch.velocity, satellite);
+    const Rotary3d rotSat   = orientationYAW(epoch.time, epoch.position, epoch.velocity, satellite, ephemerides);
     const Rotary3d rotEarth = earthRotation->rotaryMatrix(epoch.time);
     return rotEarth.inverseRotate(forces->acceleration(satellite, epoch.time, epoch.position, epoch.velocity, rotSat, rotEarth, earthRotation, ephemerides));
   }
