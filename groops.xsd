@@ -1550,7 +1550,7 @@
 	</xs:complexType>
 	<xs:complexType name="gnssParametrizationType">
 		<xs:annotation>
-			<xs:documentation>parametrization of GNSS observations</xs:documentation>
+			<xs:documentation>parametrization of GNSS/ISL observations</xs:documentation>
 		</xs:annotation>
 		<xs:choice>
 			<xs:element name="ionosphereSTEC">
@@ -1595,7 +1595,7 @@
 			</xs:element>
 			<xs:element name="ionosphereVTEC">
 				<xs:annotation>
-					<xs:documentation>ionospheric verical delays</xs:documentation>
+					<xs:documentation>ionospheric vertical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -1631,7 +1631,7 @@
 			</xs:element>
 			<xs:element name="ionosphereMap">
 				<xs:annotation>
-					<xs:documentation>ionospheric verical delays</xs:documentation>
+					<xs:documentation>ionospheric vertical delays</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -1813,6 +1813,42 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="signalBiasesIsl">
+				<xs:annotation>
+					<xs:documentation>apriori values of ISL signal biases</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="name" type="string" minOccurs="0" default="parameter.signalBiasesIsl">
+							<xs:annotation>
+								<xs:documentation>used for parameter selection</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="selectTransmitIslTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectReceiveIslTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="outputfileTransmitIslTerminal" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="outputfileReceiveIslTerminal" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileTransmitIslTerminal" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileReceiveIslTerminal" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="ambiguities">
 				<xs:annotation>
 					<xs:documentation>integer and float ambiguities</xs:documentation>
@@ -1933,6 +1969,34 @@
 						<xs:element name="sigmaZeroMeanConstraint" type="double" minOccurs="0" default="0.0001">
 							<xs:annotation>
 								<xs:documentation>(0 = unconstrained) sigma [m] for temporal zero-mean constraint</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="islBiases">
+				<xs:annotation>
+					<xs:documentation>biases of inter-satellite link signals</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="name" type="string" minOccurs="0" default="parameter.islTerminalBiases">
+							<xs:annotation>
+								<xs:documentation>used for parameter selection</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="selectTransmitIslTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectReceiveIslTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="nameConstraint" type="string" minOccurs="0" default="constraint.islBiases">
+							<xs:annotation>
+								<xs:documentation>used for parameter selection</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="selectTransmitTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectReceiveTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="sigmaZeroMeanConstraint" type="double" minOccurs="0" default="0.0001">
+							<xs:annotation>
+								<xs:documentation>(0 = unconstrained) sigma [m] for constraint over all selected biases</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -2536,6 +2600,16 @@
 								<xs:documentation>variable {station} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="selectTransmitter" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>subset of used transmitters</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="outputfileResidualsIsl" type="filename" minOccurs="0" default="output/residuals_{loopTime:%D}.{prn}.dat">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -3137,6 +3211,11 @@
 								</xs:choice>
 							</xs:complexType>
 						</xs:element>
+						<xs:element name="inputfileIslTerminalDefintion" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat">
+							<xs:annotation>
+								<xs:documentation>phase centers and variations (ANTEX like)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="inputfileSignalDefintion" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml">
 							<xs:annotation>
 								<xs:documentation>transmitted signal types</xs:documentation>
@@ -3165,6 +3244,11 @@
 						<xs:element name="interpolateClock" type="boolean" minOccurs="0" default="1">
 							<xs:annotation>
 								<xs:documentation>linear interpolation of missing epochs</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileObservationsIsl" type="filename" minOccurs="0" default="islReceiver_{loopTime:%D}.{prn}.dat">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="interpolationDegree" type="uint" minOccurs="0" default="7">
@@ -4561,6 +4645,11 @@
 									<xs:element name="satelliteIdentifier">
 										<xs:annotation>
 											<xs:documentation>loop over satellite identifiers</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="islTerminal">
+										<xs:annotation>
+											<xs:documentation>loop over ISL terminals</xs:documentation>
 										</xs:annotation>
 									</xs:element>
 									<xs:element name="other">
@@ -12038,7 +12127,7 @@
 								<xs:documentation>apriori earth rotation</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="parametrization" type="gnssParametrizationType" maxOccurs="unbounded">
+						<xs:element name="parametrization" type="gnssParametrizationType" maxOccurs="unbounded" default="1">
 							<xs:annotation>
 								<xs:documentation>models and parameters</xs:documentation>
 							</xs:annotation>
@@ -12224,6 +12313,57 @@
 						<xs:element name="types" type="gnssType" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>if not set, all types in the file are used</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GnssSimulateIsl">
+				<xs:annotation>
+					<xs:documentation>GNSS ISL simulation</xs:documentation>
+					<xs:appinfo>tag: Gnss</xs:appinfo>
+					<xs:appinfo>tag: Simulation</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileGnssIsl" type="filename" default="gnssIsl_{loopTime:%D}.{prn}.dat.gz">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available, simulated observations</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeSeries" type="timeSeriesType" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>defines observation epochs</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeMargin" type="double" minOccurs="0" default="0.1">
+							<xs:annotation>
+								<xs:documentation>[seconds] margin to consider two times identical</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="transmitter" type="gnssTransmitterGeneratorType" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>constellation of GNSS satellites</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="islSchedule" type="filename" default="islSchedule_{loopTime:%D}.{prn}.txt">
+							<xs:annotation>
+								<xs:documentation>variable {prn} available, schedule with ISL connections</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="earthRotation" type="earthRotationType">
+							<xs:annotation>
+								<xs:documentation>apriori earth rotation</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="parametrization" type="gnssParametrizationType" minOccurs="0" maxOccurs="unbounded" default="[&quot;signalBiasesIsl&quot;]">
+							<xs:annotation>
+								<xs:documentation>models and parameters</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="noiseObservation" type="noiseGeneratorType" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>[m] ISL observation noise</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -16857,6 +16997,7 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="outputfilePlatform" type="filename"/>
+						<xs:element name="inputfilePlatform" type="filename" minOccurs="0"/>
 						<xs:element name="markerName" type="string"/>
 						<xs:element name="markerNumber" type="string" minOccurs="0"/>
 						<xs:element name="comment" type="string" minOccurs="0"/>
@@ -17103,6 +17244,62 @@
 												<xs:element name="comment" type="string" minOccurs="0"/>
 												<xs:element name="timeStart" type="time" minOccurs="0"/>
 												<xs:element name="timeEnd" type="time" minOccurs="0"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="islTerminal">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="name" type="string"/>
+												<xs:element name="serial" type="string" minOccurs="0"/>
+												<xs:element name="comment" type="string" minOccurs="0"/>
+												<xs:element name="timeStart" type="time" minOccurs="0"/>
+												<xs:element name="timeEnd" type="time" minOccurs="0"/>
+												<xs:element name="positionX" type="double" default="0">
+													<xs:annotation>
+														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="positionY" type="double" default="0">
+													<xs:annotation>
+														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="positionZ" type="double" default="0">
+													<xs:annotation>
+														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="rotationX" type="angle" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="rotationY" type="angle" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="rotationZ" type="angle" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="flipX" type="boolean" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>flip x-axis (after rotation)</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="flipY" type="boolean" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>flip y-axis (after rotation)</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="flipZ" type="boolean" minOccurs="0" default="0">
+													<xs:annotation>
+														<xs:documentation>flip z-axis (after rotation)</xs:documentation>
+													</xs:annotation>
+												</xs:element>
 											</xs:sequence>
 										</xs:complexType>
 									</xs:element>
@@ -20718,6 +20915,35 @@
 						<xs:element name="columns" type="uint" default="1">
 							<xs:annotation>
 								<xs:documentation>number of noise series (columns)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="OffsetOrbit">
+				<xs:annotation>
+					<xs:documentation>add offsets to orbit positions</xs:documentation>
+					<xs:appinfo>tag: Simulation</xs:appinfo>
+					<xs:appinfo>tag: Orbit</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileOrbit" type="filename"/>
+						<xs:element name="inputfileOrbit" type="filename"/>
+						<xs:element name="offsetPositionAlong" type="double" minOccurs="0" default="0.0">
+							<xs:annotation>
+								<xs:documentation>along [m]</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="offsetPositionCross" type="double" minOccurs="0" default="0.0">
+							<xs:annotation>
+								<xs:documentation>cross [m]</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="offsetPositionRadial" type="double" minOccurs="0" default="0.0">
+							<xs:annotation>
+								<xs:documentation>radial [m]</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
