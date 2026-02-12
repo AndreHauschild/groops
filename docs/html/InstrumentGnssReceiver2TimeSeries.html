@@ -76,7 +76,8 @@ The <strong class="groops-config-element">outputfileTimeSeries</strong> is an <a
 For each epoch the first data column contains the PRN, the second the satellite system,
 followed by a column for each GNSS <a class="groops-class" href="gnssType.html">type</a>.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
-has several lines per observed epoch (epochs with the same time, one for each transmitter).</p><p>The second data column of the output contains a number representating the system
+has several lines per observed epoch (epochs with the same time, one for each transmitter).
+If no observation is available for a selected GNSS <a class="groops-class" href="gnssType.html">type</a>, NAN is inserted.</p><p>The second data column of the output contains a number representing the system
 <ul>
 
 <li>71: 'G', GPS
