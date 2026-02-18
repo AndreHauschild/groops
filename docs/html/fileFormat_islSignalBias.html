@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GROOPS - File Formats</title>
+    <title>GROOPS - IslSignalBias</title>
 
     <!-- JQuery and Popper -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
@@ -69,52 +69,16 @@
     </header>
     <main class="container px-0 pt-2 top-buffer">
         <div id="content" class="container">
-            <h1 id="general.fileFormat">File formats</h1><p>
-All GROOPS files are written either in XML, JSON, binary, or ASCII format depending on the filename extension.
-<ul>
+            <h1>IslSignalBias (file format)</h1><p>
 
-<li><code>.xml</code>: XML format
-</li><li>
-<code>.json</code>: JSON format
-</li><li>
-<code>.dat</code>: binary format
-</li><li>
-<code>.txt</code> and all other extensions: ASCII format
-</li></ul>
-</p><p>With an additional extension of '<code>.gz</code>' files are directly compressed and uncompressed. It is also possible to directly uncompress and read (but not write) <a href="https://en.wikipedia.org/wiki/Compress">Unix compress</a>'d files ('<code>.Z</code>').</p><p>Comments are allowed in ASCII files and all the text starting from the character '<code>#</code>' to the end of the line is ignored.</p><p>The program <a class="groops-program" href="FileConvert.html">FileConvert</a> can be used to convert between the different formats. This program is also useful to get
-some general information of files in binary format.</p><p>The following special file types are used in GROOPS:
+Signal biases of GNSS transmitters or receivers for different <a class="groops-class" href="gnssType.html">gnssType</a>.</p><p><pre>
+groops IslSignalBias version=20200123
+          1 # number of terminals/biases
+# terminal   bias [m]
+# ====================================
+  0          -1.752461109688110974e-01
+ </pre></p><p>NOTE: currently only one bias per satellite is supported. It must have terminal ID 0. </p><p>See also <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>, <a class="groops-program" href="GnssSimulateIsl.html">GnssSimulateIsl</a>.
 </p>
-<p><ul>
-<li><a href="fileFormat_admittance.html">Admittance</a></li>
-<li><a href="fileFormat_arcList.html">ArcList</a></li>
-<li><a href="fileFormat_doodsonEarthOrientationParameter.html">DoodsonEarthOrientationParameter</a></li>
-<li><a href="fileFormat_doodsonHarmonic.html">DoodsonHarmonic</a></li>
-<li><a href="fileFormat_earthOrientationParameter.html">EarthOrientationParameter</a></li>
-<li><a href="fileFormat_earthTide.html">EarthTide</a></li>
-<li><a href="fileFormat_ephemerides.html">Ephemerides</a></li>
-<li><a href="fileFormat_gnssAntennaDefinition.html">GnssAntennaDefinition</a></li>
-<li><a href="fileFormat_gnssReceiverDefinition.html">GnssReceiverDefinition</a></li>
-<li><a href="fileFormat_gnssSignalBias.html">GnssSignalBias</a></li>
-<li><a href="fileFormat_griddedData.html">GriddedData</a></li>
-<li><a href="fileFormat_griddedDataTimeSeries.html">GriddedDataTimeSeries</a></li>
-<li><a href="fileFormat_instrument.html">Instrument</a></li>
-<li><a href="fileFormat_islSignalBias.html">IslSignalBias</a></li>
-<li><a href="fileFormat_matrix.html">Matrix</a></li>
-<li><a href="fileFormat_meanPolarMotion.html">MeanPolarMotion</a></li>
-<li><a href="fileFormat_normalEquation.html">NormalEquation</a></li>
-<li><a href="fileFormat_oceanPoleTide.html">OceanPoleTide</a></li>
-<li><a href="fileFormat_parameterName.html">ParameterName</a></li>
-<li><a href="fileFormat_platform.html">Platform</a></li>
-<li><a href="fileFormat_polygon.html">Polygon</a></li>
-<li><a href="fileFormat_potentialCoefficients.html">PotentialCoefficients</a></li>
-<li><a href="fileFormat_satelliteModel.html">SatelliteModel</a></li>
-<li><a href="fileFormat_stringList.html">StringList</a></li>
-<li><a href="fileFormat_stringTable.html">StringTable</a></li>
-<li><a href="fileFormat_tideGeneratingPotential.html">TideGeneratingPotential</a></li>
-<li><a href="fileFormat_timeSplinesCovariance.html">TimeSplinesCovariance</a></li>
-<li><a href="fileFormat_timeSplinesGravityField.html">TimeSplinesGravityField</a></li>
-<li><a href="fileFormat_variationalEquation.html">VariationalEquation</a></li>
-</ul></p>
 
         </div>
     </main>

@@ -15,6 +15,7 @@
 
 #include "base/gnssType.h"
 #include "files/fileGnssSignalBias.h"
+#include "files/fileIslSignalBias.h"
 #include "files/filePlatform.h"
 
 /** @addtogroup gnssGroup */
@@ -39,8 +40,8 @@ public:
    UInt           id_; // set by Gnss::init()
    Platform       platform;
    GnssSignalBias signalBias;
-   GnssSignalBias signalBiasIslTx;
-   GnssSignalBias signalBiasIslRx;
+   IslSignalBias  signalBiasIslTx;
+   IslSignalBias  signalBiasIslRx;
 
 public:
   /// Constructor.
@@ -201,13 +202,7 @@ inline Double GnssTransceiver::signalBiasesIslTx() const
 {
   try
   {
-    // ISL observation code for biases
-    // TODO: avoid using observation types here!
-    // -----------------------------------------
-    const std::vector<GnssType> types = { GnssType("C1C***") };
-    Vector corr(types.size());
-    corr += signalBiasIslTx.compute(types);
-    return corr.at(0);
+    return signalBiasIslTx.compute({0}).at(0);
   }
   catch(std::exception &e)
   {
@@ -221,13 +216,7 @@ inline Double GnssTransceiver::signalBiasesIslRx() const
 {
   try
   {
-    // ISL observation code for biases
-    // TODO: avoid using observation types here!
-    // -----------------------------------------
-    const std::vector<GnssType> types = { GnssType("C1C***") };
-    Vector corr(types.size());
-    corr += signalBiasIslRx.compute(types);
-    return corr.at(0);
+    return signalBiasIslRx.compute({0}).at(0);
   }
   catch(std::exception &e)
   {
@@ -242,8 +231,8 @@ inline void GnssTransceiver::save(OutArchive &oa) const
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
-  oa<<nameValue("signalBiasIslRx",    signalBiasIslRx);
-  oa<<nameValue("signalBiasIslTx",    signalBiasIslTx);
+  oa<<nameValue("signalBiasIsl",      signalBiasIslRx);
+  oa<<nameValue("signalBiasIsl",      signalBiasIslTx);
 }
 
 /***********************************************/
@@ -253,8 +242,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
-  ia>>nameValue("signalBiasIslRx",    signalBiasIslRx);
-  ia>>nameValue("signalBiasIslTx",    signalBiasIslTx);
+  ia>>nameValue("signalBiasIsl",      signalBiasIslRx);
+  ia>>nameValue("signalBiasIsl",      signalBiasIslTx);
 }
 
 /***********************************************/

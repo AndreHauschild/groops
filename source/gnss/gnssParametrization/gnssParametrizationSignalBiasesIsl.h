@@ -24,12 +24,12 @@ Each inter-satellite-link observation contains a bias for ISL terminal of the tr
 \end{equation}
 This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.
 
-The \configFile{inputfileSignalBiasTransmitter/Receiver}{gnssSignalBias} are read
-for each satellite. The transmitter and receiver biases are stored in separate files.
+The \configFile{inputfileSignalBiasTransmitter/Receiver}{islSignalBias} are read
+for each satellite. The biases of all transmitting and receiving terminals must be stored in separate files.
+The corresponding terminal must be identified by an integer number.
 The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
 (Infos regarding the variable \verb|{prn}| can be found in
 \configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType}).
-The bias files must contain one bias with the \verb|{C1C}| observation code.
 )";
 #endif
 

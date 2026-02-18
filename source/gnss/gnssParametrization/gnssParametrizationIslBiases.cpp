@@ -338,7 +338,7 @@ Double GnssParametrizationIslBiases::updateParameter(const GnssNormalEquationInf
           para->trans->signalBiasIslTx.biases.at(idType) += dBias(idType);
         for(UInt idType=0; idType<dBias.size(); idType++)
           if(infoTrans.update(1e3*dBias(idType)))
-            infoTrans.info = "transmit ISL terminal bias ("+para->trans->signalBiasIslTx.types.at(idType).str()+")";
+            infoTrans.info = "transmit ISL terminal bias ("+para->trans->name()+")";
       }
     infoTrans.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
 
@@ -351,7 +351,7 @@ Double GnssParametrizationIslBiases::updateParameter(const GnssNormalEquationInf
           para->trans->signalBiasIslRx.biases.at(idType) += dBias(idType);
         for(UInt idType=0; idType<dBias.size(); idType++)
           if(infoRecv.update(1e3*dBias(idType)))
-            infoTrans.info = "receive ISL terminal bias ("+para->trans->signalBiasIslRx.types.at(idType).str()+")";
+            infoTrans.info = "receive ISL terminal bias ("+para->trans->name()+")";
       }
     infoRecv.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
 

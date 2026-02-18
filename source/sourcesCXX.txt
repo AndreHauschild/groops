@@ -57,6 +57,7 @@ files/fileGnssSignalBias.cpp
 files/fileGriddedData.cpp
 files/fileGriddedDataTimeSeries.cpp
 files/fileInstrument.cpp
+files/fileIslSignalBias.cpp
 files/fileMatrix.cpp
 files/fileMeanPolarMotion.cpp
 files/fileNormalEquation.cpp

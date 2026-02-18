@@ -5,6 +5,7 @@
 * @brief global navigation satellite system.
 *
 * @author Torsten Mayer-Guerr
+* @author Andre Hauschild
 * @date 2010-08-03
 *
 */
@@ -307,15 +308,16 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
           if(type == GnssType::RANGE && !type.isInList(types))
             types.push_back(type+sendTerminal->PRN());
 
-      sendTerminal->signalBiasIslTx.biases = sendTerminal->signalBiasIslTx.compute(types); // apriori signal bias
-      sendTerminal->signalBiasIslTx.types  = types;
+      const std::vector<UInt> terminals = {0};
+      sendTerminal->signalBiasIslTx.biases    = sendTerminal->signalBiasIslTx.compute(terminals); // a-priori ISL biases
+      sendTerminal->signalBiasIslTx.terminals = terminals;
     }
 
 #if DEBUG_SYNC_ISL > 0
     for(auto sendTerminal : transmitters)
-      for(UInt i=0; i<sendTerminal->signalBiasIslTx.types.size(); i++)
+      for(UInt i=0; i<sendTerminal->signalBiasIslTx.terminals.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
-                  <<sendTerminal->signalBiasIslTx.types.at(i).str()<< " : "
+                  <<sendTerminal->signalBiasIslTx.terminals.at(i)%"TX%i : "s
                   <<sendTerminal->signalBiasIslTx.biases.at(i)%" %6.2f"s
                   <<Log::endl;
 #endif
@@ -329,15 +331,16 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
             types.push_back(type & ~GnssType::PRN);
       std::sort(types.begin(), types.end());
 
-      recvTerminal->signalBiasIslRx.biases = recvTerminal->signalBiasIslRx.compute(types); // apriori signal bias
-      recvTerminal->signalBiasIslRx.types  = types;
+      const std::vector<UInt> terminals = {0};
+      recvTerminal->signalBiasIslRx.biases    = recvTerminal->signalBiasIslRx.compute(terminals); // a-priori ISL biases
+      recvTerminal->signalBiasIslRx.terminals = terminals;
     }
 
 #if DEBUG_SYNC_ISL > 0
     for(auto recvTerminal : transmitters)
-      for(UInt i=0; i<recvTerminal->signalBiasIslRx.types.size(); i++)
+      for(UInt i=0; i<recvTerminal->signalBiasIslRx.terminals.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<recvTerminal->name()<<" "
-                  <<recvTerminal->signalBiasIslRx.types.at(i).str()<< " : "
+                  <<recvTerminal->signalBiasIslRx.terminals.at(i)%"RX%i : "s
                   <<recvTerminal->signalBiasIslRx.biases.at(i)%" %6.2f"s
                   <<Log::endl;
 #endif
