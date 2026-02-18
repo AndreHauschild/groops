@@ -18,8 +18,8 @@
 /***********************************************/
 
 static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time, UInt idEpoch,
-                                 Time &timeRecv,  Vector3d &posRecv,  Vector3d &velRecv,  Angle &azimutRecv,  Angle &elevationRecv,
-                                 Time &timeTrans, Vector3d &posTrans, Vector3d &velTrans, Angle &azimutTrans, Angle &elevationTrans,
+                                 Time &timeRecv,  Vector3d &posRecv,  Vector3d &velRecv,  Angle &azimutRecv,  Angle &elevationRecv, UInt termRecv,
+                                 Time &timeTrans, Vector3d &posTrans, Vector3d &velTrans, Angle &azimutTrans, Angle &elevationTrans, UInt termTrans,
                                  Vector3d &k, Vector3d &kRecv, Vector3d &kTrans)
 {
   try
@@ -27,26 +27,26 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 
     // receiver position and time
     timeRecv = time - seconds2time(receiver.clockError(idEpoch));
-    posRecv  = receiver.positionIsl(idEpoch, timeRecv);
+    posRecv  = receiver.positionIsl(idEpoch, timeRecv, termRecv);
     velRecv  = receiver.velocity(timeRecv);
 
     // transmitter position and time
-    posTrans = transmitter.positionIsl(idEpoch, timeRecv);
+    posTrans = transmitter.positionIsl(idEpoch, timeRecv, termRecv);
     Vector3d posOld;
     for(UInt i=0; (i<10) && ((posTrans-posOld).r() > 0.0001); i++) // iteration
     {
       timeTrans = timeRecv - seconds2time((posTrans-posRecv).r()/LIGHT_VELOCITY);
       posOld    = posTrans;
-      posTrans  = transmitter.positionIsl(idEpoch, timeTrans);
+      posTrans  = transmitter.positionIsl(idEpoch, timeTrans, termTrans);
     }
     velTrans = transmitter.velocity(timeTrans);
 
     // line of sight from transmitter to receiver
     k              = normalize(posRecv - posTrans);
-    kRecv          = receiver.celestial2islTerminalFrame(idEpoch, timeRecv).transform(-k); // line of sight in receiver antenna system
+    kRecv          = receiver.celestial2islTerminalFrame(idEpoch, timeRecv, termRecv).transform(-k); // line of sight in receiver antenna system
     azimutRecv     = kRecv.lambda();
     elevationRecv  = kRecv.phi();
-    kTrans         = transmitter.celestial2islTerminalFrame(idEpoch, timeTrans).transform(k);
+    kTrans         = transmitter.celestial2islTerminalFrame(idEpoch, timeTrans, termTrans).transform(k);
     azimutTrans    = kTrans.lambda();
     elevationTrans = kTrans.phi();
   }
@@ -90,8 +90,8 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     // ----------------------------------------
     Vector3d k, kRecvAnt, kTrans;
     positionVelocityTime(receiver_, transmitter_, observation.time, idEpoch_,
-                         timeRecv,  posRecv,  velocityRecv,  azimutRecvAnt, elevationRecvAnt,
-                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans,
+                         timeRecv,  posRecv,  velocityRecv,  azimutRecvAnt, elevationRecvAnt, terminalRecv,
+                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans, terminalSend,
                          k, kRecvAnt, kTrans);
     const Double rDotTrans = inner(k, velocityTrans)/LIGHT_VELOCITY;
     const Double rDotRecv  = inner(k, velocityRecv) /LIGHT_VELOCITY;
