@@ -258,16 +258,17 @@ static PlatformEquipmentPtr createEquipmentIslTerminal(Config &config)
     Bool  flipx, flipy, flipz;
 
     readConfig(config, "name",      var->name,         Config::MUSTSET,  "",  "");
-    readConfig(config, "serial",    var->serial,       Config::OPTIONAL, "",  "");
+    readConfig(config, "serial",    var->serial,       Config::MUSTSET,  "",  "");
+    readConfig(config, "terminalId",var->terminalId,   Config::MUSTSET,  "",  "Terminal identifier (unsigned integer number)");
     readConfig(config, "comment",   var->comment,      Config::OPTIONAL, "",  "");
     readConfig(config, "timeStart", var->timeStart,    Config::OPTIONAL, "",  "");
     readConfig(config, "timeEnd",   var->timeEnd,      Config::OPTIONAL, "",  "");
-    readConfig(config, "positionX", var->position.x(), Config::MUSTSET,  "0", "[m] ARP in north, east, up or vehicle system");
-    readConfig(config, "positionY", var->position.y(), Config::MUSTSET,  "0", "[m] ARP in north, east, up or vehicle system");
-    readConfig(config, "positionZ", var->position.z(), Config::MUSTSET,  "0", "[m] ARP in north, east, up or vehicle system");
-    readConfig(config, "rotationX", angleX,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed antenna system");
-    readConfig(config, "rotationY", angleY,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed antenna system");
-    readConfig(config, "rotationZ", angleZ,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed antenna system");
+    readConfig(config, "positionX", var->position.x(), Config::MUSTSET,  "0", "[m] terminal reference point in north, east, up or vehicle system");
+    readConfig(config, "positionY", var->position.y(), Config::MUSTSET,  "0", "[m] terminal reference point in north, east, up or vehicle system");
+    readConfig(config, "positionZ", var->position.z(), Config::MUSTSET,  "0", "[m] terminal reference point in north, east, up or vehicle system");
+    readConfig(config, "rotationX", angleX,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed terminal system");
+    readConfig(config, "rotationY", angleY,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed terminal system");
+    readConfig(config, "rotationZ", angleZ,            Config::DEFAULT,  "0", "[degree] from local/vehicle to left-handed terminal system");
     readConfig(config, "flipX",     flipx,             Config::DEFAULT,  "0", "flip x-axis (after rotation)");
     readConfig(config, "flipY",     flipy,             Config::DEFAULT,  "0", "flip y-axis (after rotation)");
     readConfig(config, "flipZ",     flipz,             Config::DEFAULT,  "0", "flip z-axis (after rotation)");

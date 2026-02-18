@@ -12,7 +12,7 @@
 // Latex documentation
 #define DOCSTRING docstring
 static const char *docstring = R"(
-This program simulates inter-satellite link (ISL) observations from receivers to GNSS satellites.
+This program simulates inter-satellite link (ISL) observations between terminals on GNSS satellites.
 These simulated observations can then be used in \program{GnssProcessing}, for example to conduct closed-loop simulations.
 
 One or more GNSS constellations must be defined via \configClass{transmitter}{gnssTransmitterGeneratorType}.

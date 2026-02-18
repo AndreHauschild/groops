@@ -1594,12 +1594,12 @@ Each inter-satellite-link observation contains a bias for ISL terminal of the tr
 \end{equation}
 This class provides the apriori model $\M f(\M x_0)$ of eq. \eqref{gnssParametrizationType:model} only.
 
-The \configFile{inputfileSignalBiasTransmitter/Receiver}{gnssSignalBias} are read
-for each satellite. The transmitter and receiver biases are stored in separate files.
+The \configFile{inputfileSignalBiasTransmitter/Receiver}{islSignalBias} are read
+for each satellite. The biases of all transmitting and receiving terminals must be stored in separate files.
+The corresponding terminal must be identified by an integer number.
 The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
 (Infos regarding the variable \verb|{prn}| can be found in
 \configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType}).
-The bias files must contain one bias with the \verb|{C1C}| observation code.
 
 
 \keepXColumns
@@ -2822,7 +2822,7 @@ Metadata input files (marked with \textbf{*} below) are provided in GROOPS file 
         types a satellite transmits.
   \item \configFile{inputfileClockFrequencyScale}{instrument}\textbf{*}:
         Scale factor of transmitted signals due to frequency offset/clock drift.
-        Can be dreived from broadcast clocks drifts.
+        Can be derived from broadcast clocks drifts.
   \item \configFile{inputfileOrbit}{instrument}: Converted via \program{Sp3Format2Orbit} or
         output of \program{GnssProcessing}.
   \item \configFile{inputfileAttitude}{instrument}:
@@ -2845,7 +2845,6 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~ignoreObservation & \hfuzz=500pt  & \hfuzz=500pt ignore observation if no matching pattern is found\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~useNearestFrequency & \hfuzz=500pt  & \hfuzz=500pt use pattern of nearest frequency if no matching pattern is found\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~throwException & \hfuzz=500pt  & \hfuzz=500pt throw exception if no matching pattern is found\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileIslTerminalDefintion & \hfuzz=500pt filename & \hfuzz=500pt phase centers and variations (ANTEX like)\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileSignalDefintion & \hfuzz=500pt filename & \hfuzz=500pt transmitted signal types\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileClockFrequencyScale & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\

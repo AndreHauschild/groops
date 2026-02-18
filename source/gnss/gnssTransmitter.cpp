@@ -173,6 +173,11 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
   try
   {
 
+    // GNSS signal types for transmit and receive terminal IDs
+    // -------------------------------------------------------
+    const GnssType typeTx = GnssType::CHANNEL + GnssType::E1  + GnssType::A;
+    const GnssType typeRx = GnssType::CHANNEL + GnssType::E1  + GnssType::B;
+
     // Simulate zero observations
     // --------------------------
     const Vector eps = noiseObs->noise(times.size()); // obs noise
@@ -200,21 +205,20 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
           continue;
         }
 
+        UInt idChanTx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
+                                      typeTx & transmitters.at(idTrans)->PRN()));
+        UInt idChanRx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
+                                      typeRx & transmitters.at(idTrans)->PRN()));
+
         GnssObservationIsl *obs = new GnssObservationIsl();
         obs->time = times.at(idEpoch);
+        obs->terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRx);
+        obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanTx);
 
         GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, idEpoch, FALSE);
 
-        const GnssType chanTx = GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::A + transmitters.at(idTrans)->PRN());
-        const GnssType chanRx = GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::B + transmitters.at(idTrans)->PRN());
-
-        UInt idChanTx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(), chanTx));
-        UInt idChanRx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(), chanRx));
-
         obs->observation = -eqn->l(0) + eps.at(idEpoch);
         obs->sigma0 = sqrt(noiseObs->covarianceFunction(1)(0,1));
-        obs->terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRx);
-        obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanTx);
 
         if(observations_.size() <= idEpoch)
           observations_.resize(idEpoch+1);

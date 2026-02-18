@@ -43,7 +43,6 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
         noPatternFoundAction = GnssAntennaDefinition::NoPatternFoundAction::THROW_EXCEPTION;
       endChoice(config);
     }
-    readConfig(config, "inputfileIslTerminalDefintion", fileNameIslTerminalDef, Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat", "phase centers and variations (ANTEX like)");
     readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,      Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
     readConfig(config, "inputfileClockFrequencyScale",  fileNameScale,          Config::OPTIONAL, "",                                 "variable {prn} available");
     readConfig(config, "inputfileOrbit",                fileNameOrbit,          Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
@@ -77,11 +76,6 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
     if(!fileNameSignalDef.empty())
       readFileGnssReceiverDefinition(fileNameSignalDef, signalDefList);
 
-    // read ISL terminal definition
-    std::vector<GnssAntennaDefinitionPtr> islTerminalDefList;
-    if(!fileNameIslTerminalDef.empty())
-      readFileGnssAntennaDefinition(fileNameIslTerminalDef, islTerminalDefList);
-
     std::vector<std::string> transmitterList;
     for(const auto &fileNameTransmitterList : fileNamesTransmitterList)
     {
@@ -102,7 +96,6 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
         platform.name = prn;
         platform.fillGnssAntennaDefinition(antennaDefList);
         platform.fillGnssReceiverDefinition(signalDefList);
-        platform.fillIslTerminalDefinition(islTerminalDefList);
         Vector useableEpochs(times.size(), TRUE);
 
         // read orbit
@@ -203,8 +196,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
 
         std::vector<Vector3d>    offset(times.size());
         std::vector<Transform3d> srf2arf(times.size());
-        std::vector<Vector3d>    offsetIsl(times.size());
-        std::vector<Transform3d> srf2arfIsl(times.size());
+
         for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
           if(useableEpochs(idEpoch))
           {
@@ -216,12 +208,32 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
             }
             else
               useableEpochs(idEpoch) = FALSE;
+          }
 
-            auto islTerminal = platform.findEquipment<PlatformIslTerminal>(times.at(idEpoch));
-            if(islTerminal && islTerminal->antennaDef)
+        // Load ISL terminal information
+        // -----------------------------
+        std::vector<std::map<UInt,Vector3d>>    offsetIsl(times.size());
+        std::vector<std::map<UInt,Transform3d>> srf2irf(times.size());
+
+        for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
+          if(useableEpochs(idEpoch))
+          {
+            for(const auto &instrument : platform.equipments)
             {
-              offsetIsl.at(idEpoch)  = islTerminal->position - platform.referencePoint(times.at(idEpoch));
-              srf2arfIsl.at(idEpoch) = islTerminal->local2terminalFrame;
+              auto islTerminal = std::dynamic_pointer_cast<PlatformIslTerminal>(instrument);
+              if(islTerminal && islTerminal->timeStart <= times.at(idEpoch) && times.at(idEpoch) < islTerminal->timeEnd)
+              {
+                try
+                {
+                  UInt terminal = islTerminal->terminalId;
+                  offsetIsl.at(idEpoch).insert({terminal,islTerminal->position - platform.referencePoint(times.at(idEpoch))});
+                  srf2irf.at(idEpoch).insert({terminal,islTerminal->local2terminalFrame});
+                }
+                catch(std::exception &/*e*/)
+                {
+                  logWarningOnce<<"Unable to read "<<platform.markerName<<"."<<platform.markerNumber<<" ISL terminal ID <"<<islTerminal->comment<<">, ignoring!"<<Log::endl;
+                }
+              }
             }
           }
 
@@ -237,7 +249,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
           logWarningOnce<<platform.markerName<<"."<<platform.markerNumber<<": "<<useableEpochs.rows()-countUseableEpochs<<" epochs disabled due to missing orbit/attitude/clock data"<<Log::endl;
 
         transmitters.push_back(std::make_shared<GnssTransmitter>(GnssType("***"+platform.markerNumber), platform, noPatternFoundAction,
-                                                                 useableEpochs, clock, scale, offset, crf2srf, srf2arf, offsetIsl, srf2arfIsl, timesPosVel, pos, vel, interpolationDegree));
+                                                                 useableEpochs, clock, scale, offset, crf2srf, srf2arf, offsetIsl, srf2irf, timesPosVel, pos, vel, interpolationDegree));
         countTrans++;
       }
       catch(std::exception &e)
