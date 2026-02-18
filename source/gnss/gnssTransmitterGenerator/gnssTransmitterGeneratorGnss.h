@@ -40,7 +40,7 @@ Metadata input files (marked with \textbf{*} below) are provided in GROOPS file 
         types a satellite transmits.
   \item \configFile{inputfileClockFrequencyScale}{instrument}\textbf{*}:
         Scale factor of transmitted signals due to frequency offset/clock drift.
-        Can be dreived from broadcast clocks drifts.
+        Can be derived from broadcast clocks drifts.
   \item \configFile{inputfileOrbit}{instrument}: Converted via \program{Sp3Format2Orbit} or
         output of \program{GnssProcessing}.
   \item \configFile{inputfileAttitude}{instrument}:
@@ -66,7 +66,6 @@ class GnssTransmitterGeneratorGnss : public GnssTransmitterGeneratorBase
 {
   std::vector<FileName> fileNamesTransmitterList;
   FileName              fileNameTransmitterInfo, fileNameAntennaDef, fileNameSignalDef;
-  FileName              fileNameIslTerminalDef;
   FileName              fileNameOrbit, fileNameAttitude, fileNameClock, fileNameScale;
   FileName              fileNameObsIsl;
   Bool                  interpolateClock;

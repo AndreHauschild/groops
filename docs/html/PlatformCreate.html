@@ -155,38 +155,39 @@ Create a <a class="groops-file" href="fileFormat_platform.html">Platform file</a
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">timeEnd</div></div></td><td>time</td><td></td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">islTerminal</div></div></td><td>sequence</td><td></td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">name</div></div></td><td>string</td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">serial</div></div></td><td>string</td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">terminalId</div></div></td><td>uint</td><td>Terminal identifier (unsigned integer number)</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">comment</div></div></td><td>string</td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">timeStart</div></div></td><td>time</td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">timeEnd</div></div></td><td>time</td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">positionX</div></div></td><td>double</td><td>[m] terminal reference point in north, east, up or vehicle system</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">positionY</div></div></td><td>double</td><td>[m] terminal reference point in north, east, up or vehicle system</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">positionZ</div></div></td><td>double</td><td>[m] terminal reference point in north, east, up or vehicle system</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">rotationX</div></div></td><td>angle</td><td>[degree] from local/vehicle to left-handed terminal system</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">rotationY</div></div></td><td>angle</td><td>[degree] from local/vehicle to left-handed terminal system</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">rotationZ</div></div></td><td>angle</td><td>[degree] from local/vehicle to left-handed terminal system</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">flipX</div></div></td><td>boolean</td><td>flip x-axis (after rotation)</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">flipY</div></div></td><td>boolean</td><td>flip y-axis (after rotation)</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">flipZ</div></div></td><td>boolean</td><td>flip z-axis (after rotation)</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">other</div></div></td><td>sequence</td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">name</div></div></td><td>string</td><td></td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">serial</div></div></td><td>string</td><td></td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">comment</div></div></td><td>string</td><td></td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">timeStart</div></div></td><td>time</td><td></td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">timeEnd</div></div></td><td>time</td><td></td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">positionX</div></div></td><td>double</td><td>[m] ARP in north, east, up or vehicle system</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">positionY</div></div></td><td>double</td><td>[m] ARP in north, east, up or vehicle system</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">positionZ</div></div></td><td>double</td><td>[m] ARP in north, east, up or vehicle system</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">rotationX</div></div></td><td>angle</td><td>[degree] from local/vehicle to left-handed antenna system</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">rotationY</div></div></td><td>angle</td><td>[degree] from local/vehicle to left-handed antenna system</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">rotationZ</div></div></td><td>angle</td><td>[degree] from local/vehicle to left-handed antenna system</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">flipX</div></div></td><td>boolean</td><td>flip x-axis (after rotation)</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">flipY</div></div></td><td>boolean</td><td>flip y-axis (after rotation)</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">flipZ</div></div></td><td>boolean</td><td>flip z-axis (after rotation)</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">other</div></div></td><td>sequence</td><td></td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config mustset">name</div></div></td><td>string</td><td></td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">serial</div></div></td><td>string</td><td></td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">comment</div></div></td><td>string</td><td></td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">timeStart</div></div></td><td>time</td><td></td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">timeEnd</div></div></td><td>time</td><td></td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">positionX</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">positionY</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">positionZ</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">referencePoint</div></div></td><td>sequence</td><td>e.g. center of mass in satellite frame</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config optional">comment</div></div></td><td>string</td><td></td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">xStart</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">yStart</div></div></td><td>double</td><td>linear motion between start and end</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">zStart</div></div></td><td>double</td><td></td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">xEnd</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">yEnd</div></div></td><td>double</td><td>linear motion between start and end</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">zEnd</div></div></td><td>double</td><td></td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config optional">timeStart</div></div></td><td>time</td><td></td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config optional">timeEnd</div></div></td><td>time</td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">positionX</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">positionY</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-2"><div class="h-100 config optional">positionZ</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">referencePoint</div></div></td><td>sequence</td><td>e.g. center of mass in satellite frame</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config optional">comment</div></div></td><td>string</td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">xStart</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">yStart</div></div></td><td>double</td><td>linear motion between start and end</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">zStart</div></div></td><td>double</td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">xEnd</div></div></td><td>double</td><td>[m] in north, east, up or vehicle system</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">yEnd</div></div></td><td>double</td><td>linear motion between start and end</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config mustset">zEnd</div></div></td><td>double</td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config optional">timeStart</div></div></td><td>time</td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-1"><div class="h-100 config optional">timeEnd</div></div></td><td>time</td><td></td></tr>
 </table>
 
         </div>

@@ -3211,11 +3211,6 @@
 								</xs:choice>
 							</xs:complexType>
 						</xs:element>
-						<xs:element name="inputfileIslTerminalDefintion" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat">
-							<xs:annotation>
-								<xs:documentation>phase centers and variations (ANTEX like)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
 						<xs:element name="inputfileSignalDefintion" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml">
 							<xs:annotation>
 								<xs:documentation>transmitted signal types</xs:documentation>

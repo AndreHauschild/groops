@@ -43,7 +43,6 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
         noPatternFoundAction = GnssAntennaDefinition::NoPatternFoundAction::THROW_EXCEPTION;
       endChoice(config);
     }
-    readConfig(config, "inputfileIslTerminalDefintion", fileNameIslTerminalDef, Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/islTerminalDefinition/islTerminalDefinition.dat", "phase centers and variations (ANTEX like)");
     readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,      Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
     readConfig(config, "inputfileClockFrequencyScale",  fileNameScale,          Config::OPTIONAL, "",                                 "variable {prn} available");
     readConfig(config, "inputfileOrbit",                fileNameOrbit,          Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
@@ -77,11 +76,6 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
     if(!fileNameSignalDef.empty())
       readFileGnssReceiverDefinition(fileNameSignalDef, signalDefList);
 
-    // read ISL terminal definition
-    std::vector<GnssAntennaDefinitionPtr> islTerminalDefList;
-    if(!fileNameIslTerminalDef.empty())
-      readFileGnssAntennaDefinition(fileNameIslTerminalDef, islTerminalDefList);
-
     std::vector<std::string> transmitterList;
     for(const auto &fileNameTransmitterList : fileNamesTransmitterList)
     {
@@ -102,7 +96,6 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
         platform.name = prn;
         platform.fillGnssAntennaDefinition(antennaDefList);
         platform.fillGnssReceiverDefinition(signalDefList);
-        platform.fillIslTerminalDefinition(islTerminalDefList);
         Vector useableEpochs(times.size(), TRUE);
 
         // read orbit
@@ -228,7 +221,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
             for(const auto &instrument : platform.equipments)
             {
               auto islTerminal = std::dynamic_pointer_cast<PlatformIslTerminal>(instrument);
-              if(islTerminal && islTerminal->timeStart <= times.at(idEpoch) && times.at(idEpoch) < islTerminal->timeEnd && islTerminal->antennaDef)
+              if(islTerminal && islTerminal->timeStart <= times.at(idEpoch) && times.at(idEpoch) < islTerminal->timeEnd)
               {
                 try
                 {

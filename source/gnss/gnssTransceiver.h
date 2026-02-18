@@ -84,11 +84,6 @@ public:
   Double signalBiasesIslTx() const;
   Double signalBiasesIslRx() const;
 
-  /** @brief Direction dependent corrections for ISL observations.
-  * observed range = range (ARPs of ISL transmit and receive terminal) + islTerminalVariations. */
-  Double islTerminalVariations(const Time &time, Angle azimut, Angle elevation) const;
-
-
   void save(OutArchive &oa) const;
   void load(InArchive  &ia);
 };
@@ -233,29 +228,6 @@ inline Double GnssTransceiver::signalBiasesIslRx() const
     Vector corr(types.size());
     corr += signalBiasIslRx.compute(types);
     return corr.at(0);
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
-inline Double GnssTransceiver::islTerminalVariations(const Time &time, Angle azimut, Angle elevation) const
-{
-  try
-  {
-    // ISL observation code for antenna corrections
-    // TODO: avoid using observation types here!
-    // --------------------------------------------
-    const std::vector<GnssType> types = { GnssType("C1C***") };
-    auto terminal = platform.findEquipment<PlatformIslTerminal>(time);
-    if(!terminal)
-      throw(Exception(platform.markerName+"."+platform.markerNumber+": no ISL terminal definition found at "+time.dateTimeStr()));
-    if(!terminal->antennaDef)
-      throw(Exception("no ISL terminal definition for "+terminal->str()));
-    return terminal->antennaDef->antennaVariations(azimut, elevation, types, noPatternFoundAction).at(0);
   }
   catch(std::exception &e)
   {
