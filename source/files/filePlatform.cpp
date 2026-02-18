@@ -225,6 +225,7 @@ void PlatformLaserRetroReflector::load(InArchive &ar)
 void PlatformIslTerminal::save(OutArchive &ar) const
 {
   ar<<nameValue("local2terminalFrame", local2terminalFrame);
+  ar<<nameValue("termialId",           terminalId);
 }
 
 /***********************************************/
@@ -232,6 +233,7 @@ void PlatformIslTerminal::save(OutArchive &ar) const
 void PlatformIslTerminal::load(InArchive &ar)
 {
   ar>>nameValue("local2terminalFrame", local2terminalFrame);
+  ar>>nameValue("termialId",           terminalId);
 }
 
 /***********************************************/

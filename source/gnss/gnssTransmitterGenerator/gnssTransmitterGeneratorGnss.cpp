@@ -232,7 +232,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
               {
                 try
                 {
-                  UInt terminal = std::stoi(islTerminal->comment);
+                  UInt terminal = islTerminal->terminalId;
                   offsetIsl.at(idEpoch).insert({terminal,islTerminal->position - platform.referencePoint(times.at(idEpoch))});
                   srf2irf.at(idEpoch).insert({terminal,islTerminal->local2terminalFrame});
                 }

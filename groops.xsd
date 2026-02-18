@@ -17251,38 +17251,43 @@
 										<xs:complexType>
 											<xs:sequence>
 												<xs:element name="name" type="string"/>
-												<xs:element name="serial" type="string" minOccurs="0"/>
+												<xs:element name="serial" type="string"/>
+												<xs:element name="terminalId" type="uint">
+													<xs:annotation>
+														<xs:documentation>Terminal identifier (unsigned integer number)</xs:documentation>
+													</xs:annotation>
+												</xs:element>
 												<xs:element name="comment" type="string" minOccurs="0"/>
 												<xs:element name="timeStart" type="time" minOccurs="0"/>
 												<xs:element name="timeEnd" type="time" minOccurs="0"/>
 												<xs:element name="positionX" type="double" default="0">
 													<xs:annotation>
-														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+														<xs:documentation>[m] terminal reference point in north, east, up or vehicle system</xs:documentation>
 													</xs:annotation>
 												</xs:element>
 												<xs:element name="positionY" type="double" default="0">
 													<xs:annotation>
-														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+														<xs:documentation>[m] terminal reference point in north, east, up or vehicle system</xs:documentation>
 													</xs:annotation>
 												</xs:element>
 												<xs:element name="positionZ" type="double" default="0">
 													<xs:annotation>
-														<xs:documentation>[m] ARP in north, east, up or vehicle system</xs:documentation>
+														<xs:documentation>[m] terminal reference point in north, east, up or vehicle system</xs:documentation>
 													</xs:annotation>
 												</xs:element>
 												<xs:element name="rotationX" type="angle" minOccurs="0" default="0">
 													<xs:annotation>
-														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+														<xs:documentation>[degree] from local/vehicle to left-handed terminal system</xs:documentation>
 													</xs:annotation>
 												</xs:element>
 												<xs:element name="rotationY" type="angle" minOccurs="0" default="0">
 													<xs:annotation>
-														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+														<xs:documentation>[degree] from local/vehicle to left-handed terminal system</xs:documentation>
 													</xs:annotation>
 												</xs:element>
 												<xs:element name="rotationZ" type="angle" minOccurs="0" default="0">
 													<xs:annotation>
-														<xs:documentation>[degree] from local/vehicle to left-handed antenna system</xs:documentation>
+														<xs:documentation>[degree] from local/vehicle to left-handed terminal system</xs:documentation>
 													</xs:annotation>
 												</xs:element>
 												<xs:element name="flipX" type="boolean" minOccurs="0" default="0">
