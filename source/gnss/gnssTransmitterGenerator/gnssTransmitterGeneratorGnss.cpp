@@ -204,7 +204,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
         std::vector<Vector3d>    offset(times.size());
         std::vector<Transform3d> srf2arf(times.size());
         std::vector<Vector3d>    offsetIsl(times.size());
-        std::vector<Transform3d> srf2arfIsl(times.size());
+        std::vector<Transform3d> srf2irf(times.size());
         for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
           if(useableEpochs(idEpoch))
           {
@@ -221,7 +221,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
             if(islTerminal && islTerminal->antennaDef)
             {
               offsetIsl.at(idEpoch)  = islTerminal->position - platform.referencePoint(times.at(idEpoch));
-              srf2arfIsl.at(idEpoch) = islTerminal->local2terminalFrame;
+              srf2irf.at(idEpoch) = islTerminal->local2terminalFrame;
             }
           }
 
@@ -237,7 +237,7 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
           logWarningOnce<<platform.markerName<<"."<<platform.markerNumber<<": "<<useableEpochs.rows()-countUseableEpochs<<" epochs disabled due to missing orbit/attitude/clock data"<<Log::endl;
 
         transmitters.push_back(std::make_shared<GnssTransmitter>(GnssType("***"+platform.markerNumber), platform, noPatternFoundAction,
-                                                                 useableEpochs, clock, scale, offset, crf2srf, srf2arf, offsetIsl, srf2arfIsl, timesPosVel, pos, vel, interpolationDegree));
+                                                                 useableEpochs, clock, scale, offset, crf2srf, srf2arf, offsetIsl, srf2irf, timesPosVel, pos, vel, interpolationDegree));
         countTrans++;
       }
       catch(std::exception &e)
