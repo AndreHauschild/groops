@@ -47,7 +47,7 @@ To get access to all values the corresponding type must be repeated in \configCl
 
 Example: Selected GPS phase residuals (\configClass{type}{gnssType}='\verb|L1*G|' and \configClass{type}{gnssType}='\verb|L2*G|').
 Plotted with \program{PlotGraph} with two \configClass{layer:linesAndPoints}{plotGraphLayerType}
-(\config{valueX}='\verb|data0|',  \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
+(\config{valueX}='\verb|data0|', \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
 \fig{!hb}{0.8}{instrumentGnssReceiver2TimeSeries}{fig:instrumentGnssReceiver2TimeSeries}{GPS residuals in cm, shifted by PRN}
 )";
 
@@ -118,7 +118,7 @@ void InstrumentGnssReceiver2TimeSeries::run(Config &config, Parallel::Communicat
 
               // Fill with NAN to distinguish types which are not available
               for (UInt iType=0; iType<types.size(); iType++)
-                epochNew.values(2+iType) = NAN;
+                epochNew.values(2+iType) = NAN_EXPR;
 
               // loop over all obs for this satellite
               Bool                  found    = FALSE;
