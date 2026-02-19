@@ -221,6 +221,7 @@ void GnssReceiver::signalComposition(UInt /*idEpoch*/, const std::vector<GnssTyp
 }
 
 /***********************************************/
+/***********************************************/
 
 GnssReceiver::ObservationEquationList::ObservationEquationList(const GnssReceiver &receiver, const std::vector<GnssTransmitterPtr> &transmitters,
                                                                const std::function<Rotary3d(const Time &time)> &rotationCrf2Trf,
