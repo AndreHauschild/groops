@@ -6,6 +6,7 @@
 - Bugfix:           Instrument2AllanVariance: Fix sample counting.
 - Other:            NetCDF: enable to read multidimensional variables to store in muliple columns.
 - Other:            Changed ftp.tugraz.at/outgoing/ITSG to ftp.tugraz.at/pub/ITSG.
+- Other:            ModelEquilibriumTide: Taking into account spatially varying density.
 
 # Release 2025-11-15
 - New program:      StarCamera2Orbex (replaces GnssAttitude2Orbex).
