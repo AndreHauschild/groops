@@ -194,7 +194,11 @@
 								<xs:documentation>should contain a {variable}</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="pattern" type="filename" minOccurs="0"/>
+						<xs:element name="pattern" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>supports wildcards: * and ?</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="isRegularExpression" type="boolean" minOccurs="0" default="0">
 							<xs:annotation>
 								<xs:documentation>pattern is  a regular expression</xs:documentation>
@@ -216,7 +220,11 @@
 								<xs:documentation>should contain a {variable}</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="pattern" type="filename" minOccurs="0"/>
+						<xs:element name="pattern" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>supports wildcards: * and ?</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="isRegularExpression" type="boolean" minOccurs="0" default="0">
 							<xs:annotation>
 								<xs:documentation>pattern is  a regular expression</xs:documentation>

@@ -1,4 +1,5 @@
 # main
+- New option:       conditionStringContains/MatchPattern: supports wildcards.
 - Bugfix:           ConditionFileExist: fixed bug with wildcards.
 - Bugfix:           GUI: fixed MatchCaseSensitive for schema selction.
 - Bugfix:           GUI: fixed bug when moving elements to same position.
