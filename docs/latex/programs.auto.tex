@@ -350,12 +350,13 @@ Name & Type & Annotation\\
 %==================================
 \subsection{ModelEquilibriumTide}\label{ModelEquilibriumTide}
 Computes the equilibrium ocean tide of the long periodic \config{tideGeneratingPotential}.
+The spherical harmonics expansion up to \config{maxDegree} with \config{GM} and \config{R}
+is estimated using a least squares adjustment.
 
-The ocean surface is represented by \configClass{gridOcean}{gridType} and the gravitational
-effect is numerical integrated to spherical harmonics using \config{maxDegree}, \config{GM},
-and \config{R}.
+The \configFile{inputfileDensityGrid}{griddedData} must be a global regular grid with the
+vertically averaged seawater density over the ocean and zero over land.
 
-It takes self attraction and loading into account using the Love numbers
+It takes iteratively self attraction and loading into account using the Love numbers
 \configFile{inputfilePotentialLoadLoveNumber}{matrix} and
 \configFile{inputfileDeformationLoadLoveNumber}{matrix}.
 
@@ -374,18 +375,18 @@ See also \program{PotentialCoefficients2DoodsonHarmonics}.
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfilePotentialCoefficients & \hfuzz=500pt filename & \hfuzz=500pt includes the loading\\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~gridOcean & \hfuzz=500pt \hyperref[gridType]{grid} & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~maxDegree & \hfuzz=500pt uint & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~GM & \hfuzz=500pt double & \hfuzz=500pt Geocentric gravitational constant\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~R & \hfuzz=500pt double & \hfuzz=500pt reference radius\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~density & \hfuzz=500pt double & \hfuzz=500pt [kg/m**3] density of sea water\\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~tideGeneratingPotential & \hfuzz=500pt double & \hfuzz=500pt [m**2/s**2]\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileDensityGrid & \hfuzz=500pt filename & \hfuzz=500pt [kg/m\textasciicircum{}3] density of sea water, zero over land\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~tideGeneratingPotential & \hfuzz=500pt double & \hfuzz=500pt [m\textasciicircum{}2/s\textasciicircum{}2]\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~k20 & \hfuzz=500pt double & \hfuzz=500pt earth tide love number\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~k20plus & \hfuzz=500pt double & \hfuzz=500pt earth tide love number\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~h20\_0 & \hfuzz=500pt double & \hfuzz=500pt earth tide love number\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~h20\_2 & \hfuzz=500pt double & \hfuzz=500pt earth tide love number\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfilePotentialLoadLoveNumber & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileDeformationLoadLoveNumber & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~iterationCount & \hfuzz=500pt uint & \hfuzz=500pt \\
 \hline
 \end{tabularx}
 
