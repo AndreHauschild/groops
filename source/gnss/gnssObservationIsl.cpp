@@ -106,6 +106,8 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     r12 -= 2*inner(posRecv, velocityRecv)/LIGHT_VELOCITY;                   // relativistic clock correction
     r12 -= LIGHT_VELOCITY * transmitter->clockError(idEpoch);
     r12 += LIGHT_VELOCITY * receiver->clockError(idEpoch);
+    r12 *= transmitter->scaleFactor(idEpoch); // TODO: check scale factor!!
+    r12 *= receiver->scaleFactor(idEpoch);
 
     // approximate range
     // -----------------
