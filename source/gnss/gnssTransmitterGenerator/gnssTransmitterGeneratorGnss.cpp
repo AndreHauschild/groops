@@ -43,14 +43,14 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
         noPatternFoundAction = GnssAntennaDefinition::NoPatternFoundAction::THROW_EXCEPTION;
       endChoice(config);
     }
-    readConfig(config, "inputfileSignalDefintion",      fileNameSignalDef,      Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
-    readConfig(config, "inputfileClockFrequencyScale",  fileNameScale,          Config::OPTIONAL, "",                                 "variable {prn} available");
-    readConfig(config, "inputfileOrbit",                fileNameOrbit,          Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "inputfileAttitude",             fileNameAttitude,       Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
-    readConfig(config, "inputfileClock",                fileNameClock,          Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
-    readConfig(config, "interpolateClock",              interpolateClock,       Config::DEFAULT,  "1", "linear interpolation of missing epochs");
-    readConfig(config, "inputfileObservationsIsl",      fileNameObsIsl,         Config::OPTIONAL, "islReceiver_{loopTime:%D}.{prn}.dat", "variable {prn} available");
-    readConfig(config, "interpolationDegree",           interpolationDegree,    Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
+    readConfig(config, "inputfileSignalDefintion",     fileNameSignalDef,   Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
+    readConfig(config, "inputfileClockFrequencyScale", fileNameScale,       Config::OPTIONAL, "",                                 "variable {prn} available");
+    readConfig(config, "inputfileOrbit",               fileNameOrbit,       Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "inputfileAttitude",            fileNameAttitude,    Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");
+    readConfig(config, "inputfileClock",               fileNameClock,       Config::MUSTSET,  "clock_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
+    readConfig(config, "interpolateClock",             interpolateClock,    Config::DEFAULT,  "1", "linear interpolation of missing epochs");
+    readConfig(config, "inputfileObservationsIsl",     fileNameObsIsl,      Config::OPTIONAL, "islReceiver_{loopTime:%D}.{prn}.dat", "variable {prn} available");
+    readConfig(config, "interpolationDegree",          interpolationDegree, Config::DEFAULT,  "7", "for orbit interpolation and velocity calculation");
   }
   catch(std::exception &e)
   {
@@ -196,7 +196,6 @@ void GnssTransmitterGeneratorGnss::init(const std::vector<Time> &times, const Ti
 
         std::vector<Vector3d>    offset(times.size());
         std::vector<Transform3d> srf2arf(times.size());
-
         for(UInt idEpoch=0; idEpoch<times.size(); idEpoch++)
           if(useableEpochs(idEpoch))
           {
