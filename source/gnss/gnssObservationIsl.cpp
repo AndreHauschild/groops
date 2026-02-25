@@ -30,7 +30,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
     posRecv  = receiver.positionIsl(idEpoch, timeRecv, termRecv);
     velRecv  = receiver.velocity(timeRecv);
 
-    // transmitter position and time
+    // transmitting satellite position and time
     posTrans = transmitter.positionIsl(idEpoch, timeRecv, termTrans);
     Vector3d posOld;
     for(UInt i=0; (i<10) && ((posTrans-posOld).r() > 0.0001); i++) // iteration
