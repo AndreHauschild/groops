@@ -206,9 +206,9 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
         }
 
         UInt idChanTx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
-                                      typeTx & transmitters.at(idTrans)->PRN()));
+                                      typeTx + transmitters.at(idTrans)->PRN()));
         UInt idChanRx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
-                                      typeRx & transmitters.at(idTrans)->PRN()));
+                                      typeRx + transmitters.at(idTrans)->PRN()));
 
         GnssObservationIsl *obs = new GnssObservationIsl();
         obs->time = times.at(idEpoch);
