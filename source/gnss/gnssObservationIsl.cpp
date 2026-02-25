@@ -25,8 +25,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 {
   try
   {
-
-    // receiver position and time
+    // receiving satellite position and time
     timeRecv = time - seconds2time(receiver.clockError(idEpoch));
     posRecv  = receiver.positionIsl(idEpoch, timeRecv, termRecv);
     velRecv  = receiver.velocity(timeRecv);
@@ -44,7 +43,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 
     // line of sight from transmitter to receiver
     k              = normalize(posRecv - posTrans);
-    kRecv          = receiver.celestial2islTerminalFrame(idEpoch, timeRecv, termRecv).transform(-k); // line of sight in receiver antenna system
+    kRecv          = receiver.celestial2islTerminalFrame(idEpoch, timeRecv, termRecv).transform(-k); // line of sight in receiving terminal system
     azimutRecv     = kRecv.lambda();
     elevationRecv  = kRecv.phi();
     kTrans         = transmitter.celestial2islTerminalFrame(idEpoch, timeTrans, termTrans).transform(k);
