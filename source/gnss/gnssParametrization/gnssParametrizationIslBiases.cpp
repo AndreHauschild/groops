@@ -90,7 +90,7 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
         paraReceiveTerminal.at(idRecv) = para;
         para->trans = gnss->transmitters.at(idRecv);
 #if DEBUG > 0
-        logInfo<<"init() receive ISL terminal bias parameter "<<para->trans->name()<<Log::endl;
+        logInfo<<"init() receive  ISL terminal bias parameter "<<para->trans->name()<<Log::endl;
 #endif
       }
 
@@ -143,7 +143,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
       if(para && para->trans->useable() && para->trans->signalBiasIslRx.biases.size())
       {
 #if DEBUG >0
-        logInfo<<"initParameter() receive ISL terminal bias parameter "<<para->trans->name()<<Log::endl;
+        logInfo<<"initParameter() receive  ISL terminal bias parameter "<<para->trans->name()<<Log::endl;
 #endif
         // determine parameter names
         std::vector<ParameterName> parameterNames;
@@ -152,7 +152,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         countparaReceiveTerminal += parameterNames.size();
       }
     if(countparaReceiveTerminal)
-      logInfo<<countparaReceiveTerminal%"%9i ISL receive terminal bias parameters"s<<Log::endl;
+      logInfo<<countparaReceiveTerminal%"%9i ISL receive  terminal bias parameters"s<<Log::endl;
 
     // Zero-mean constraint
 
@@ -175,8 +175,8 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         x0TransmitTerminal.at(para->trans->idTrans()) = para->trans->signalBiasesIslTx();
         countZeroMean++;
 #if DEBUG >0
-        logInfo<<"initParameter() store initial send ISL terminal bias parameter "
-               <<para->trans->name()<<para->trans->signalBiasesIslTx()%" %5.2fm"s<<Log::endl;
+        logInfo<<"initParameter() store initial transmit ISL terminal bias parameter "
+               <<para->trans->name()<<para->trans->signalBiasesIslTx()%" %5.2f m"s<<Log::endl;
 #endif
       }
 
@@ -187,8 +187,8 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         x0ReceiveTerminal.at(para->trans->idTrans()) = para->trans->signalBiasesIslRx();
         countZeroMean++;
 #if DEBUG >0
-        logInfo<<"initParameter() store initial recv ISL terminal bias parameter "
-               <<para->trans->name()<<para->trans->signalBiasesIslRx()%" %5.2fm"s<<Log::endl;
+        logInfo<<"initParameter() store initial receive  ISL terminal bias parameter "
+               <<para->trans->name()<<para->trans->signalBiasesIslRx()%" %5.2f m"s<<Log::endl;
 #endif
       }
     applyConstraint = isEnabled(normalEquationInfo, nameConstraint) && sigmaZeroMean
@@ -214,7 +214,7 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
         {
           x0(normalEquationInfo.index(para->index),0) = para->trans->signalBiasesIslTx();
 #if DEBUG > 0
-          logInfo<<"aprioriParameter() transmit ISL terminal bias  "<<para->trans->name() << para->trans->signalBiasesIslTx()%" %6.2f"s <<Log::endl;
+          logInfo<<"aprioriParameter() transmit ISL terminal bias  "<<para->trans->name() << para->trans->signalBiasesIslTx()%" %6.2f m"s <<Log::endl;
 #endif
         }
       for(auto para : paraReceiveTerminal)
@@ -222,7 +222,7 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
         {
           x0(normalEquationInfo.index(para->index),0) = para->trans->signalBiasesIslRx();
 #if DEBUG > 0
-          logInfo<<"aprioriParameter() receiver ISL terminal bias  "<<para->trans->name() << para->trans->signalBiasesIslRx()%" %6.2f"s <<Log::endl;
+          logInfo<<"aprioriParameter() receive  ISL terminal bias  "<<para->trans->name() << para->trans->signalBiasesIslRx()%" %6.2f m"s <<Log::endl;
 #endif
         }
     }
@@ -239,7 +239,7 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 {
   try
   {
-#if DEBUG >0
+#if DEBUG > 1
     logInfo << "GnssParametrizationIslBiases::designMatrixIsl() "
             << "idRecv "  << eqn.receiver->idTrans()
             <<" idTrans " << eqn.transmitter->idTrans()
