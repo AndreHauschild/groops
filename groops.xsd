@@ -12366,7 +12366,12 @@
 						</xs:element>
 						<xs:element name="noiseObservation" type="noiseGeneratorType" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
-								<xs:documentation>[m] ISL observation noise</xs:documentation>
+								<xs:documentation>[m] ISL observation noise (simulated)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="sigmaObservation" type="double" default="0.01">
+							<xs:annotation>
+								<xs:documentation>[m] ISL observation sigma (for observation weighting)</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
