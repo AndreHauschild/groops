@@ -79,12 +79,12 @@ public:
 
   GnssObservationEquationIsl(const GnssObservationIsl &observation, const GnssTransmitter &receiver, const GnssTransmitter &transmitter,
                              const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,
-                             UInt idEpoch, Bool decorrelate)
-          {compute(observation, receiver, transmitter, reduceModels, idEpoch, decorrelate);}
+                             UInt idEpoch, Bool homogenize)
+          {compute(observation, receiver, transmitter, reduceModels, idEpoch, homogenize);}
 
   void compute(const GnssObservationIsl &observation, const GnssTransmitter &receiver, const GnssTransmitter &transmitter,
                const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,
-               UInt idEpoch, Bool decorrelate);
+               UInt idEpoch, Bool homogenize);
 };
 
 /***********************************************/

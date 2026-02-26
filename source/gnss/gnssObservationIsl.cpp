@@ -69,7 +69,7 @@ void GnssObservationIsl::setHomogenizedResiduals(Double residual, Double redunda
 
 void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, const GnssTransmitter &receiver_, const GnssTransmitter &transmitter_,
                                          const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,
-                                         UInt idEpoch_, Bool decorrelate)
+                                         UInt idEpoch_, Bool homogenize)
 {
   try
   {
@@ -91,7 +91,7 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     Vector3d k, kRecvAnt, kTrans;
     positionVelocityTime(receiver_, transmitter_, observation.time, idEpoch_,
                          timeRecv,  posRecv,  velocityRecv,  azimutRecvAnt, elevationRecvAnt, terminalRecv,
-                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans, terminalSend,
+                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans,   terminalSend,
                          k, kRecvAnt, kTrans);
     const Double rDotTrans = inner(k, velocityTrans)/LIGHT_VELOCITY;
     const Double rDotRecv  = inner(k, velocityRecv) /LIGHT_VELOCITY;
@@ -137,9 +137,9 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     if(reduceModels)
       reduceModels(*this);
 
-    // Decorrelate
-    // -----------
-    if(decorrelate)
+    // Homogenize
+    // ----------
+    if(homogenize)
       for(UInt i=0; i<obsCount; i++)
       {
         if(l.size()) l.row(i) *= 1/sigma(i);
