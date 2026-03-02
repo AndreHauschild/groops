@@ -126,12 +126,14 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         for(UInt i=0; i<para->trans->signalBiasIslTx.biases.size(); i++)
         {
           parameterNames.push_back(ParameterName(para->trans->name(), "islBiasTx"+i%"%02i"s));
+          // TODO: one parameter per bias!
+          para->index = normalEquationInfo.parameterNamesTransmitter(para->trans->idTrans(), parameterNames);
+          countparaTransmitTerminal += parameterNames.size();
+
 #if DEBUG > 0
           logInfo<<"initParameter() transmit ISL terminal bias parameter "<<para->trans->name()<<":"<<"islBiasTx"+i%"%02i"s<<Log::endl;
 #endif
         }
-        para->index = normalEquationInfo.parameterNamesTransmitter(para->trans->idTrans(), parameterNames);
-        countparaTransmitTerminal += parameterNames.size();
       }
     if(countparaTransmitTerminal)
       logInfo<<countparaTransmitTerminal%"%9i ISL transmit terminal bias parameters"s<<Log::endl;
