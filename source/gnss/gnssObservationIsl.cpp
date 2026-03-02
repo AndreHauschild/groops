@@ -82,9 +82,9 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     l            = Vector(obsCount);
     sigma        = Vector(obsCount);
     sigma0       = Vector(obsCount);
-    l(0)        = observation.observation;
-    sigma(0)    = observation.sigma;
-    sigma0(0)   = observation.sigma0;
+    l(0)         = observation.observation;
+    sigma(0)     = observation.sigma;
+    sigma0(0)    = observation.sigma0;
 
     // position, time of transmitter & receiver
     // ----------------------------------------
