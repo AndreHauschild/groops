@@ -239,12 +239,13 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 {
   try
   {
-  #if DEBUG > 1
+#if DEBUG > 1
     logInfo << "GnssParametrizationIslBiases::designMatrixIsl() "
-            << "idRecv "  << eqn.receiver->idTrans()
-            <<" idTrans " << eqn.transmitter->idTrans()
-            <<Log::endl;
-#endif
+            << eqn.receiver->name() << eqn.receiver->idTrans()%" (%2i)"s
+            << " <- "
+            << eqn.transmitter->name() << eqn.transmitter->idTrans()%" (%2i)"s
+            << Log::endl;
+#endif  
     // transmitter terminal bias
     auto paraTransmitTerminal = this->paraTransmitTerminal.at(eqn.transmitter->idTrans());
     if(paraTransmitTerminal && paraTransmitTerminal->index)
