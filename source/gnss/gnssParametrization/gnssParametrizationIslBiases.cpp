@@ -161,7 +161,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         countparaReceiveTerminal += parameterNames.size();
       }
     if(countparaReceiveTerminal)
-      logInfo<<countparaReceiveTerminal%"%9i ISL receive terminal bias parameters"s<<Log::endl;
+      logInfo<<countparaReceiveTerminal%"%9i ISL receive  terminal bias parameters"s<<Log::endl;
 
     // Zero-mean constraint
 
@@ -252,32 +252,22 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 {
   try
   {
-
-#if DEBUG > 0
-    logInfo <<"GnssParametrizationIslBiases::designMatrixIsl() "
-            <<" sat rx "<<eqn.receiver->name()<<eqn.terminalRecv%" %2i)"s
-            <<" idx "<<eqn.receiver->signalBiasIslRx.index(eqn.terminalRecv)%"%2i"s
-            <<" sat tx "<<eqn.transmitter->name()<<eqn.terminalSend%" (%2i)"s
-            <<" idx "<<eqn.transmitter->signalBiasIslTx.index(eqn.terminalSend)%"%2i"s
-            <<Log::endl;
-#endif
-
-    // TODO: check the indexing here!
-
+#if DEBUG > 1
+    logInfo << "GnssParametrizationIslBiases::designMatrixIsl() "
+            << eqn.receiver->name() << eqn.receiver->idTrans()%" (%2i)"s
+            << " <- "
+            << eqn.transmitter->name() << eqn.transmitter->idTrans()%" (%2i)"s
+            << Log::endl;
+#endif  
+    // transmitter terminal bias
     auto paraTransmitTerminal = this->paraTransmitTerminal.at(eqn.transmitter->idTrans());
     if(paraTransmitTerminal && paraTransmitTerminal->index)
-    {
-      UInt idx = eqn.transmitter->signalBiasIslTx.index(eqn.terminalSend);
-      axpy(1., eqn.A.column(GnssObservationEquationIsl::idxRange), A.column(paraTransmitTerminal->index));
-    }
+      copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraTransmitTerminal->index));
 
+    // receiver terminal bias
     auto paraReceiveTerminal = this->paraReceiveTerminal.at(eqn.receiver->idTrans());
     if(paraReceiveTerminal && paraReceiveTerminal->index)
-    {
-      UInt idx = eqn.receiver->signalBiasIslRx.index(eqn.terminalRecv);
-      axpy(1., eqn.A.column(GnssObservationEquationIsl::idxRange), A.column(paraReceiveTerminal->index));
-    }
-
+      copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraReceiveTerminal->index));
   }
   catch(std::exception &e)
   {

@@ -5,6 +5,7 @@
 * @brief global navigation satellite system.
 *
 * @author Torsten Mayer-Guerr
+* @author Andre Hauschild
 * @date 2010-08-03
 *
 */

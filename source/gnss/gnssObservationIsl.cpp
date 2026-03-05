@@ -5,6 +5,7 @@
  * @brief Intersatellite links.
  *
  * @author Torsten Mayer-Guerr
+ * @author Andre Hauschild
  * @date 2024-01-30
  *
  */
@@ -24,13 +25,12 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 {
   try
   {
-
-    // receiver position and time
+    // receiving satellite position and time
     timeRecv = time - seconds2time(receiver.clockError(idEpoch));
     posRecv  = receiver.positionIsl(idEpoch, timeRecv, termRecv);
     velRecv  = receiver.velocity(timeRecv);
 
-    // transmitter position and time
+    // transmitting satellite position and time
     posTrans = transmitter.positionIsl(idEpoch, timeRecv, termTrans);
     Vector3d posOld;
     for(UInt i=0; (i<10) && ((posTrans-posOld).r() > 0.0001); i++) // iteration
@@ -43,7 +43,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 
     // line of sight from transmitter to receiver
     k              = normalize(posRecv - posTrans);
-    kRecv          = receiver.celestial2islTerminalFrame(idEpoch, timeRecv, termRecv).transform(-k); // line of sight in receiver antenna system
+    kRecv          = receiver.celestial2islTerminalFrame(idEpoch, timeRecv, termRecv).transform(-k); // line of sight in receiving terminal system
     azimutRecv     = kRecv.lambda();
     elevationRecv  = kRecv.phi();
     kTrans         = transmitter.celestial2islTerminalFrame(idEpoch, timeTrans, termTrans).transform(k);
@@ -69,7 +69,7 @@ void GnssObservationIsl::setHomogenizedResiduals(Double residual, Double redunda
 
 void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, const GnssTransmitter &receiver_, const GnssTransmitter &transmitter_,
                                          const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,
-                                         UInt idEpoch_, Bool decorrelate)
+                                         UInt idEpoch_, Bool homogenize)
 {
   try
   {
@@ -82,16 +82,16 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     l            = Vector(obsCount);
     sigma        = Vector(obsCount);
     sigma0       = Vector(obsCount);
-    l(0)        = observation.observation;
-    sigma(0)    = observation.sigma;
-    sigma0(0)   = observation.sigma0;
+    l(0)         = observation.observation;
+    sigma(0)     = observation.sigma;
+    sigma0(0)    = observation.sigma0;
 
     // position, time of transmitter & receiver
     // ----------------------------------------
     Vector3d k, kRecvAnt, kTrans;
     positionVelocityTime(receiver_, transmitter_, observation.time, idEpoch_,
                          timeRecv,  posRecv,  velocityRecv,  azimutRecvAnt, elevationRecvAnt, terminalRecv,
-                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans, terminalSend,
+                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans,   terminalSend,
                          k, kRecvAnt, kTrans);
     const Double rDotTrans = inner(k, velocityTrans)/LIGHT_VELOCITY;
     const Double rDotRecv  = inner(k, velocityRecv) /LIGHT_VELOCITY;
@@ -106,6 +106,8 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     r12 -= 2*inner(posRecv, velocityRecv)/LIGHT_VELOCITY;                   // relativistic clock correction
     r12 -= LIGHT_VELOCITY * transmitter->clockError(idEpoch);
     r12 += LIGHT_VELOCITY * receiver->clockError(idEpoch);
+    //r12 *= transmitter->scaleFactor(idEpoch); // TODO: check scale factor!!
+    //r12 *= receiver->scaleFactor(idEpoch);
 
     // approximate range
     // -----------------
@@ -135,9 +137,9 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     if(reduceModels)
       reduceModels(*this);
 
-    // Decorrelate
-    // -----------
-    if(decorrelate)
+    // Homogenize
+    // ----------
+    if(homogenize)
       for(UInt i=0; i<obsCount; i++)
       {
         if(l.size()) l.row(i) *= 1/sigma(i);

@@ -17,8 +17,12 @@ These simulated observations can then be used in \program{GnssProcessing}, for e
 
 One or more GNSS constellations must be defined via \configClass{transmitter}{gnssTransmitterGeneratorType}.
 
-The \configClass{parametrization}{gnssParametrizationType} are used to simulate a priori models (e.g. ISL biases).
+The \configClass{parametrization}{gnssParametrizationType} are used to simulate a-priori models (e.g. ISL biases).
 Parameter settings and output files are ignored.
+
+The option \config{noiseObservation} specifies the sigma of the noise which is applied to the simulated observations. 
+
+The option \config{sigmaObservation} sets the expected sigma of the observations used as weights in the parameter estimation.
 )";
 
 /***********************************************/
@@ -60,15 +64,17 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     GnssParametrizationPtr      gnssParametrization;
     EarthRotationPtr            earthRotation;
     NoiseGeneratorPtr           noiseObs;
+    Double                      sigmaObs;
 
-    readConfig(config, "outputfileGnssIsl",       fileNameIsl,          Config::MUSTSET,  "gnssIsl_{loopTime:%D}.{prn}.dat.gz", "variable {prn} available, simulated observations");
-    readConfig(config, "timeSeries",              timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
-    readConfig(config, "timeMargin",              marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
-    readConfig(config, "transmitter",             transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
-    readConfig(config, "islSchedule",             fileNameSchedule,     Config::MUSTSET,  "islSchedule_{loopTime:%D}.{prn}.txt", "variable {prn} available, schedule with ISL connections");
-    readConfig(config, "earthRotation",           earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
-    readConfig(config, "parametrization",         gnssParametrization,  Config::DEFAULT,  R"(["signalBiasesIsl"])", "models and parameters");
-    readConfig(config, "noiseObservation",        noiseObs,             Config::DEFAULT,  "",    "[m] ISL observation noise");
+    readConfig(config, "outputfileGnssIsl", fileNameIsl,          Config::MUSTSET,  "gnssIsl_{loopTime:%D}.{prn}.dat.gz", "variable {prn} available, simulated observations");
+    readConfig(config, "timeSeries",        timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
+    readConfig(config, "timeMargin",        marginSeconds,        Config::DEFAULT,  "0.1", "[seconds] margin to consider two times identical");
+    readConfig(config, "transmitter",       transmitterGenerator, Config::MUSTSET,  "",    "constellation of GNSS satellites");
+    readConfig(config, "islSchedule",       fileNameSchedule,     Config::MUSTSET,  "islSchedule_{loopTime:%D}.{prn}.txt", "variable {prn} available, schedule with ISL connections");
+    readConfig(config, "earthRotation",     earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
+    readConfig(config, "parametrization",   gnssParametrization,  Config::DEFAULT,  R"(["signalBiasesIsl"])", "models and parameters");
+    readConfig(config, "noiseObservation",  noiseObs,             Config::DEFAULT,  "",    "[m] ISL observation noise (simulated)");
+    readConfig(config, "sigmaObservation",  sigmaObs,             Config::MUSTSET,  "0.01","[m] ISL observation sigma (for observation weighting)");
     if(isCreateSchema(config)) return;
 
     // ============================
@@ -193,7 +199,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                   {
                     epoch.observation.push_back(NAN_EXPR);
                     if(epoch.obsType.at(idType) == GnssType(GnssType::SNR + GnssType::E1 + GnssType::C))
-                      epoch.observation.back() = obs.sigma0;
+                      epoch.observation.back() = sigmaObs;
                     else if(epoch.obsType.at(idType) == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::A))
                       epoch.observation.back() = obs.terminalSend;
                     else if(epoch.obsType.at(idType) == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::B))
