@@ -416,7 +416,7 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
                 Vector l(1);
                 A.init(eqn.l.rows());
                 gnss->designMatrixIsl(normalEquationInfo, eqn, A); // TODO: check if this needs to be adapted!
-                GnssDesignMatrix::accumulateNormals(A.selectRows(0, l.rows()), l, normals, n, lPl(0), obsCount);
+                GnssDesignMatrix::accumulateNormals(A, eqn.l, normals, n, lPl(0), obsCount);
               }
             }
           }
