@@ -239,19 +239,21 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 {
   try
   {
-#if DEBUG > 1
+  #if DEBUG > 1
     logInfo << "GnssParametrizationIslBiases::designMatrixIsl() "
             << "idRecv "  << eqn.receiver->idTrans()
             <<" idTrans " << eqn.transmitter->idTrans()
             <<Log::endl;
 #endif
+    // transmitter terminal bias
     auto paraTransmitTerminal = this->paraTransmitTerminal.at(eqn.transmitter->idTrans());
     if(paraTransmitTerminal && paraTransmitTerminal->index)
-      axpy(1., eqn.A.column(GnssObservationEquationIsl::idxRange), A.column(paraTransmitTerminal->index));
+      copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraTransmitTerminal->index));
 
+    // receiver terminal bias
     auto paraReceiveTerminal = this->paraReceiveTerminal.at(eqn.receiver->idTrans());
     if(paraReceiveTerminal && paraReceiveTerminal->index)
-      axpy(1., eqn.A.column(GnssObservationEquationIsl::idxRange), A.column(paraReceiveTerminal->index));
+      copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraReceiveTerminal->index));
   }
   catch(std::exception &e)
   {
