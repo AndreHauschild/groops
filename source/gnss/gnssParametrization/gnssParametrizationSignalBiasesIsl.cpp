@@ -56,7 +56,7 @@ void GnssParametrizationSignalBiasesIsl::init(Gnss *gnss, Parallel::Communicator
           fileNameVariableList.setVariable("prn", gnss->transmitters.at(idTrans)->name());
           try
           {
-            readFileIslSignalBias(fileNameInTransmitter(fileNameVariableList), gnss->transmitters.at(idTrans)->signalBiasIslTx);
+            readFileIslSignalBias(fileNameInTransmitter(fileNameVariableList), gnss->transmitters.at(idTrans)->islBiasSend);
           }
           catch(std::exception &/*e*/)
           {
@@ -76,7 +76,7 @@ void GnssParametrizationSignalBiasesIsl::init(Gnss *gnss, Parallel::Communicator
           fileNameVariableList.setVariable("prn", gnss->transmitters.at(idTrans)->name());
           try
           {
-            readFileIslSignalBias(fileNameInReceiver(fileNameVariableList), gnss->transmitters.at(idTrans)->signalBiasIslRx);
+            readFileIslSignalBias(fileNameInReceiver(fileNameVariableList), gnss->transmitters.at(idTrans)->islBiasRecv);
           }
           catch(std::exception &/*e*/)
           {
@@ -110,7 +110,7 @@ void GnssParametrizationSignalBiasesIsl::writeResults(const GnssNormalEquationIn
       for(auto trans : gnss->transmitters)
         if(trans->useable() && selectedTransmitters.at(trans->idTrans()))
         {
-          IslSignalBias signalBias = trans->signalBiasIslTx;
+          IslSignalBias signalBias = trans->islBiasSend;
           fileNameVariableList.setVariable("prn", trans->name());
           writeFileIslSignalBias(fileNameOutTransmitter(fileNameVariableList).appendBaseName(suffix), signalBias);
         }
@@ -125,7 +125,7 @@ void GnssParametrizationSignalBiasesIsl::writeResults(const GnssNormalEquationIn
       for(auto trans : gnss->transmitters)
         if(trans->useable() && selectedTransmitters.at(trans->idTrans()))
         {
-          IslSignalBias signalBias = trans->signalBiasIslRx;
+          IslSignalBias signalBias = trans->islBiasRecv;
           fileNameVariableList.setVariable("prn", trans->name());
           writeFileIslSignalBias(fileNameOutReceiver(fileNameVariableList).appendBaseName(suffix), signalBias);
         }

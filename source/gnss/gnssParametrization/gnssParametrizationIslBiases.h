@@ -52,8 +52,8 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   std::vector<Byte>         selectedTransmitTerminalZeroMean, selectedReceiveTerminalZeroMean;
   Bool                      applyConstraint;
   Double                    sigmaZeroMean;
-  std::vector<Parameter*>   paraTransmitTerminal, paraReceiveTerminal;
-  std::vector<Vector>       x0TransmitTerminal, x0ReceiveTerminal; // a-priori values for each trans/recv terminal
+  std::vector<std::vector<Parameter*>>  paraTransmitTerminal, paraReceiveTerminal;
+  std::vector<std::vector<Double>>      x0TransmitTerminal, x0ReceiveTerminal;      // a-priori values for each trans/recv terminal
 
 public:
   GnssParametrizationIslBiases(Config &config);

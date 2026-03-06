@@ -40,8 +40,8 @@ public:
    UInt           id_; // set by Gnss::init()
    Platform       platform;
    GnssSignalBias signalBias;
-   IslSignalBias  signalBiasIslTx;
-   IslSignalBias  signalBiasIslRx;
+   IslSignalBias  islBiasSend;
+   IslSignalBias  islBiasRecv;
 
 public:
   /// Constructor.
@@ -189,7 +189,7 @@ inline Vector GnssTransceiver::signalBiasesIslTx(std::vector<UInt> terminals) co
 {
   try
   {
-    return signalBiasIslTx.compute(terminals);
+    return islBiasSend.compute(terminals);
   }
   catch(std::exception &e)
   {
@@ -203,7 +203,7 @@ inline Vector GnssTransceiver::signalBiasesIslRx(std::vector<UInt> terminals) co
 {
   try
   {
-    return signalBiasIslRx.compute(terminals);
+    return islBiasRecv.compute(terminals);
   }
   catch(std::exception &e)
   {
@@ -218,8 +218,8 @@ inline void GnssTransceiver::save(OutArchive &oa) const
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
-  oa<<nameValue("signalBiasIsl",      signalBiasIslRx);
-  oa<<nameValue("signalBiasIsl",      signalBiasIslTx);
+  oa<<nameValue("signalBiasIsl",      islBiasRecv);
+  oa<<nameValue("signalBiasIsl",      islBiasSend);
 }
 
 /***********************************************/
@@ -229,8 +229,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
-  ia>>nameValue("signalBiasIsl",      signalBiasIslRx);
-  ia>>nameValue("signalBiasIsl",      signalBiasIslTx);
+  ia>>nameValue("signalBiasIsl",      islBiasRecv);
+  ia>>nameValue("signalBiasIsl",      islBiasSend);
 }
 
 /***********************************************/

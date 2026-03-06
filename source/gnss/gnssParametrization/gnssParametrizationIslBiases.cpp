@@ -26,7 +26,7 @@ GnssParametrizationIslBiases::GnssParametrizationIslBiases(Config &config)
 {
   try
   {
-    readConfig(config, "name",                           name,                           Config::OPTIONAL, "parameter.islTerminalBiases", "used for parameter selection");
+    readConfig(config, "name",                           name,                           Config::OPTIONAL, "parameter.islBiases", "used for parameter selection");
     readConfig(config, "selectTransmitIslTerminal",      selectTransmitTerminal,         Config::DEFAULT,  R"(["all"])", "");
     readConfig(config, "selectReceiveIslTerminal",       selectReceiveTerminal,          Config::DEFAULT,  R"(["all"])", "");
     readConfig(config, "nameConstraint",                 nameConstraint,                 Config::OPTIONAL, "constraint.islBiases", "used for parameter selection");
@@ -45,10 +45,13 @@ GnssParametrizationIslBiases::GnssParametrizationIslBiases(Config &config)
 
 GnssParametrizationIslBiases::~GnssParametrizationIslBiases()
 {
-  for(auto para : paraTransmitTerminal)
-    delete para;
-  for(auto para : paraReceiveTerminal)
-    delete para;
+  for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+  {
+    for(auto para : paraTransmitTerminal.at(idTrans))
+      delete para;
+    for(auto para : paraReceiveTerminal.at(idTrans))
+      delete para;
+  }
 }
 
 /***********************************************/
@@ -68,23 +71,31 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
     this->gnss = gnss;
 
     auto selectedTransmitTerminal = gnss->selectTransmitters(selectTransmitTerminal);
-    paraTransmitTerminal.resize(gnss->transmitters.size(), nullptr);
+    paraTransmitTerminal.resize(gnss->transmitters.size());
     for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
       if(selectedTransmitTerminal.at(idTrans) && gnss->transmitters.at(idTrans)->useable())
       {
-        auto para = new Parameter();
-        paraTransmitTerminal.at(idTrans) = para;
-        para->trans = gnss->transmitters.at(idTrans);
+        UInt nTerm=gnss->transmitters.at(idTrans)->islBiasSend.terminals.size();
+        for(UInt idTerm=0; idTerm<nTerm; idTerm++)
+        {
+          auto para = new Parameter();
+          paraTransmitTerminal.at(idTrans).push_back(para);
+          para->trans = gnss->transmitters.at(idTrans);
+        }
       }
 
     auto selectedReceiveTerminal = gnss->selectTransmitters(selectReceiveTerminal);
-    paraReceiveTerminal.resize(gnss->transmitters.size(), nullptr);
+    paraReceiveTerminal.resize(gnss->transmitters.size());
     for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
       if(selectedReceiveTerminal.at(idRecv) && gnss->transmitters.at(idRecv)->useable())
       {
-        auto para = new Parameter();
-        paraReceiveTerminal.at(idRecv) = para;
-        para->trans = gnss->transmitters.at(idRecv);
+        UInt nTerm=gnss->transmitters.at(idRecv)->islBiasRecv.terminals.size();
+        for(UInt idTerm=0; idTerm<nTerm; idTerm++)
+        {
+          auto para = new Parameter();
+          paraReceiveTerminal.at(idRecv).push_back(para);
+          para->trans = gnss->transmitters.at(idRecv);
+        }
       }
 
   }
@@ -100,66 +111,55 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
 {
   try
   {
-    for(auto para : paraTransmitTerminal)
-      if(para)
-        para->index = GnssParameterIndex();
-    for(auto para : paraReceiveTerminal)
-      if(para)
-        para->index = GnssParameterIndex();
+    for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+    {
+      for(auto para : paraTransmitTerminal.at(idTrans))
+        if(para)
+          para->index = GnssParameterIndex();
+      for(auto para : paraReceiveTerminal.at(idTrans))
+        if(para)
+          para->index = GnssParameterIndex();
+    }
 
     applyConstraint = FALSE;
     if(!isEnabled(normalEquationInfo, name) || normalEquationInfo.isEachReceiverSeparately)
       return;
 
-    // transmitting ISL terminal parameters
-    // ------------------------------------
+    // transmit ISL terminal parameters
+    // --------------------------------
     UInt countparaTransmitTerminal = 0;
-    for(auto para : paraTransmitTerminal)
-      if(para && para->trans->useable() && para->trans->signalBiasIslTx.terminals.size())
-      {
-
-        if(!para->trans->signalBiasIslTx.biases.size())
-          continue;
-
-        // determine parameter names
-        std::vector<ParameterName> parameterNames;
-        for(UInt i=0; i<para->trans->signalBiasIslTx.biases.size(); i++)
+    for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+      for(UInt idTerm=0; idTerm<gnss->transmitters.at(idTrans)->islBiasSend.terminals.size(); idTerm++)
+        if(paraTransmitTerminal.at(idTrans).size() && idTerm<paraTransmitTerminal.at(idTrans).size())
         {
-          parameterNames.push_back(ParameterName(para->trans->name(), "islBiasTx"+i%"%02i"s));
-          // TODO: one parameter per bias!
+          auto para = paraTransmitTerminal.at(idTrans).at(idTerm);
+          std::vector<ParameterName> parameterNames;
+          parameterNames.push_back(ParameterName(para->trans->name(), "islBiasSend"+idTerm%"(%i)"s));
           para->index = normalEquationInfo.parameterNamesTransmitter(para->trans->idTrans(), parameterNames);
           countparaTransmitTerminal += parameterNames.size();
-
 #if DEBUG > 0
-          logInfo<<"initParameter() transmit ISL terminal bias parameter "<<para->trans->name()<<":"<<"islBiasTx"+i%"%02i"s<<Log::endl;
+          logInfo<<"initParameter() transmit ISL terminal bias parameter "<<para->trans->name()<<":"<<"islBiasSend"+idTerm%"%i"s<<Log::endl;
 #endif
         }
-      }
     if(countparaTransmitTerminal)
       logInfo<<countparaTransmitTerminal%"%9i ISL transmit terminal bias parameters"s<<Log::endl;
 
-    // receiving ISL terminal parameters
-    // ---------------------------------
+    // receive ISL terminal parameters
+    // -------------------------------
     UInt countparaReceiveTerminal = 0;
-    for(auto para : paraReceiveTerminal)
-      if(para && para->trans->useable() && para->trans->signalBiasIslRx.terminals.size())
-      {
-
-        if(!para->trans->signalBiasIslRx.terminals.size())
-          continue;
-
-        // determine parameter names
-        std::vector<ParameterName> parameterNames;
-        for(UInt i=0; i<para->trans->signalBiasIslRx.terminals.size(); i++)
+    for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+      for(UInt idTerm=0; idTerm<gnss->transmitters.at(idTrans)->islBiasRecv.terminals.size(); idTerm++)
+        if(paraReceiveTerminal.at(idTrans).size() && idTerm<paraReceiveTerminal.at(idTrans).size())
         {
-          parameterNames.push_back(ParameterName(para->trans->name(), "islBiasRx"+i%"%02i"s));
+          auto para = paraReceiveTerminal.at(idTrans).at(idTerm);
+          std::vector<ParameterName> parameterNames;
+          parameterNames.push_back(ParameterName(para->trans->name(), "islBiasRecv"+idTerm%"(%i)"s));
+          para->index = normalEquationInfo.parameterNamesTransmitter(para->trans->idTrans(), parameterNames);
+          countparaReceiveTerminal += parameterNames.size();
 #if DEBUG > 0
-          logInfo<<"initParameter() receive ISL terminal bias parameter "<<para->trans->name()<<":"<<"islBiasRx"+i%"%02i"s<<Log::endl;
+          logInfo<<"initParameter() receive ISL terminal bias parameter "<<para->trans->name()<<":"<<"islBiasRecv"+idTerm%"%i"s<<Log::endl;
 #endif
         }
-        para->index = normalEquationInfo.parameterNamesTransmitter(para->trans->idTrans(), parameterNames);
-        countparaReceiveTerminal += parameterNames.size();
-      }
     if(countparaReceiveTerminal)
       logInfo<<countparaReceiveTerminal%"%9i ISL receive  terminal bias parameters"s<<Log::endl;
 
@@ -178,29 +178,41 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
 
     UInt countZeroMean = 0;
     x0TransmitTerminal.resize(gnss->transmitters.size());
-    for(auto para : paraTransmitTerminal)
-      if(para && para->index && selectedTransmitTerminalZeroMean.at(para->trans->idTrans()))
-      {
-        x0TransmitTerminal.at(para->trans->idTrans()) = Vector(para->trans->signalBiasIslTx.biases);
-        countZeroMean++;
+    for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+    {
+      x0TransmitTerminal.at(idTrans).resize(gnss->transmitters.at(idTrans)->islBiasSend.terminals.size());
+      for(UInt idTerm=0; idTerm<x0TransmitTerminal.at(idTrans).size(); idTerm++)
+        if(paraTransmitTerminal.at(idTrans).size() && idTerm<paraTransmitTerminal.at(idTrans).size() && \
+           selectedTransmitTerminalZeroMean.at(idTrans))
+        {
+          auto para = paraTransmitTerminal.at(idTrans).at(idTerm);
+          x0TransmitTerminal.at(idTrans).at(idTerm) = para->trans->islBiasSend.biases.at(idTerm);
+          countZeroMean++;
 #if DEBUG >0
-        for(UInt i=0; i<para->trans->signalBiasIslTx.biases.size(); i++)
-          logInfo<<"initParameter() store initial transmit ISL terminal bias parameter "
-                 <<para->trans->name()<<para->trans->signalBiasIslTx.biases.at(i)%" %5.2f m"s<<Log::endl;
+          for(UInt i=0; i<para->trans->islBiasSend.biases.size(); i++)
+            logInfo<<"initParameter() store initial transmit ISL terminal bias parameter "
+                   <<para->trans->name()<<para->trans->islBiasSend.biases.at(i)%" %5.2f m"s<<Log::endl;
 #endif
+        }
       }
 
     x0ReceiveTerminal.resize(gnss->transmitters.size());
-    for(auto para : paraReceiveTerminal)
-      if(para && para->index && selectedReceiveTerminalZeroMean.at(para->trans->idTrans()))
-      {
-        x0ReceiveTerminal.at(para->trans->idTrans()) = Vector(para->trans->signalBiasIslRx.biases);
-        countZeroMean++;
+    for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+    {
+      x0ReceiveTerminal.at(idTrans).resize(gnss->transmitters.at(idTrans)->islBiasRecv.terminals.size());
+      for(UInt idTerm=0; idTerm<x0ReceiveTerminal.at(idTrans).size(); idTerm++)
+        if(paraReceiveTerminal.at(idTrans).size() && idTerm<paraReceiveTerminal.at(idTrans).size() && \
+           selectedReceiveTerminalZeroMean.at(idTrans))
+        {
+          auto para = paraReceiveTerminal.at(idTrans).at(idTerm);
+          x0ReceiveTerminal.at(idTrans).at(idTerm) = para->trans->islBiasRecv.biases.at(idTerm);
+          countZeroMean++;
 #if DEBUG >0
-        for(UInt i=0; i<para->trans->signalBiasIslRx.biases.size(); i++)
-          logInfo<<"initParameter() store initial receive  ISL terminal bias parameter "
-                 <<para->trans->name()<<para->trans->signalBiasIslRx.biases.at(i)%" %5.2f m"s<<Log::endl;
+          for(UInt i=0; i<para->trans->islBiasRecv.biases.size(); i++)
+            logInfo<<"initParameter() store initial receive  ISL terminal bias parameter "
+                   <<para->trans->name()<<para->trans->islBiasRecv.biases.at(i)%" %5.2f m"s<<Log::endl;
 #endif
+        }
       }
     applyConstraint = isEnabled(normalEquationInfo, nameConstraint) && sigmaZeroMean
                       && (countparaTransmitTerminal+countparaReceiveTerminal)
@@ -220,23 +232,26 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
   {
     if(Parallel::isMaster(normalEquationInfo.comm))
     {
-      for(auto para : paraTransmitTerminal)
-        if(para && para->index)
+      for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+        for(auto para : paraTransmitTerminal.at(idTrans))
         {
-          copy(Vector(para->trans->signalBiasIslTx.biases), x0.row(normalEquationInfo.index(para->index), para->trans->signalBiasIslRx.biases.size()));
+          if(para && para->index)
+          {
+            copy(Vector(para->trans->islBiasSend.biases), x0.row(normalEquationInfo.index(para->index), para->trans->islBiasRecv.biases.size()));
 #if DEBUG > 0
-          for(UInt idTerm=0; idTerm<para->trans->signalBiasIslRx.biases.size(); idTerm++)
-            logInfo<<"aprioriParameter() transmit ISL terminal bias  "<<para->trans->name()<<idTerm%"TX%2i: "s<<para->trans->signalBiasIslTx.biases.at(idTerm)%" %6.2f"s <<Log::endl;
+            for(UInt idTerm=0; idTerm<para->trans->islBiasRecv.biases.size(); idTerm++)
+              logInfo<<"aprioriParameter() transmit ISL terminal bias  "<<para->trans->name()<<idTerm%"TX%2i: "s<<para->trans->islBiasSend.biases.at(idTerm)%" %6.2f"s <<Log::endl;
 #endif
-        }
-      for(auto para : paraReceiveTerminal)
-        if(para && para->index)
-        {
-          copy(Vector(para->trans->signalBiasIslRx.biases), x0.row(normalEquationInfo.index(para->index), para->trans->signalBiasIslRx.biases.size()));
+          }
+          for(auto para : paraReceiveTerminal.at(idTrans))
+            if(para && para->index)
+            {
+              copy(Vector(para->trans->islBiasRecv.biases), x0.row(normalEquationInfo.index(para->index), para->trans->islBiasRecv.biases.size()));
 #if DEBUG > 0
-          for(UInt idTerm=0; idTerm<para->trans->signalBiasIslRx.biases.size(); idTerm++)
-            logInfo<<"aprioriParameter() receive  ISL terminal bias  "<<para->trans->name()<<idTerm%"RX%2i: "s<< para->trans->signalBiasIslRx.biases.at(idTerm)%" %6.2f"s <<Log::endl;
+              for(UInt idTerm=0; idTerm<para->trans->islBiasRecv.biases.size(); idTerm++)
+                logInfo<<"aprioriParameter() receive  ISL terminal bias  "<<para->trans->name()<<idTerm%"RX%2i: "s<< para->trans->islBiasRecv.biases.at(idTerm)%" %6.2f"s <<Log::endl;
 #endif
+            }
         }
     }
   }
@@ -258,14 +273,18 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
             << " <- "
             << eqn.transmitter->name() << eqn.transmitter->idTrans()%" (%2i)"s
             << Log::endl;
-#endif  
+#endif
+    UInt idTerm;
+
     // transmitter terminal bias
-    auto paraTransmitTerminal = this->paraTransmitTerminal.at(eqn.transmitter->idTrans());
+    idTerm = eqn.transmitter->islBiasSend.index(eqn.terminalSend);
+    auto paraTransmitTerminal = this->paraTransmitTerminal.at(eqn.transmitter->idTrans()).at(idTerm);
     if(paraTransmitTerminal && paraTransmitTerminal->index)
       copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraTransmitTerminal->index));
 
     // receiver terminal bias
-    auto paraReceiveTerminal = this->paraReceiveTerminal.at(eqn.receiver->idTrans());
+    idTerm = eqn.transmitter->islBiasRecv.index(eqn.terminalRecv);
+    auto paraReceiveTerminal = this->paraReceiveTerminal.at(eqn.receiver->idTrans()).at(idTerm);
     if(paraReceiveTerminal && paraReceiveTerminal->index)
       copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraReceiveTerminal->index));
   }
@@ -284,6 +303,7 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
     if(!applyConstraint)
       return;
 
+    /*
     // zero-mean constraint of ISL terminal biases
     // -------------------------------------------
 
@@ -304,7 +324,6 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
     if(Parallel::isMaster(normalEquationInfo.comm))
     {
       logWarning<<"ISL bias constraints temporarily disabled!"<<Log::endl;
-      /*
       Vector           l(1);
       GnssDesignMatrix A(normalEquationInfo, 1);
       const std::vector<UInt> terminals = { 0 }; // TODO: use variable terminal ID!
@@ -333,8 +352,8 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
 #endif
         }
       GnssDesignMatrix::accumulateNormals(A, l, normals, n, lPl, obsCount);
-      */
     }
+     */
   }
   catch(std::exception &e)
   {
@@ -350,29 +369,31 @@ Double GnssParametrizationIslBiases::updateParameter(const GnssNormalEquationInf
   {
     Double maxChange = 0;
     Gnss::InfoParameterChange infoTrans("mm");
-    for(auto para : paraTransmitTerminal)
-      if(para && para->index)
-      {
-        const Vector dBias = x.row(normalEquationInfo.index(para->index), para->trans->signalBiasIslTx.biases.size());
-        for(UInt idType=0; idType<dBias.size(); idType++)
-          para->trans->signalBiasIslTx.biases.at(idType) += dBias(idType);
-        for(UInt idType=0; idType<dBias.size(); idType++)
-          if(infoTrans.update(1e3*dBias(idType)))
-            infoTrans.info = "transmit ISL terminal bias ("+para->trans->name()+para->trans->signalBiasIslTx.terminals.at(idType)%"TX %i"s+")";
-      }
+    for(UInt idTrans=0; idTrans<paraTransmitTerminal.size(); idTrans++)
+      for(auto para : paraTransmitTerminal.at(idTrans))
+        if(para && para->index)
+        {
+          const Vector dBias = x.row(normalEquationInfo.index(para->index), para->trans->islBiasSend.biases.size());
+          for(UInt idType=0; idType<dBias.size(); idType++)
+            para->trans->islBiasSend.biases.at(idType) += dBias(idType);
+          for(UInt idType=0; idType<dBias.size(); idType++)
+            if(infoTrans.update(1e3*dBias(idType)))
+              infoTrans.info = "transmit ISL terminal bias ("+para->trans->name()+para->trans->islBiasSend.terminals.at(idType)%"Send(%i)"s+")";
+        }
     infoTrans.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
 
     Gnss::InfoParameterChange infoRecv("mm");
-    for(auto para : paraReceiveTerminal)
-      if(para && para->index)
-      {
-        const Vector dBias = x.row(normalEquationInfo.index(para->index), para->trans->signalBiasIslRx.biases.size());
-        for(UInt idType=0; idType<dBias.size(); idType++)
-          para->trans->signalBiasIslRx.biases.at(idType) += dBias(idType);
-        for(UInt idType=0; idType<dBias.size(); idType++)
-          if(infoRecv.update(1e3*dBias(idType)))
-            infoTrans.info = "receive ISL terminal bias ("+para->trans->name()+para->trans->signalBiasIslRx.terminals.at(idType)%"RX %i"s+")";
-      }
+    for(UInt idTrans=0; idTrans<paraTransmitTerminal.size(); idTrans++)
+      for(auto para : paraReceiveTerminal.at(idTrans))
+        if(para && para->index)
+        {
+          const Vector dBias = x.row(normalEquationInfo.index(para->index), para->trans->islBiasRecv.biases.size());
+          for(UInt idType=0; idType<dBias.size(); idType++)
+            para->trans->islBiasRecv.biases.at(idType) += dBias(idType);
+          for(UInt idType=0; idType<dBias.size(); idType++)
+            if(infoRecv.update(1e3*dBias(idType)))
+              infoTrans.info = "receive  ISL terminal bias ("+para->trans->name()+para->trans->islBiasRecv.terminals.at(idType)%"Recv(%i)"s+")";
+        }
     infoRecv.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
 
     return maxChange;

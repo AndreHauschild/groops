@@ -307,11 +307,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       }
     }
 
-#if DEBUG_SYNC_ISL > 0
-    logWarning<<"synchronizeTransceiversIsl() mid"
-              <<Log::endl;
-#endif
-
     // adjust ISL biases to available terminals
     // NOTE: if no observations are found, a-priori biases are removed!
     // ----------------------------------------------------------------
@@ -331,13 +326,13 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                   <<Log::endl;
 #endif
       // NOTE: a-priori ISL biases are NOT retained!
-      trans->signalBiasIslTx.biases    = trans->signalBiasIslTx.compute(terminals); // apriori ISL bias
-      trans->signalBiasIslTx.terminals = terminals;
+      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // apriori ISL bias
+      trans->islBiasSend.terminals = terminals;
       /*
       if(terminals.size())
       {
-        trans->signalBiasIslTx.biases    = trans->signalBiasIslTx.compute(terminals); // apriori ISL bias
-        trans->signalBiasIslTx.terminals = terminals;
+        trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // apriori ISL bias
+        trans->islBiasSend.terminals = terminals;
       }
       */
     }
@@ -359,13 +354,13 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 #endif
 
       // NOTE: a-priori ISL biases are NOT retained!
-      recv->signalBiasIslRx.biases    = recv->signalBiasIslRx.compute(terminals); // apriori ISL bias
-      recv->signalBiasIslRx.terminals = terminals;
+      recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // apriori ISL bias
+      recv->islBiasRecv.terminals = terminals;
       /*
       if(terminals.size())
       {
-        recv->signalBiasIslRx.biases    = recv->signalBiasIslRx.compute(terminals); // apriori ISL bias
-        recv->signalBiasIslRx.terminals = terminals;
+        recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // apriori ISL bias
+        recv->islBiasRecv.terminals = terminals;
       }
       */
     }
@@ -374,17 +369,17 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
     if(Parallel::isMaster(comm))
     {
       for(auto transmitter : transmitters)
-        for(UInt i=0; i<transmitter->signalBiasIslTx.terminals.size(); i++)
+        for(UInt i=0; i<transmitter->islBiasSend.terminals.size(); i++)
           logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<transmitter->name()<<" "
-                    <<transmitter->signalBiasIslTx.terminals.at(i)%"%i"s<< " : "
-                    <<transmitter->signalBiasIslTx.biases.at(i)%" %6.2f"s
+                    <<transmitter->islBiasSend.terminals.at(i)%"%i"s<< " : "
+                    <<transmitter->islBiasSend.biases.at(i)%" %6.2f"s
                     <<Log::endl;
 
       for(auto transmitter : transmitters)
-        for(UInt i=0; i<transmitter->signalBiasIslRx.terminals.size(); i++)
+        for(UInt i=0; i<transmitter->islBiasRecv.terminals.size(); i++)
           logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<transmitter->name()<<" "
-                    <<transmitter->signalBiasIslRx.terminals.at(i)%"%i"s<< " : "
-                    <<transmitter->signalBiasIslRx.biases.at(i)%" %6.2f"s
+                    <<transmitter->islBiasRecv.terminals.at(i)%"%i"s<< " : "
+                    <<transmitter->islBiasRecv.biases.at(i)%" %6.2f"s
                     <<Log::endl;
     }
 #endif
