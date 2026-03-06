@@ -43,19 +43,6 @@ GnssParametrizationIslBiases::GnssParametrizationIslBiases(Config &config)
 
 /***********************************************/
 
-GnssParametrizationIslBiases::~GnssParametrizationIslBiases()
-{
-  for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
-  {
-    for(auto para : paraTransmitTerminal.at(idTrans))
-      delete para;
-    for(auto para : paraReceiveTerminal.at(idTrans))
-      delete para;
-  }
-}
-
-/***********************************************/
-
 // NOTE: ISL terminal biases can only be estimated if ISL observations are
 //       available. This is checked in Gnss::synchronizeTransceiversIsl() and
 //       if no observations are available, the ISL bias lists are set to zero

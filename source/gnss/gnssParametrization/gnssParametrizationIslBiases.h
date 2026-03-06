@@ -57,7 +57,6 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
 
 public:
   GnssParametrizationIslBiases(Config &config);
- ~GnssParametrizationIslBiases();
 
   void   init(Gnss *gnss, Parallel::CommunicatorPtr comm) override;
   void   initParameter(GnssNormalEquationInfo &normalEquationInfo) override;
