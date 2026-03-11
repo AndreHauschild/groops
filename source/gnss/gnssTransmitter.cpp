@@ -233,7 +233,7 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
       } // for(satellite)
 
       if((observations_.size() <= idEpoch) || (observations_[idEpoch].size() == 0))
-        disable(idEpoch, "no observations simulated (elevationCutOff, use/ignoreTypes, defined receiver/transmitter types, missing antenna patterns)");
+        disable(idEpoch, "no ISL observations simulated (missing schedule)");
     } // for(arcEpoch)
 
   }
