@@ -15,6 +15,7 @@
 
 #include "base/gnssType.h"
 #include "files/fileGnssSignalBias.h"
+#include "files/fileIslSignalBias.h"
 #include "files/filePlatform.h"
 
 /** @addtogroup gnssGroup */
@@ -39,6 +40,8 @@ public:
    UInt           id_; // set by Gnss::init()
    Platform       platform;
    GnssSignalBias signalBias;
+   IslSignalBias  islBiasSend;
+   IslSignalBias  islBiasRecv;
 
 public:
   /// Constructor.
@@ -49,6 +52,9 @@ public:
 
   /** @brief name. */
   std::string name() const {return platform.name;}
+
+  /** @brief marker number. */
+  std::string markerNumber() const {return platform.markerNumber;}
 
   /** @brief Is the platform usable at given epoch (or all epochs). */
   Bool useable(UInt idEpoch=NULLINDEX) const {return countUseableEpochs && ((idEpoch == NULLINDEX) || useableEpochs(idEpoch));}
@@ -67,8 +73,13 @@ public:
   Vector antennaVariations(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
   /** @brief Direction (and other parameters) dependent standard deviation.
-  * @a azmiut and @a elevation must be given in the antenna frame (left-handed). */
+  * @a azimuth and @a elevation must be given in the antenna frame (left-handed). */
   Vector accuracy(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
+
+  /** @brief ISL terminal bias corrections.
+  * observed range = range + bias. */
+  Vector signalBiasesIslTx(std::vector<UInt> terminals) const;
+  Vector signalBiasesIslRx(std::vector<UInt> terminals) const;
 
   void save(OutArchive &oa) const;
   void load(InArchive  &ia);
@@ -174,11 +185,41 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 
 /***********************************************/
 
+inline Vector GnssTransceiver::signalBiasesIslTx(std::vector<UInt> terminals) const
+{
+  try
+  {
+    return islBiasSend.compute(terminals);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+inline Vector GnssTransceiver::signalBiasesIslRx(std::vector<UInt> terminals) const
+{
+  try
+  {
+    return islBiasRecv.compute(terminals);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 inline void GnssTransceiver::save(OutArchive &oa) const
 {
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
+  oa<<nameValue("signalBiasIsl",      islBiasRecv);
+  oa<<nameValue("signalBiasIsl",      islBiasSend);
 }
 
 /***********************************************/
@@ -188,6 +229,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
+  ia>>nameValue("signalBiasIsl",      islBiasRecv);
+  ia>>nameValue("signalBiasIsl",      islBiasSend);
 }
 
 /***********************************************/

@@ -1159,8 +1159,9 @@ For each epoch the first data column contains the PRN, the second the satellite 
 followed by a column for each GNSS \configClass{type}{gnssType}.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
 has several lines per observed epoch (epochs with the same time, one for each transmitter).
+If no observation is available for a selected GNSS \configClass{type}{gnssType}, NAN is inserted.
 
-The second data column of the output contains a number representating the system
+The second data column of the output contains a number representing the system
 \begin{itemize}
 \item 71: 'G', GPS
 \item 82: 'R', GLONASS
@@ -1187,7 +1188,7 @@ To get access to all values the corresponding type must be repeated in \configCl
 
 Example: Selected GPS phase residuals (\configClass{type}{gnssType}='\verb|L1*G|' and \configClass{type}{gnssType}='\verb|L2*G|').
 Plotted with \program{PlotGraph} with two \configClass{layer:linesAndPoints}{plotGraphLayerType}
-(\config{valueX}='\verb|data0|',  \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
+(\config{valueX}='\verb|data0|', \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
 \fig{!hb}{0.8}{instrumentGnssReceiver2TimeSeries}{fig:instrumentGnssReceiver2TimeSeries}{GPS residuals in cm, shifted by PRN}
 
 
@@ -7333,6 +7334,28 @@ Name & Type & Annotation\\
 \hline
 \end{tabularx}
 
+\clearpage
+%==================================
+\subsection{SimulateStarCameraMetopSG}\label{SimulateStarCameraMetopSG}
+This program simulates \file{star camera}{instrument} measurements at each satellite's position.
+The satellite's orientation follows a local orbit frame with the z-axis pointing downwards normal 
+to the Earth's ellipsoid, the y-axis perpendicular to the Earth-fixed velocity and the x-axis 
+oriented in the direction of the Earth-fixed velocity.
+The resulting rotation matrices rotate from satellite frame to inertial frame.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileStarCamera & \hfuzz=500pt filename & \hfuzz=500pt rotation from satellite to inertial frame (x: along Earth-fixed velocity, y: cross, z: normal to Earth ellipsoid)\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt position and velocity defines the orientation of the satellite at each epoch\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~earthRotation & \hfuzz=500pt \hyperref[earthRotationType]{earthRotation} & \hfuzz=500pt transformation from CRF to TRF\\
+\hline
+\end{tabularx}
+
+This program is \reference{parallelized}{general.parallelization}.
 \clearpage
 %==================================
 \subsection{SimulateStarCameraSentinel1}\label{SimulateStarCameraSentinel1}
