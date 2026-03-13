@@ -328,13 +328,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       // NOTE: a-priori ISL biases are NOT retained!
       trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // apriori ISL bias
       trans->islBiasSend.terminals = terminals;
-      /*
-      if(terminals.size())
-      {
-        trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // apriori ISL bias
-        trans->islBiasSend.terminals = terminals;
-      }
-      */
     }
 
     for(auto recv : transmitters)
@@ -356,14 +349,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       // NOTE: a-priori ISL biases are NOT retained!
       recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // apriori ISL bias
       recv->islBiasRecv.terminals = terminals;
-      /*
-      if(terminals.size())
-      {
-        recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // apriori ISL bias
-        recv->islBiasRecv.terminals = terminals;
-      }
-      */
-    }
+     }
 
 #if DEBUG_SYNC_ISL > 0
     if(Parallel::isMaster(comm))
