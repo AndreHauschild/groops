@@ -218,15 +218,14 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
   try
   {
     if(Parallel::isMaster(normalEquationInfo.comm))
-    {
       for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
         for(auto para : paraTransmitTerminal.at(idTrans))
         {
           if(para && para->index)
           {
-            copy(Vector(para->trans->islBiasSend.biases), x0.row(normalEquationInfo.index(para->index), para->trans->islBiasRecv.biases.size()));
+            copy(Vector(para->trans->islBiasSend.biases), x0.row(normalEquationInfo.index(para->index), para->trans->islBiasSend.biases.size()));
 #if DEBUG > 0
-            for(UInt idTerm=0; idTerm<para->trans->islBiasRecv.biases.size(); idTerm++)
+            for(UInt idTerm=0; idTerm<para->trans->islBiasSend.biases.size(); idTerm++)
               logInfo<<"aprioriParameter() send ISL terminal bias "
                      <<normalEquationInfo.parameterNames().at(normalEquationInfo.index(para->index)).str()
                      <<para->trans->islBiasSend.biases.at(idTerm)%" %6.2f"s <<Log::endl;
@@ -243,8 +242,7 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
                        << para->trans->islBiasRecv.biases.at(idTerm)%" %6.2f"s <<Log::endl;
 #endif
             }
-        }
-    }
+        } // end for(auto
   }
   catch(std::exception &e)
   {
