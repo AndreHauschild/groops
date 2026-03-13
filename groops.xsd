@@ -270,12 +270,12 @@
 			</xs:element>
 			<xs:element name="inputfileSigmasPerArc" type="filename" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>different accuaries for each arc (multplicated with sigma)</xs:documentation>
+					<xs:documentation>different accuracies for each arc (multiplied with sigma)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="inputfileSigmasPerEpoch" type="filename" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>different accuaries for each epoch (added)</xs:documentation>
+					<xs:documentation>different accuracies for each epoch (added)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="inputfileCovarianceFunction" type="filename" minOccurs="0">
@@ -285,7 +285,7 @@
 			</xs:element>
 			<xs:element name="inputfileCovariancePodEpoch" type="filename" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>3x3 epoch wise covariances</xs:documentation>
+					<xs:documentation>3x3 epoch-wise covariances</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -3085,12 +3085,12 @@
 									</xs:element>
 									<xs:element name="outputfileTrackBefore" type="filename" minOccurs="0">
 										<xs:annotation>
-											<xs:documentation>variables {station}, {prn}, {timeStart}, {timeEnd}, {types}, TEC and MW-like combinations in cycles for each track before cycle slip detection</xs:documentation>
+											<xs:documentation>variables {station}, {prn}, {trackTimeStart}, {trackTimeEnd}, {types}, TEC and MW-like combinations in cycles for each track before cycle slip detection</xs:documentation>
 										</xs:annotation>
 									</xs:element>
 									<xs:element name="outputfileTrackAfter" type="filename" minOccurs="0">
 										<xs:annotation>
-											<xs:documentation>variables {station}, {prn}, {timeStart}, {timeEnd}, {types}, TEC and MW-like combinations in cycles for each track after cycle slip detection</xs:documentation>
+											<xs:documentation>variables {station}, {prn}, {trackTimeStart}, {trackTimeEnd}, {types}, TEC and MW-like combinations in cycles for each track after cycle slip detection</xs:documentation>
 										</xs:annotation>
 									</xs:element>
 								</xs:sequence>
@@ -5923,7 +5923,7 @@
 						</xs:element>
 						<xs:element name="interpolationDegree" type="uint" minOccurs="0" default="8">
 							<xs:annotation>
-								<xs:documentation>orbit differentation  by polynomial approximation of degree n</xs:documentation>
+								<xs:documentation>orbit differentiation  by polynomial approximation of degree n</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="integrationDegree" type="uint" minOccurs="0" default="7">
@@ -10692,12 +10692,12 @@
 						<xs:element name="inputfileInstrument" type="filename"/>
 						<xs:element name="timeStart" type="time" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>exclude peochs before this epoch</xs:documentation>
+								<xs:documentation>inclusive, i.e. exclude eochs before this epoch</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="timeEnd" type="time" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>only epochs before this time are used</xs:documentation>
+								<xs:documentation>exclusive, i.e. only epochs before this time are used</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -10726,7 +10726,7 @@
 						<xs:element name="inputfileOrbit" type="filename"/>
 						<xs:element name="timeStart" type="time" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>exclude peochs before this epoch</xs:documentation>
+								<xs:documentation>exclude eochs before this epoch</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="timeEnd" type="time" minOccurs="0">
@@ -19700,7 +19700,7 @@
 									</xs:element>
 									<xs:element name="inputfileSigmasPerArc" type="filename" minOccurs="0">
 										<xs:annotation>
-											<xs:documentation>apriori different accuaries for each arc (multiplicated with sigma)</xs:documentation>
+											<xs:documentation>apriori different accuracies for each arc (multiplied with sigma)</xs:documentation>
 										</xs:annotation>
 									</xs:element>
 									<xs:element name="inputfileCovarianceFunction" type="filename" minOccurs="0">
@@ -19733,7 +19733,7 @@
 						</xs:element>
 						<xs:element name="iterationCount" type="uint" minOccurs="0" default="3">
 							<xs:annotation>
-								<xs:documentation>(maximum) number of iterations for the estimation of calibration parameter and error PSD</xs:documentation>
+								<xs:documentation>(maximum) number of iterations for the estimation of calibration parameters and error PSD</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -21502,6 +21502,48 @@
 						<xs:element name="executeParallel" type="boolean" minOccurs="0" default="0">
 							<xs:annotation>
 								<xs:documentation>execute several commands in parallel</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Accelerometer2GraceL1b">
+				<xs:annotation>
+					<xs:documentation>convert GROOPS ACC data into SDS L1B data</xs:documentation>
+					<xs:appinfo>tag: Conversion</xs:appinfo>
+					<xs:appinfo>tag: Grace</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfile" type="filename">
+							<xs:annotation>
+								<xs:documentation>ACT1B</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileHeader" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>YAML Header, {epochmin}, {epochmax}, {epochcount} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileAccelerometer" type="filename">
+							<xs:annotation>
+								<xs:documentation>ACCELEROMETER</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileAngularAccelerometer" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>ACCELEROMETER</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileFlags" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>MISCVALUES(qualflg, acl_res.x, acl_res.y, acl_res.z)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="satelliteId" type="string">
+							<xs:annotation>
+								<xs:documentation>A, B, C or D</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -24616,6 +24658,39 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="Orbit2GraceL1b">
+				<xs:annotation>
+					<xs:documentation>convert GROOPS L1B data to SDS data</xs:documentation>
+					<xs:appinfo>tag: Conversion</xs:appinfo>
+					<xs:appinfo>tag: Grace</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfile" type="filename">
+							<xs:annotation>
+								<xs:documentation>GNV1B/GNI1B</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileHeader" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>YAML Header, {epochmin}, {epochmax}, {epochcount} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileOrbit" type="filename"/>
+						<xs:element name="satelliteId" type="string">
+							<xs:annotation>
+								<xs:documentation>A, B, C or D</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="earthRotation" type="earthRotationType" minOccurs="0" default="file">
+							<xs:annotation>
+								<xs:documentation>rotation into Earth fixed frame</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="Orbit2GroopsAscii">
 				<xs:annotation>
 					<xs:documentation>write orbit positions to TUG ASCII format</xs:documentation>
@@ -24852,6 +24927,53 @@
 					<xs:sequence>
 						<xs:element name="outputfileOrbit" type="filename"/>
 						<xs:element name="inputfile" type="filename" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SatelliteTracking2GraceL1b">
+				<xs:annotation>
+					<xs:documentation>read GROOPS L1B data (KBR1B or LRI1B)</xs:documentation>
+					<xs:appinfo>tag: Conversion</xs:appinfo>
+					<xs:appinfo>tag: Grace</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfile" type="filename">
+							<xs:annotation>
+								<xs:documentation>KBR1B or LRI1B</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileHeader" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>YAML Header, {epochmin}, {epochmax}, {epochcount} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileSatelliteTracking" type="filename">
+							<xs:annotation>
+								<xs:documentation>SATELLITETRACKING</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileIonoCorr" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>MISCVALUE</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileLighttime" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>SATELLITETRACKING</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileAntCentr" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>SATELLITETRACKING</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileSNR" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>MISCVALUES(K_A_SNR, Ka_A_SNR, K_B_SNR, Ka_B_SNR, qualflg)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -25206,6 +25328,43 @@
 						<xs:element name="inputfile" type="filename" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>orbits in SP3 format</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="StarCamera2GraceL1b">
+				<xs:annotation>
+					<xs:documentation>convert GROOPS L1B data to SDS data (SCA1B)</xs:documentation>
+					<xs:appinfo>tag: Conversion</xs:appinfo>
+					<xs:appinfo>tag: Grace</xs:appinfo>
+					<xs:appinfo>tag: Instrument</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfile" type="filename">
+							<xs:annotation>
+								<xs:documentation>SCA1B</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileHeader" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>YAML Header, {epochmin}, {epochmax}, {epochcount} available</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileStarCamera" type="filename">
+							<xs:annotation>
+								<xs:documentation>STARCAMERA</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileStarCameraFlags" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>MISCVALUES(sca_id, qual_rss, qualflg)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="satelliteId" type="string">
+							<xs:annotation>
+								<xs:documentation>A, B, C or D</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
