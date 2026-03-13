@@ -314,7 +314,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                   <<Log::endl;
 #endif
       // NOTE: a-priori ISL biases are NOT retained!
-      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // apriori ISL bias
+      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // a-priori ISL bias
       trans->islBiasSend.terminals = terminals;
     }
 
@@ -335,7 +335,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 #endif
 
       // NOTE: a-priori ISL biases are NOT retained!
-      recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // apriori ISL bias
+      recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // a-priori ISL bias
       recv->islBiasRecv.terminals = terminals;
      }
 

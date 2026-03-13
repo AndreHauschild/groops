@@ -78,8 +78,8 @@ public:
 
   /** @brief ISL terminal bias corrections.
   * observed range = range + bias. */
-  Vector signalBiasesIslTx(std::vector<UInt> terminals) const;
-  Vector signalBiasesIslRx(std::vector<UInt> terminals) const;
+  Vector sendIslBias(std::vector<UInt> terminals) const;
+  Vector recvIslBias(std::vector<UInt> terminals) const;
 
   void save(OutArchive &oa) const;
   void load(InArchive  &ia);
@@ -185,7 +185,7 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 
 /***********************************************/
 
-inline Vector GnssTransceiver::signalBiasesIslTx(std::vector<UInt> terminals) const
+inline Vector GnssTransceiver::sendIslBias(std::vector<UInt> terminals) const
 {
   try
   {
@@ -199,7 +199,7 @@ inline Vector GnssTransceiver::signalBiasesIslTx(std::vector<UInt> terminals) co
 
 /***********************************************/
 
-inline Vector GnssTransceiver::signalBiasesIslRx(std::vector<UInt> terminals) const
+inline Vector GnssTransceiver::recvIslBias(std::vector<UInt> terminals) const
 {
   try
   {
@@ -218,8 +218,8 @@ inline void GnssTransceiver::save(OutArchive &oa) const
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
-  oa<<nameValue("signalBiasIsl",      islBiasRecv);
-  oa<<nameValue("signalBiasIsl",      islBiasSend);
+  oa<<nameValue("islBias",            islBiasRecv);
+  oa<<nameValue("islBias",            islBiasSend);
 }
 
 /***********************************************/
@@ -229,8 +229,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
-  ia>>nameValue("signalBiasIsl",      islBiasRecv);
-  ia>>nameValue("signalBiasIsl",      islBiasSend);
+  ia>>nameValue("islBias",            islBiasRecv);
+  ia>>nameValue("islBias",            islBiasSend);
 }
 
 /***********************************************/
