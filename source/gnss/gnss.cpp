@@ -309,16 +309,16 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
             types.push_back(type+sendTerminal->PRN());
 
       const std::vector<UInt> terminals = {0};
-      sendTerminal->signalBiasIslTx.biases    = sendTerminal->signalBiasIslTx.compute(terminals); // a-priori ISL biases
-      sendTerminal->signalBiasIslTx.terminals = terminals;
+      sendTerminal->islBiasSend.biases    = sendTerminal->islBiasSend.compute(terminals); // a-priori ISL biases
+      sendTerminal->islBiasSend.terminals = terminals;
     }
 
 #if DEBUG_SYNC_ISL > 0
     for(auto sendTerminal : transmitters)
-      for(UInt i=0; i<sendTerminal->signalBiasIslTx.terminals.size(); i++)
+      for(UInt i=0; i<sendTerminal->islBiasSend.terminals.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
-                  <<sendTerminal->signalBiasIslTx.terminals.at(i)%"TX%i : "s
-                  <<sendTerminal->signalBiasIslTx.biases.at(i)%" %6.2f"s
+                  <<sendTerminal->islBiasSend.terminals.at(i)%"TX%i : "s
+                  <<sendTerminal->islBiasSend.biases.at(i)%" %6.2f"s
                   <<Log::endl;
 #endif
 
@@ -332,16 +332,16 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       std::sort(types.begin(), types.end());
 
       const std::vector<UInt> terminals = {0};
-      recvTerminal->signalBiasIslRx.biases    = recvTerminal->signalBiasIslRx.compute(terminals); // a-priori ISL biases
-      recvTerminal->signalBiasIslRx.terminals = terminals;
+      recvTerminal->islBiasRecv.biases    = recvTerminal->islBiasRecv.compute(terminals); // a-priori ISL biases
+      recvTerminal->islBiasRecv.terminals = terminals;
     }
 
 #if DEBUG_SYNC_ISL > 0
     for(auto recvTerminal : transmitters)
-      for(UInt i=0; i<recvTerminal->signalBiasIslRx.terminals.size(); i++)
+      for(UInt i=0; i<recvTerminal->islBiasRecv.terminals.size(); i++)
         logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<recvTerminal->name()<<" "
-                  <<recvTerminal->signalBiasIslRx.terminals.at(i)%"RX%i : "s
-                  <<recvTerminal->signalBiasIslRx.biases.at(i)%" %6.2f"s
+                  <<recvTerminal->islBiasRecv.terminals.at(i)%"RX%i : "s
+                  <<recvTerminal->islBiasRecv.biases.at(i)%" %6.2f"s
                   <<Log::endl;
 #endif
 

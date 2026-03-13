@@ -76,8 +76,7 @@ The <strong class="groops-config-element">outputfileTimeSeries</strong> is an <a
 For each epoch the first data column contains the PRN, the second the satellite system,
 followed by a column for each GNSS <a class="groops-class" href="gnssType.html">type</a>.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
-has several lines per observed epoch (epochs with the same time, one for each transmitter).
-If no observation is available for a selected GNSS <a class="groops-class" href="gnssType.html">type</a>, NAN is inserted.</p><p>The second data column of the output contains a number representing the system
+has several lines per observed epoch (epochs with the same time, one for each transmitter).</p><p>The second data column of the output contains a number representating the system
 <ul>
 
 <li>71: 'G', GPS
@@ -110,7 +109,7 @@ of the estimated $\sigma$ versus the apriori $\sigma_0$ from the least squares a
 The three values (residuals, redundancy, $\sigma/\sigma_0$) are coded with the same type.
 To get access to all values the corresponding type must be repeated in <a class="groops-class" href="gnssType.html">type</a>.</p><p>Example: Selected GPS phase residuals (<a class="groops-class" href="gnssType.html">type</a>='<code>L1*G</code>' and <a class="groops-class" href="gnssType.html">type</a>='<code>L2*G</code>').
 Plotted with <a class="groops-program" href="PlotGraph.html">PlotGraph</a> with two <a class="groops-class" href="plotGraphLayerType.html">layer:linesAndPoints</a>
-(<strong class="groops-config-element">valueX</strong>='<code>data0</code>', <strong class="groops-config-element">valueY</strong>='<code>100*data3+data1</code>' and <strong class="groops-config-element">valueY</strong>='<code>100*data4+data1</code>' respectively).
+(<strong class="groops-config-element">valueX</strong>='<code>data0</code>',  <strong class="groops-config-element">valueY</strong>='<code>100*data3+data1</code>' and <strong class="groops-config-element">valueY</strong>='<code>100*data4+data1</code>' respectively).
 <figure><img class="figure" style="width:80%;" src="../figures/instrumentGnssReceiver2TimeSeries.png" alt="instrumentGnssReceiver2TimeSeries"><figcaption class="center">Figure: GPS residuals in cm, shifted by PRN</figcaption></figure>
 </p>
 <table class="table table-hover">

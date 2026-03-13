@@ -947,16 +947,13 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
       Parallel::barrier(normalEquationInfo.comm);
       //timer.loopEnd();
 
-      // FIXME: new weights and adjusted sigmas should also be computed here for
-      //        ISL observations
-
       // new weights
       // -----------
       if(computeWeights || adjustSigma0)
       {
         if(computeWeights) logStatus<<"Downweight outliers"<<Log::endl;
         if(adjustSigma0)   logStatus<<"Estimate variance factors"<<Log::endl;
-
+        // TODO: new weights and adjusted sigmas should also be computed here for ISL observations
         logError<<"Not yet implemented!"<<Log::endl;
 
       }

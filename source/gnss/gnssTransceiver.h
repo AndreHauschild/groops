@@ -40,8 +40,8 @@ public:
    UInt           id_; // set by Gnss::init()
    Platform       platform;
    GnssSignalBias signalBias;
-   IslSignalBias  signalBiasIslTx;
-   IslSignalBias  signalBiasIslRx;
+   IslSignalBias  islBiasSend;
+   IslSignalBias  islBiasRecv;
 
 public:
   /// Constructor.
@@ -78,8 +78,8 @@ public:
 
   /** @brief ISL terminal bias corrections.
   * observed range = range + bias. */
-  Double signalBiasesIslTx() const;
-  Double signalBiasesIslRx() const;
+  Double sendIslBias() const;
+  Double recvIslBias() const;
 
   void save(OutArchive &oa) const;
   void load(InArchive  &ia);
@@ -185,11 +185,11 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 
 /***********************************************/
 
-inline Double GnssTransceiver::signalBiasesIslTx() const
+inline Double GnssTransceiver::sendIslBias() const
 {
   try
   {
-    return signalBiasIslTx.compute({0}).at(0);
+    return islBiasSend.compute({0}).at(0);
   }
   catch(std::exception &e)
   {
@@ -199,11 +199,11 @@ inline Double GnssTransceiver::signalBiasesIslTx() const
 
 /***********************************************/
 
-inline Double GnssTransceiver::signalBiasesIslRx() const
+inline Double GnssTransceiver::recvIslBias() const
 {
   try
   {
-    return signalBiasIslRx.compute({0}).at(0);
+    return islBiasRecv.compute({0}).at(0);
   }
   catch(std::exception &e)
   {
@@ -218,8 +218,8 @@ inline void GnssTransceiver::save(OutArchive &oa) const
   oa<<nameValue("useableEpochs",      useableEpochs);
   oa<<nameValue("countUseableEpochs", countUseableEpochs);
   oa<<nameValue("signalBias",         signalBias);
-  oa<<nameValue("signalBiasIsl",      signalBiasIslRx);
-  oa<<nameValue("signalBiasIsl",      signalBiasIslTx);
+  oa<<nameValue("islBias",            islBiasRecv);
+  oa<<nameValue("islBias",            islBiasSend);
 }
 
 /***********************************************/
@@ -229,8 +229,8 @@ inline void GnssTransceiver::load(InArchive  &ia)
   ia>>nameValue("useableEpochs",      useableEpochs);
   ia>>nameValue("countUseableEpochs", countUseableEpochs);
   ia>>nameValue("signalBias",         signalBias);
-  ia>>nameValue("signalBiasIsl",      signalBiasIslRx);
-  ia>>nameValue("signalBiasIsl",      signalBiasIslTx);
+  ia>>nameValue("islBias",            islBiasRecv);
+  ia>>nameValue("islBias",            islBiasSend);
 }
 
 /***********************************************/

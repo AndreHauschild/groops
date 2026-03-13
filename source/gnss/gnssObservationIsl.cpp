@@ -132,8 +132,8 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
 
     // ISL bias corrections
     // --------------------
-    l -= receiver->signalBiasesIslRx();
-    l -= transmitter->signalBiasesIslTx();
+    l -= receiver->recvIslBias();
+    l -= transmitter->sendIslBias();
     if(reduceModels)
       reduceModels(*this);
 

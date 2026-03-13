@@ -371,6 +371,23 @@ groops instrument version=20200123
 
 
 %==================================
+\subsection{IslSignalBias}\label{general.fileFormat:islSignalBias}
+Signal biases of GNSS transmitters or receivers for different \configClass{gnssType}{gnssType}.
+
+\begin{verbatim}
+groops IslSignalBias version=20200123
+          1 # number of terminals/biases
+# terminal   bias [m]
+# ====================================
+  0          -1.752461109688110974e-01
+ \end{verbatim}
+
+NOTE: currently only one bias per satellite is supported. It must have terminal ID 0. 
+
+See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
+
+
+%==================================
 \subsection{Matrix}\label{general.fileFormat:matrix}
 Stores matrices and vectors. Only one triangle is written for symmetric or triangular matrices.
 

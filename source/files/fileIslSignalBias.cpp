@@ -21,17 +21,15 @@ GROOPS_REGISTER_FILEFORMAT(IslSignalBias, FILE_ISLSIGNALBIAS_TYPE)
 
 /***********************************************/
 
-Vector IslSignalBias::compute(std::vector<UInt> terminals) const
+Vector IslSignalBias::compute(const std::vector<UInt> &terminals) const
 {
   try
   {
     Vector b(terminals.size());
+    UInt idx;
     for(UInt idTerm=0; idTerm<terminals.size(); idTerm++)
-    {
-      auto it = std::find(this->terminals.begin(), this->terminals.end(), terminals.at(idTerm));
-      if(it!=this->terminals.end())
-        b(idTerm) = biases.at(std::distance(this->terminals.begin(), it));
-    }
+      if(isInList(terminals.at(idTerm), idx))
+        b(idTerm) = biases.at(idx);
     return b;
   }
   catch(std::exception &e)
@@ -111,7 +109,7 @@ void writeFileIslSignalBias(const FileName &fileName, const IslSignalBias &x)
   try
   {
     OutFileArchive file(fileName, FILE_ISLSIGNALBIAS_TYPE, FILE_ISLSIGNALBIAS_VERSION);
-    file<<nameValue("signalBias", x);
+    file<<nameValue("islBias", x);
   }
   catch(std::exception &e)
   {
@@ -126,7 +124,7 @@ void readFileIslSignalBias(const FileName &fileName, IslSignalBias &x)
   try
   {
     InFileArchive file(fileName, FILE_ISLSIGNALBIAS_TYPE, FILE_ISLSIGNALBIAS_VERSION);
-    file>>nameValue("signalBias", x);
+    file>>nameValue("islBias", x);
   }
   catch(std::exception &e)
   {
