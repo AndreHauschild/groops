@@ -20,7 +20,7 @@ One or more GNSS constellations must be defined via \configClass{transmitter}{gn
 The \configClass{parametrization}{gnssParametrizationType} are used to simulate a-priori models (e.g. ISL biases).
 Parameter settings and output files are ignored.
 
-The option \config{noiseObservation} specifies the sigma of the noise which is applied to the simulated observations. 
+The option \config{noiseObservation} specifies the sigma of the noise which is applied to the simulated observations.
 
 The option \config{sigmaObservation} sets the expected sigma of the observations used as weights in the parameter estimation.
 )";
@@ -99,7 +99,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     // inter satellite links
     // ---------------------
     for(auto recv : gnss.transmitters)
-      if (recv->isMyRank())
+      if(recv->isMyRank())
       {
         // Loading ISL schedule file
         // -------------------------
@@ -134,6 +134,13 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
       logWarningOnce<<times.front().dateTimeStr()<<" - "<<times.back().dateTimeStr()<<": no useable transmitters"<<Log::endl;
       return;
     }
+
+    // ISL observation types
+    // ---------------------
+    const GnssType islRange   = GnssType::RANGE   + GnssType::E1 + GnssType::C;
+    const GnssType islTxTerm  = GnssType::CHANNEL + GnssType::E1 + GnssType::A;
+    const GnssType islRxTerm  = GnssType::CHANNEL + GnssType::E1 + GnssType::B;
+    const GnssType islSigma   = GnssType::SNR     + GnssType::E1 + GnssType::C;
 
     // Count ISL observations
     // ----------------------
@@ -176,18 +183,16 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
               // get types
               for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
                 if(recv->observationIsl(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch)) {
-                  epoch.obsType.push_back(GnssType::RANGE + GnssType::E1 + GnssType::C);
-                  epoch.obsType.push_back(GnssType::CHANNEL + GnssType::E1 + GnssType::A);
-                  epoch.obsType.push_back(GnssType::CHANNEL + GnssType::E1 + GnssType::B);
-                  epoch.obsType.push_back(GnssType::SNR + GnssType::E1 + GnssType::C);
+                  if(!islRange.isInList(epoch.obsType))  epoch.obsType.push_back(islRange);
+                  if(!islTxTerm.isInList(epoch.obsType)) epoch.obsType.push_back(islTxTerm);
+                  if(!islRxTerm.isInList(epoch.obsType)) epoch.obsType.push_back(islRxTerm);
+                  if(!islSigma.isInList(epoch.obsType))  epoch.obsType.push_back(islSigma);
                 }
               std::sort(epoch.obsType.begin(), epoch.obsType.end());
               if(!epoch.obsType.size())
                 continue;
 
               for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
-              {
-
                 if(recv->observationIsl(idTrans, idEpoch) && gnss.transmitters.at(idTrans)->useable(idEpoch))
                 {
                   const GnssObservationIsl &obs = *recv->observationIsl(idTrans, idEpoch);
@@ -198,17 +203,16 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                   for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType++)
                   {
                     epoch.observation.push_back(NAN_EXPR);
-                    if(epoch.obsType.at(idType) == GnssType(GnssType::SNR + GnssType::E1 + GnssType::C))
+                    if(epoch.obsType.at(idType) == islSigma)
                       epoch.observation.back() = sigmaObs;
-                    else if(epoch.obsType.at(idType) == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::A))
+                    else if(epoch.obsType.at(idType) == islTxTerm)
                       epoch.observation.back() = obs.terminalSend;
-                    else if(epoch.obsType.at(idType) == GnssType(GnssType::CHANNEL + GnssType::E1 + GnssType::B))
+                    else if(epoch.obsType.at(idType) == islRxTerm)
                       epoch.observation.back() = obs.terminalRecv;
                     else
                       epoch.observation.back() = obs.observation;
                   }
-                } // for(idTrans)
-              }
+                }
 
               if(epoch.satellite.size())
                 arc.push_back(epoch);
@@ -251,7 +255,7 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
     {
       // skip comment lines
       // ------------------
-      if (line[0]=='#')
+      if(line[0]=='#')
           continue;
 
       UInt   mjdInt = String::toInt(line.substr(0, 5));
