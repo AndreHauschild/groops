@@ -247,7 +247,11 @@ Name & Type & Annotation\\
 
 
 \subsection{StringContainsPattern}
-Determines if there is a match between a pattern or a regular expression and some subsequence in a string.
+Determines if there is a match between a \config{pattern} and some subsequence in a \config{string}.
+Supports wildcards * for any number of characters and ? for exactly one character.
+If \config{isRegularExpression} is set, \config{pattern} is interpreted as a
+regular expression instead. In any case, the \reference{text parser}{general.parser:text}
+is applied beforehand.
 
 
 \keepXColumns
@@ -256,7 +260,7 @@ Determines if there is a match between a pattern or a regular expression and som
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~string & \hfuzz=500pt filename & \hfuzz=500pt should contain a \{variable\}\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~pattern & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~pattern & \hfuzz=500pt filename & \hfuzz=500pt supports wildcards: * and ?\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~isRegularExpression & \hfuzz=500pt boolean & \hfuzz=500pt pattern is  a regular expression\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~caseSensitive & \hfuzz=500pt boolean & \hfuzz=500pt treat lower and upper case as distinct\\
 \hline
@@ -264,7 +268,11 @@ Name & Type & Annotation\\
 
 
 \subsection{StringMatchPattern}
-Determines if a pattern or a regular expression matches the entire string.
+Determines if a \config{pattern} matches the entire \config{string}.
+Supports wildcards * for any number of characters and ? for exactly one character.
+If \config{isRegularExpression} is set, \config{pattern} is interpreted as a
+regular expression instead. In any case, the \reference{text parser}{general.parser:text}
+is applied beforehand.
 
 
 \keepXColumns
@@ -273,7 +281,7 @@ Determines if a pattern or a regular expression matches the entire string.
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~string & \hfuzz=500pt filename & \hfuzz=500pt should contain a \{variable\}\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~pattern & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~pattern & \hfuzz=500pt filename & \hfuzz=500pt supports wildcards: * and ?\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~isRegularExpression & \hfuzz=500pt boolean & \hfuzz=500pt pattern is  a regular expression\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~caseSensitive & \hfuzz=500pt boolean & \hfuzz=500pt treat lower and upper case as distinct\\
 \hline
@@ -2586,7 +2594,7 @@ Name & Type & Annotation\\
 Definition and basic information of GNSS receivers.
 
 Most of the input files are provided in GROOPS file formats at
-\url{https://ftp.tugraz.at/outgoing/ITSG/groops} (marked with \textbf{*} below).
+\url{https://ftp.tugraz.at/pub/ITSG/groops} (marked with \textbf{*} below).
 These files are regularly updated.
 \begin{itemize}
   \item \configFile{inputfileStationInfo}{platform}\textbf{*}:
@@ -2753,7 +2761,7 @@ and \configFile{inputfileReceiverDefinition}{gnssReceiverDefinition} are read fo
 The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
 
 Metadata input files (marked with \textbf{*} below) are provided in GROOPS file formats at
-\url{https://ftp.tugraz.at/outgoing/ITSG/groops}. These files are regularly updated.
+\url{https://ftp.tugraz.at/pub/ITSG/groops}. These files are regularly updated.
 \begin{itemize}
   \item \configFile{inputfileTransmitterInfo}{platform}\textbf{*}:
         PRN-SVN mapping, antenna offsets and orientations.
@@ -7607,14 +7615,14 @@ Defines the content of a map of \program{PlotMap}. Multiple layers are are plott
 
 
 \subsection{GriddedData}
-Creates a regular grid of yxz values. The standard \reference{dataVariables}{general.parser:dataVariables}
+Creates a regular grid of xyz values. The standard \reference{dataVariables}{general.parser:dataVariables}
 are available to select the data column of \configFile{inputfileGriddedData}{griddedData}.
 Empty grid cells are not plotted. Cells with more than one value will be set to the mean value.
 The grid spacing can be determined automatically for regular rectangular grids otherwise
 it must be set with \config{increment}. To get a better display together with some projections
 the grid should be internally \config{resample}d to higher resolution.
 It is assumed that the points of \configFile{inputfileGriddedData}{griddedData} represents centers of grid cells.
-This assumption can be changed with \config{gridlineRegistered} (e.g if the data starts at the north pole).
+This assumption can be changed with \config{gridlineRegistered} (e.g. if the data starts at the north pole).
 
 
 \keepXColumns
