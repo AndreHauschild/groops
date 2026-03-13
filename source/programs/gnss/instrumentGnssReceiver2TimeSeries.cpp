@@ -18,8 +18,9 @@ For each epoch the first data column contains the PRN, the second the satellite 
 followed by a column for each GNSS \configClass{type}{gnssType}.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
 has several lines per observed epoch (epochs with the same time, one for each transmitter).
+If no observation is available for a selected GNSS \configClass{type}{gnssType}, NAN is inserted.
 
-The second data column of the output contains a number representating the system
+The second data column of the output contains a number representing the system
 \begin{itemize}
 \item 71: 'G', GPS
 \item 82: 'R', GLONASS
@@ -46,7 +47,7 @@ To get access to all values the corresponding type must be repeated in \configCl
 
 Example: Selected GPS phase residuals (\configClass{type}{gnssType}='\verb|L1*G|' and \configClass{type}{gnssType}='\verb|L2*G|').
 Plotted with \program{PlotGraph} with two \configClass{layer:linesAndPoints}{plotGraphLayerType}
-(\config{valueX}='\verb|data0|',  \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
+(\config{valueX}='\verb|data0|', \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
 \fig{!hb}{0.8}{instrumentGnssReceiver2TimeSeries}{fig:instrumentGnssReceiver2TimeSeries}{GPS residuals in cm, shifted by PRN}
 )";
 
@@ -114,6 +115,10 @@ void InstrumentGnssReceiver2TimeSeries::run(Config &config, Parallel::Communicat
               else if(typeSat == GnssType::SBAS)    epochNew.values(1) = static_cast<Double>('S');
               else if(typeSat == GnssType::QZSS)    epochNew.values(1) = static_cast<Double>('J');
               else if(typeSat == GnssType::IRNSS)   epochNew.values(1) = static_cast<Double>('I');
+
+              // Fill with NAN to distinguish types which are not available
+              for (UInt iType=0; iType<types.size(); iType++)
+                epochNew.values(2+iType) = NAN_EXPR;
 
               // loop over all obs for this satellite
               Bool                  found    = FALSE;

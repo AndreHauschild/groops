@@ -19,6 +19,7 @@
 static const char *docstringOrbitPropagatorFile = R"(
 \subsection{File}
 Reads an orbit from file. If the needed epochs are not given an exception is thrown.
+Satellite is assumed to be oriented according to nominal yaw-steering.
 )";
 #endif
 

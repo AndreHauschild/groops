@@ -68,7 +68,7 @@ class GnssReceiverGeneratorStationNetwork : public GnssReceiverGeneratorBase
   TidesPtr              tides;
   EphemeridesPtr        ephemerides;
   FileName              deformationName, potentialName;
-  std::vector<GnssType> useType, ignoreType;
+  std::vector<GnssType> useType, ignoreType, extraType;
   GnssAntennaDefinition::NoPatternFoundAction noPatternFoundAction;
   Angle                 elevationCutOff;
   Bool                  printInfo;
