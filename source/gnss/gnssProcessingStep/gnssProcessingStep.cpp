@@ -694,8 +694,6 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
     Gnss::InfoParameterChange infoTec("tec");
     std::vector<GnssType>     typesResiduals = gnss->types(~(GnssType::PRN + GnssType::FREQ_NO));
     std::vector<Gnss::InfoParameterChange> infosResiduals(typesResiduals.size(), Gnss::InfoParameterChange("mm"));
-
-    std::vector<GnssType>     typesResidualsIsl = gnss->typesIsl(~(GnssType::PRN + GnssType::FREQ_NO));
     Gnss::InfoParameterChange infosResidualsIsl("mm");
 
     Double minSTEC   =  std::numeric_limits<Double>::infinity();
@@ -906,7 +904,8 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
 
     // Residual tracking (inter satellite links)
     // -----------------------------------------
-    if(typesResidualsIsl.size())
+
+    if(gnss->terminalsIsl()>0)
     {
       Parallel::barrier(normalEquationInfo.comm);
       //logStatus<<"Compute residuals (inter satellite links)"<<Log::endl;
@@ -947,37 +946,31 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
       Parallel::barrier(normalEquationInfo.comm);
       //timer.loopEnd();
 
-      // FIXME: new weights and adjusted sigmas should also be computed here for
-      //        ISL observations
-
       // new weights
       // -----------
       if(computeWeights || adjustSigma0)
       {
         if(computeWeights) logStatus<<"Downweight outliers"<<Log::endl;
         if(adjustSigma0)   logStatus<<"Estimate variance factors"<<Log::endl;
-
+        // TODO: new weights and adjusted sigmas should also be computed here for ISL observations
         logError<<"Not yet implemented!"<<Log::endl;
-
       }
 
       // ISL residual analysis
       // ---------------------
-      std::vector<GnssType> types = typesResidualsIsl;
-      std::vector<Double>   ePe(types.size(), 0), redundancy(types.size(), 0);
-      std::vector<UInt>     obsCount(types.size(), 0), outlierCount(types.size(), 0);
-      residualsStatisticsIsl(NULLINDEX/*idRecv*/, types, ePe, redundancy, obsCount, outlierCount);
+      std::vector<Double>   ePe(1, 0), redundancy(1, 0);
+      std::vector<UInt>     obsCount(1, 0), outlierCount(1, 0);
+      residualsStatisticsIsl(NULLINDEX/*idRecv*/, ePe, redundancy, obsCount, outlierCount);
       if(Parallel::isMaster(normalEquationInfo.comm))
-        for(UInt i=0; i<types.size(); i++)
-          if(obsCount.at(i))
-          {
-            logInfo<<"  ISL"<<types.at(i).str().substr(3)
-                    <<": sigma0 = "    <<Vce::standardDeviation(ePe.at(i), redundancy.at(i), huber, huberPower)%"%4.2f"s
-                    <<", redundancy = "<<(redundancy.at(i)/obsCount.at(i))%"%4.2f"s
-                    <<", count = "     <<obsCount.at(i)%"%7i"s
-                    <<", outliers = "  <<outlierCount.at(i)%"%6i"s<<" ("<<(100.*outlierCount.at(i)/obsCount.at(i))%"%4.2f"s<<" %)"
-                    <<Log::endl;
-          }
+        if(obsCount.at(0))
+        {
+          logInfo<<"  ISL   "
+                  <<": sigma0 = "    <<Vce::standardDeviation(ePe.at(0), redundancy.at(0), huber, huberPower)%"%4.2f"s
+                  <<", redundancy = "<<(redundancy.at(0)/obsCount.at(0))%"%4.2f"s
+                  <<", count = "     <<obsCount.at(0)%"%7i"s
+                  <<", outliers = "  <<outlierCount.at(0)%"%6i"s<<" ("<<(100.*outlierCount.at(0)/obsCount.at(0))%"%4.2f"s<<" %)"
+                  <<Log::endl;
+        }
     }
 
     // Residual changes
@@ -1065,9 +1058,9 @@ void GnssProcessingStep::State::residualsStatistics(UInt idRecv, UInt idTrans,
 }
 
 /***********************************************/
-
+// TODO: use double instead of
 void GnssProcessingStep::State::residualsStatisticsIsl(UInt idRecv,
-                                                       std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
+                                                       std::vector<Double> &ePe, std::vector<Double> &redundancy,
                                                        std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount)
 {
   try
@@ -1080,9 +1073,8 @@ void GnssProcessingStep::State::residualsStatisticsIsl(UInt idRecv,
               if(recv->observationIsl(trans->idTrans(), idEpoch))
               {
                 const GnssObservationIsl &obs = *recv->observationIsl(trans->idTrans(), idEpoch);
-                const GnssType typeIsl = GnssType("C1C")+trans->PRN();
-                UInt idx;
-                if((obs.sigma0 > 0) && (typeIsl.isInList(types, idx)))
+                UInt idx=0;
+                if(obs.sigma0 > 0)
                 {
                   ePe.at(idx)        += std::pow(obs.residual/obs.sigma, 2);
                   redundancy.at(idx) += obs.redundancy;
@@ -1092,13 +1084,10 @@ void GnssProcessingStep::State::residualsStatisticsIsl(UInt idRecv,
                 }
               } // for(trans, idEpoch)
 
-    for(UInt i=0; i<types.size(); i++)
-    {
-      Parallel::reduceSum(ePe.at(i),          0, normalEquationInfo.comm);
-      Parallel::reduceSum(redundancy.at(i),   0, normalEquationInfo.comm);
-      Parallel::reduceSum(obsCount.at(i),     0, normalEquationInfo.comm);
-      Parallel::reduceSum(outlierCount.at(i), 0, normalEquationInfo.comm);
-    }
+    Parallel::reduceSum(ePe.at(0),          0, normalEquationInfo.comm);
+    Parallel::reduceSum(redundancy.at(0),   0, normalEquationInfo.comm);
+    Parallel::reduceSum(obsCount.at(0),     0, normalEquationInfo.comm);
+    Parallel::reduceSum(outlierCount.at(0), 0, normalEquationInfo.comm);
   }
   catch(std::exception &e)
   {

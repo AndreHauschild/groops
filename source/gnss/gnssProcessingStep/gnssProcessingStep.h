@@ -113,7 +113,7 @@ public:
                                      std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
                                      std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount);
     void residualsStatisticsIsl     (UInt idTrans,
-                                     std::vector<GnssType> &types, std::vector<Double> &ePe, std::vector<Double> &redundancy,
+                                     std::vector<Double> &ePe, std::vector<Double> &redundancy,
                                      std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount);
 
   };

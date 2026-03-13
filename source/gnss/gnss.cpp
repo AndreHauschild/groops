@@ -11,7 +11,7 @@
 */
 /***********************************************/
 
-#define DEBUG_SYNC_ISL 1
+#define DEBUG_SYNC_ISL 0
 #define DEBUG          0
 
 #include <vector>
@@ -265,10 +265,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
     // collect ISL observations
     // ------------------------
-    /* start obsolete */
-    typesRecvTransIsl.clear();
-    typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
-    /* end obsolete */
     islTerminalRecv.clear();
     islTerminalRecv.resize(transmitters.size(), std::vector<std::vector<UInt>>(transmitters.size()));
     islTerminalTrans.clear();
@@ -288,11 +284,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                 islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalRecv);
               if(!isInList(islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans),obs->terminalSend))
                 islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalSend);
-              /* start obsolete */
-              const GnssType typeIsl = GnssType("C1C") + transmitters.at(idTrans)->PRN();
-              if(!typeIsl.isInList(typesRecvTransIsl.at(recvSatellite->idTrans()).at(idTrans)))
-                typesRecvTransIsl.at(recvSatellite->idTrans()).at(idTrans).push_back(typeIsl);
-              /* end obsolete */
             }
           }
         }
@@ -301,9 +292,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       {
         Parallel::broadCast(islTerminalRecv.at(recvSatellite->idTrans()), static_cast<UInt>(recvProcess(recvSatellite->idTrans())-1), comm); // synchronize data of this process to all others
         Parallel::broadCast(islTerminalTrans.at(recvSatellite->idTrans()), static_cast<UInt>(recvProcess(recvSatellite->idTrans())-1), comm); // synchronize data of this process to all others
-        /* start obsolete */
-        Parallel::broadCast(typesRecvTransIsl.at(recvSatellite->idTrans()), static_cast<UInt>(recvProcess(recvSatellite->idTrans())-1), comm); // synchronize types of this process to all others
-        /* end obsolete */
       }
     }
 
@@ -857,27 +845,6 @@ std::vector<GnssType> Gnss::types(const GnssType mask) const
     for(UInt idRecv=0; idRecv<receivers.size(); idRecv++)
       for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
         for(GnssType type : typesRecvTrans.at(idRecv).at(idTrans))
-          if(!type.isInList(types))
-             types.push_back(type & mask);
-    std::sort(types.begin(), types.end());
-    return types;
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
-std::vector<GnssType> Gnss::typesIsl(const GnssType mask) const
-{
-  try
-  {
-    std::vector<GnssType> types;
-    for(UInt idRecv=0; idRecv<transmitters.size(); idRecv++)
-      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
-        for(GnssType type : typesRecvTransIsl.at(idRecv).at(idTrans))
           if(!type.isInList(types))
              types.push_back(type & mask);
     std::sort(types.begin(), types.end());

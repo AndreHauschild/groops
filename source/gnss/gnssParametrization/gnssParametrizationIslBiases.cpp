@@ -12,7 +12,7 @@
 */
 /***********************************************/
 
-#define DEBUG 1
+#define DEBUG 0
 
 #include "base/import.h"
 #include "config/config.h"
