@@ -124,7 +124,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
         countparaTransmitTerminal += parameterNames.size();
       }
     if(countparaTransmitTerminal)
-      logInfo<<countparaTransmitTerminal%"%9i ISL sed terminal bias parameters"s<<Log::endl;
+      logInfo<<countparaTransmitTerminal%"%9i ISL send terminal bias parameters"s<<Log::endl;
 
     // receive ISL terminal parameters
     // -------------------------------
