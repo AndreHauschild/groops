@@ -39,7 +39,7 @@ activating/deactivating the estimation of subsets of $\Delta\M x$ with
 \configClass{GnssProcessing:processingStep:selectParametrizations}{gnssProcessingStepType:selectParametrizations}.
 The a priori model $\M f(\M x_0)$ is unaffected and is always reduced.
 
-The model for the different observation types can be described as
+The model for the different GNSS pseudorange and carrier-phase observation types can be described as
 \begin{equation}\label{gnssParametrizationType:gnssFullModel}
 \begin{split}
   f[\tau\nu a]_r^s(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
@@ -55,6 +55,16 @@ signal attribute $a$ (e.g., C, W, Q, X), transmitting satellite $s$, and observi
 It follows the \href{https://files.igs.org/pub/data/format/rinex305.pdf}{RINEX 3 definition},
 see \reference{GnssType}{gnssType}.
 
+The model for the ISL observations can be described as
+\begin{equation}\label{gnssParametrizationType:islFullModel}
+\begin{split}
+  f[]_{r,i}^{s,k}(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
+               &+ \text{terminal}[]^{s,k}  + \text{terminal}[]_{r,i} \\
+               &+ \text{bias}[]^{s,k} + \text{bias}[]_{r,i}
+               + \text{other}(\ldots) + \epsilon[]_{r,i}^{s,k}
+\end{split}
+\end{equation}
+where $ i $ is the terminal identifier of the receiving satellite $ r $ and $ k $ is the terminal identifier of the transmitting satellite $ s $.
 See also \program{GnssProcessing}.
 )";
 #endif
