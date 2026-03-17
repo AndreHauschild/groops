@@ -159,7 +159,7 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     Parallel::reduceSum(countTracks, 0, comm);
     logInfo<<"  number of tracks: "<<countTracks<<Log::endl;
 
-    if(gnss->typesIsl(~(GnssType::PRN + GnssType::FREQ_NO)).size()>0)
+    if(gnss->terminalsIsl()>0)
     {
       // count ISL observations
       // ----------------------

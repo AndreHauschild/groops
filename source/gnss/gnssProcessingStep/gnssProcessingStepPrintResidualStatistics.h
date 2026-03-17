@@ -97,25 +97,18 @@ inline void GnssProcessingStepPrintResidualStatistics::process(GnssProcessingSte
     logStatus<<"=== print ISL residual statistics  =========================="<<Log::endl;
     for(UInt idTrans=0; idTrans<state.gnss->transmitters.size(); idTrans++)
     {
-      std::vector<GnssType> types = state.gnss->typesIsl(~(GnssType::PRN + GnssType::FREQ_NO));
-      std::vector<Double>   ePe(types.size(), 0), redundancy(types.size(), 0);
-      std::vector<UInt>     obsCount(types.size(), 0), outlierCount(types.size(), 0);
-      state.residualsStatisticsIsl(idTrans, types, ePe, redundancy, obsCount, outlierCount);
-      Vector factors(types.size());
-      for(UInt i=0; i<types.size(); i++)
-      {
-        if (i < state.transmitters.at(idTrans).sigmaFactors.size())
-          factors(i) = state.transmitters.at(idTrans).sigmaFactors.at(0);
-      }
-      Parallel::reduceSum(factors, 0, state.normalEquationInfo.comm);
+      Double   ePe=0, redundancy=0;
+      UInt     obsCount=0, outlierCount=0;
+      state.residualsStatisticsIsl(idTrans, ePe, redundancy, obsCount, outlierCount);
+      Double factor = state.transmitters.at(idTrans).sigmaFactor;
+	    Parallel::reduceSum(factor, 0, state.normalEquationInfo.comm);
       if(Parallel::isMaster(state.normalEquationInfo.comm))
-        for(UInt i=0; i<types.size(); i++)
-          if(obsCount.at(i)>0)
-            logInfo<<"  "<<state.gnss->transmitters.at(idTrans)->name()<<" : ISL"<<types.at(i).str().substr(3)
-                    <<": factor = "    <<factors(i)%"%5.2f"s
-                    <<", sigma0 = "    <<Vce::standardDeviation(ePe.at(i), redundancy.at(i), 2.5/*huber*/, 1.5/*huberPower*/)%"%4.2f"s
-                    <<", count = "     <<obsCount.at(i)%"%5i"s
-                    <<", outliers = "  <<outlierCount.at(i)%"%5i"s<<" ("<<(100.*outlierCount.at(i)/obsCount.at(i))%"%4.2f"s<<" %)"<<Log::endl;
+        if(obsCount>0)
+          logInfo<<"  "<<state.gnss->transmitters.at(idTrans)->name()<<" : ISL   "
+                 <<": factor = "    <<factor%"%5.2f"s
+                 <<", sigma0 = "    <<Vce::standardDeviation(ePe, redundancy, 2.5/*huber*/, 1.5/*huberPower*/)%"%4.2f"s
+                 <<", count = "     <<obsCount%"%5i"s
+                 <<", outliers = "  <<outlierCount%"%5i"s<<" ("<<(100.*outlierCount/obsCount)%"%4.2f"s<<" %)"<<Log::endl;
     } // for(idTrans)
 
   }

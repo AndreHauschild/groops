@@ -64,6 +64,12 @@ std::vector<UInt> bfs(UInt start, const std::vector<std::vector<UInt>>& graph) {
 
 /***********************************************/
 
+bool isInList(std::vector<UInt> v, UInt i) {
+  return std::find(v.begin(), v.end(), i)!=v.end();
+};
+
+/***********************************************/
+
 void Gnss::init(std::vector<GnssType> simulationTypes, const std::vector<Time> &times, const Time &timeMargin,
                 GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,
                 EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm)
@@ -259,90 +265,96 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
     // collect ISL observations
     // ------------------------
-    typesRecvTransIsl.clear();
-    typesRecvTransIsl.resize(transmitters.size(), std::vector<std::vector<GnssType>>(transmitters.size()));
-    for(auto recvTerminal : transmitters)
+    islTerminalRecv.clear();
+    islTerminalRecv.resize(transmitters.size(), std::vector<std::vector<UInt>>(transmitters.size()));
+    islTerminalTrans.clear();
+    islTerminalTrans.resize(transmitters.size(), std::vector<std::vector<UInt>>(transmitters.size()));
+    for(auto recvSatellite : transmitters)
     {
-      if(recvTerminal->isMyRank())
+      if(recvSatellite->isMyRank())
       {
         for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
         {
-          for(UInt idEpoch=0; idEpoch<recvTerminal->idEpochSize(); idEpoch++)
+          for(UInt idEpoch=0; idEpoch<recvSatellite->idEpochSize(); idEpoch++)
           {
-            auto obs = recvTerminal->observationIsl(idTrans, idEpoch);
+            auto obs = recvSatellite->observationIsl(idTrans, idEpoch);
             if(obs)
             {
-              const GnssType typeIsl = GnssType("C1C") + transmitters.at(idTrans)->PRN();
-              if(!typeIsl.isInList(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans)))
-                typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).push_back(typeIsl);
+              if(!isInList(islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans),obs->terminalRecv))
+                islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalRecv);
+              if(!isInList(islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans),obs->terminalSend))
+                islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalSend);
             }
           }
-          std::sort(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).begin(), typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).end());
-  #if DEBUG_SYNC_ISL > 0
-          if(typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()>0)
-            logWarning<<"synchronizeTransceiversIsl()"<<" ISL "
-                      <<recvTerminal->name()<<" <- "
-                      <<transmitters.at(idTrans)->name()
-                      <<typesRecvTransIsl.at(recvTerminal->idTrans()).at(idTrans).size()%" nTypes %2i"s
-                      <<Log::endl;
-  #endif
         }
       }
-      if(recvTerminal->useable())
-        Parallel::broadCast(typesRecvTransIsl.at(recvTerminal->idTrans()), static_cast<UInt>(recvProcess(recvTerminal->idTrans())-1), comm); // synchronize types of this process to all others
+      if(recvSatellite->useable())
+      {
+        Parallel::broadCast(islTerminalRecv.at(recvSatellite->idTrans()), static_cast<UInt>(recvProcess(recvSatellite->idTrans())-1), comm); // synchronize data of this process to all others
+        Parallel::broadCast(islTerminalTrans.at(recvSatellite->idTrans()), static_cast<UInt>(recvProcess(recvSatellite->idTrans())-1), comm); // synchronize data of this process to all others
+      }
     }
 
-#if DEBUG_SYNC_ISL > 0
-    logWarning<<"synchronizeTransceiversIsl() mid"
-              <<Log::endl;
-#endif
-
-    // adjust signal biases to available observation types
+    // adjust ISL biases to available terminals
     // NOTE: if no observations are found, a-priori biases are removed!
     // ----------------------------------------------------------------
-    for(auto sendTerminal : transmitters)
+    for(auto trans : transmitters)
     {
-      std::vector<GnssType> types;
-      for(auto &typesTrans : typesRecvTransIsl)
-        for(GnssType type : typesTrans.at(sendTerminal->idTrans()))
-          if(type == GnssType::RANGE && !type.isInList(types))
-            types.push_back(type+sendTerminal->PRN());
-
-      const std::vector<UInt> terminals = {0};
-      sendTerminal->islBiasSend.biases    = sendTerminal->islBiasSend.compute(terminals); // a-priori ISL biases
-      sendTerminal->islBiasSend.terminals = terminals;
-    }
+      std::vector<UInt> terminals;
+      for(auto &termTrans : islTerminalTrans)
+        for(UInt terminal : termTrans.at(trans->idTrans()))
+          if(!isInList(terminals,terminal))
+            terminals.push_back(terminal);
+      std::sort(terminals.begin(), terminals.end());
 
 #if DEBUG_SYNC_ISL > 0
-    for(auto sendTerminal : transmitters)
-      for(UInt i=0; i<sendTerminal->islBiasSend.terminals.size(); i++)
-        logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<sendTerminal->name()<<" "
-                  <<sendTerminal->islBiasSend.terminals.at(i)%"TX%i : "s
-                  <<sendTerminal->islBiasSend.biases.at(i)%" %6.2f"s
+      if(Parallel::isMaster(comm))
+        logWarning<<"synchronizeTransceiversIsl() send ISL terminal "<<trans->name()<<" "
+                  <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
 #endif
-
-    for(auto recvTerminal : transmitters)
-    {
-      std::vector<GnssType> types;
-      for(auto &typesTrans : typesRecvTransIsl.at(recvTerminal->idTrans()))
-        for(GnssType type : typesTrans)
-          if(type == GnssType::RANGE && !type.isInList(types))
-            types.push_back(type & ~GnssType::PRN);
-      std::sort(types.begin(), types.end());
-
-      const std::vector<UInt> terminals = {0};
-      recvTerminal->islBiasRecv.biases    = recvTerminal->islBiasRecv.compute(terminals); // a-priori ISL biases
-      recvTerminal->islBiasRecv.terminals = terminals;
+      // NOTE: a-priori ISL biases are NOT retained!
+      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // a-priori ISL bias
+      trans->islBiasSend.terminals = terminals;
     }
 
+    for(auto recv : transmitters)
+    {
+      std::vector<UInt> terminals;
+      for(auto &termRecv : islTerminalRecv.at(recv->idTrans()))
+        for(UInt idTerm=0; idTerm<termRecv.size(); idTerm++)
+          if(!isInList(terminals, termRecv.at(idTerm)))
+            terminals.push_back(termRecv.at(idTerm));
+      std::sort(terminals.begin(), terminals.end());
+
 #if DEBUG_SYNC_ISL > 0
-    for(auto recvTerminal : transmitters)
-      for(UInt i=0; i<recvTerminal->islBiasRecv.terminals.size(); i++)
-        logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<recvTerminal->name()<<" "
-                  <<recvTerminal->islBiasRecv.terminals.at(i)%"RX%i : "s
-                  <<recvTerminal->islBiasRecv.biases.at(i)%" %6.2f"s
+      if(Parallel::isMaster(comm))
+        logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<recv->name()<<" "
+                  <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
+#endif
+      // NOTE: a-priori ISL biases are NOT retained!
+      recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // a-priori ISL bias
+      recv->islBiasRecv.terminals = terminals;
+     }
+
+#if DEBUG_SYNC_ISL > 0
+    if(Parallel::isMaster(comm))
+    {
+      for(auto transmitter : transmitters)
+        for(UInt i=0; i<transmitter->islBiasSend.terminals.size(); i++)
+          logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<transmitter->name()<<" "
+                    <<transmitter->islBiasSend.terminals.at(i)%"%i"s<< " : "
+                    <<transmitter->islBiasSend.biases.at(i)%" %6.2f"s
+                    <<Log::endl;
+
+      for(auto transmitter : transmitters)
+        for(UInt i=0; i<transmitter->islBiasRecv.terminals.size(); i++)
+          logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<transmitter->name()<<" "
+                    <<transmitter->islBiasRecv.terminals.at(i)%"%i"s<< " : "
+                    <<transmitter->islBiasRecv.biases.at(i)%" %6.2f"s
+                    <<Log::endl;
+    }
 #endif
 
 #if DEBUG_SYNC_ISL > 0
@@ -844,19 +856,19 @@ std::vector<GnssType> Gnss::types(const GnssType mask) const
 }
 
 /***********************************************/
-
-std::vector<GnssType> Gnss::typesIsl(const GnssType mask) const
+// TODO: check this!
+UInt Gnss::terminalsIsl() const
 {
   try
   {
-    std::vector<GnssType> types;
+    UInt terminals=0;
     for(UInt idRecv=0; idRecv<transmitters.size(); idRecv++)
       for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
-        for(GnssType type : typesRecvTransIsl.at(idRecv).at(idTrans))
-          if(!type.isInList(types))
-             types.push_back(type & mask);
-    std::sort(types.begin(), types.end());
-    return types;
+      {
+        terminals+=islTerminalRecv.at(idRecv).at(idTrans).size();
+        terminals+=islTerminalTrans.at(idRecv).at(idTrans).size();
+      }
+    return terminals;
   }
   catch(std::exception &e)
   {
