@@ -958,17 +958,17 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
 
       // ISL residual analysis
       // ---------------------
-      std::vector<Double>   ePe(1, 0), redundancy(1, 0);
-      std::vector<UInt>     obsCount(1, 0), outlierCount(1, 0);
+      Double   ePe, redundancy;
+      UInt     obsCount, outlierCount;
       residualsStatisticsIsl(NULLINDEX/*idRecv*/, ePe, redundancy, obsCount, outlierCount);
       if(Parallel::isMaster(normalEquationInfo.comm))
-        if(obsCount.at(0))
+        if(obsCount)
         {
           logInfo<<"  ISL   "
-                  <<": sigma0 = "    <<Vce::standardDeviation(ePe.at(0), redundancy.at(0), huber, huberPower)%"%4.2f"s
-                  <<", redundancy = "<<(redundancy.at(0)/obsCount.at(0))%"%4.2f"s
-                  <<", count = "     <<obsCount.at(0)%"%7i"s
-                  <<", outliers = "  <<outlierCount.at(0)%"%6i"s<<" ("<<(100.*outlierCount.at(0)/obsCount.at(0))%"%4.2f"s<<" %)"
+                  <<": sigma0 = "    <<Vce::standardDeviation(ePe, redundancy, huber, huberPower)%"%4.2f"s
+                  <<", redundancy = "<<(redundancy/obsCount)%"%4.2f"s
+                  <<", count = "     <<obsCount%"%7i"s
+                  <<", outliers = "  <<outlierCount%"%6i"s<<" ("<<(100.*outlierCount/obsCount)%"%4.2f"s<<" %)"
                   <<Log::endl;
         }
     }
@@ -1058,10 +1058,9 @@ void GnssProcessingStep::State::residualsStatistics(UInt idRecv, UInt idTrans,
 }
 
 /***********************************************/
-// TODO: use double instead of
-void GnssProcessingStep::State::residualsStatisticsIsl(UInt idRecv,
-                                                       std::vector<Double> &ePe, std::vector<Double> &redundancy,
-                                                       std::vector<UInt> &obsCount, std::vector<UInt> &outlierCount)
+
+void GnssProcessingStep::State::residualsStatisticsIsl(UInt idRecv, Double &ePe, Double &redundancy,
+                                                       UInt &obsCount, UInt &outlierCount)
 {
   try
   {
@@ -1073,21 +1072,20 @@ void GnssProcessingStep::State::residualsStatisticsIsl(UInt idRecv,
               if(recv->observationIsl(trans->idTrans(), idEpoch))
               {
                 const GnssObservationIsl &obs = *recv->observationIsl(trans->idTrans(), idEpoch);
-                UInt idx=0;
                 if(obs.sigma0 > 0)
                 {
-                  ePe.at(idx)        += std::pow(obs.residual/obs.sigma, 2);
-                  redundancy.at(idx) += obs.redundancy;
-                  obsCount.at(idx)++;
+                  ePe        += std::pow(obs.residual/obs.sigma, 2);
+                  redundancy += obs.redundancy;
+                  obsCount++;
                   if(obs.sigma > obs.sigma0)
-                    outlierCount.at(idx)++;
+                    outlierCount++;
                 }
               } // for(trans, idEpoch)
 
-    Parallel::reduceSum(ePe.at(0),          0, normalEquationInfo.comm);
-    Parallel::reduceSum(redundancy.at(0),   0, normalEquationInfo.comm);
-    Parallel::reduceSum(obsCount.at(0),     0, normalEquationInfo.comm);
-    Parallel::reduceSum(outlierCount.at(0), 0, normalEquationInfo.comm);
+    Parallel::reduceSum(ePe,          0, normalEquationInfo.comm);
+    Parallel::reduceSum(redundancy,   0, normalEquationInfo.comm);
+    Parallel::reduceSum(obsCount,     0, normalEquationInfo.comm);
+    Parallel::reduceSum(outlierCount, 0, normalEquationInfo.comm);
   }
   catch(std::exception &e)
   {

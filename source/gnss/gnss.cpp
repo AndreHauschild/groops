@@ -333,7 +333,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
 #endif
-
       // NOTE: a-priori ISL biases are NOT retained!
       recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // a-priori ISL bias
       recv->islBiasRecv.terminals = terminals;
