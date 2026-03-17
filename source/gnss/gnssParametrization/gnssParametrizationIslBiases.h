@@ -19,7 +19,17 @@
 #ifdef DOCSTRING_GnssParametrization
 static const char *docstringGnssParametrizationIslBiases = R"(
 \subsection{IslBiases}\label{gnssParametrizationType:islBiases}
-TODO!
+Each inter-satellite-link observation contains a bias for the ISL terminals of the transmitting and receiving satellite
+\begin{equation}
+  []_{r,i}^{s,k}(t) = \dots + \text{bias}[]^{s,k} + \text{bias}[]_{r,i} + \dots
+\end{equation}
+
+The \configFile{inputfileIslBiasTransmitter/Receiver}{islBias} are read
+for each satellite. The biases of all transmitting and receiving terminals must be stored in separate files.
+The corresponding terminal must be identified by an integer number.
+The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
+(Infos regarding the variable \verb|{prn}| can be found in
+\configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType}).
 )";
 #endif
 
@@ -55,6 +65,9 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   std::vector<std::vector<Parameter*>>  paraTransmitTerminal, paraReceiveTerminal;
   std::vector<std::vector<Double>>      x0TransmitTerminal, x0ReceiveTerminal;      // a-priori values for each trans/recv terminal
 
+  FileName                  fileNameOutTransmitter, fileNameOutReceiver;
+  FileName                  fileNameInTransmitter, fileNameInReceiver;
+
 public:
   GnssParametrizationIslBiases(Config &config);
 
@@ -64,6 +77,7 @@ public:
   void   designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const override;
   void   constraints(const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const override;
   Double updateParameter(const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef Wz) override;
+  void   writeResults(const GnssNormalEquationInfo &normalEquationInfo, const std::string &suffix) const override;
 };
 
 /***********************************************/
