@@ -100,7 +100,6 @@ public:
   void fillGnssAntennaDefinition (const std::vector<GnssAntennaDefinitionPtr> &antennaList);
   void fillGnssAccuracyDefinition(const std::vector<GnssAntennaDefinitionPtr> &antennaList);
   void fillGnssReceiverDefinition(const std::vector<GnssReceiverDefinitionPtr> &receiverList);
-  void fillIslTerminalDefinition (const std::vector<GnssAntennaDefinitionPtr> &antennaList);
 };
 
 /***** CLASS ***********************************/
