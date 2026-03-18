@@ -100,7 +100,6 @@ public:
   void fillGnssAntennaDefinition (const std::vector<GnssAntennaDefinitionPtr> &antennaList);
   void fillGnssAccuracyDefinition(const std::vector<GnssAntennaDefinitionPtr> &antennaList);
   void fillGnssReceiverDefinition(const std::vector<GnssReceiverDefinitionPtr> &receiverList);
-  void fillIslTerminalDefinition (const std::vector<GnssAntennaDefinitionPtr> &antennaList);
 };
 
 /***** CLASS ***********************************/
@@ -204,7 +203,7 @@ class PlatformIslTerminal : public PlatformEquipment
 public:
   static constexpr Type TYPE = ISLTERMINAL;
   Transform3d              local2terminalFrame;  // north, east, up or vehicle system -> terminal system
-  UInt                     terminalId;
+  std::string              terminalId;
 
   Type getType() const override {return TYPE;}
   void save(OutArchive &oa) const override;

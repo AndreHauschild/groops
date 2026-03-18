@@ -30,6 +30,16 @@ GnssTransmitter::~GnssTransmitter()
 
 /***********************************************/
 
+UInt GnssTransmitter::idTerm(UInt idEpoch, UInt terminal) const
+{
+  for(UInt i=0; i<terminals.at(idEpoch).size(); i++)
+    if(terminal == terminals.at(idEpoch).at(i))
+      return i;
+  return NULLINDEX;
+}
+
+/***********************************************/
+
 void GnssTransmitter::disable(UInt idEpoch, const std::string &reason)
 {
   try
@@ -56,6 +66,30 @@ void GnssTransmitter::disable(const std::string &reason)
     isMyRank_ = FALSE;
     observations_.clear();
     observations_.shrink_to_fit();
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+Vector3d GnssTransmitter::positionIsl(UInt idEpoch, const Time &time, UInt terminal) const
+{
+  try
+  {
+    return positionCoM(time) + crf2srf.at(idEpoch).inverseTransform(offsetIsl.at(idEpoch).at(idTerm(idEpoch,terminal)));
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+Transform3d GnssTransmitter::celestial2islTerminalFrame(UInt idEpoch, const Time &/*time*/, UInt terminal) const
+{
+  try
+  {
+    return srf2irf.at(idEpoch).at(idTerm(idEpoch,terminal)) * crf2srf.at(idEpoch);
   }
   catch(std::exception &e)
   {

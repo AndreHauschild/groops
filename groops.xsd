@@ -7852,6 +7852,20 @@
 											</xs:sequence>
 										</xs:complexType>
 									</xs:element>
+									<xs:element name="islTerminal">
+										<xs:annotation>
+											<xs:documentation>ISL terminal</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="terminalId" type="string" minOccurs="0" default="*">
+													<xs:annotation>
+														<xs:documentation>wildcards: * and ?</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
 									<xs:element name="other">
 										<xs:annotation>
 											<xs:documentation>other types</xs:documentation>
@@ -7862,7 +7876,7 @@
 						</xs:element>
 						<xs:element name="exclude" type="boolean" minOccurs="0" default="0">
 							<xs:annotation>
-								<xs:documentation>deselect matching platforms</xs:documentation>
+								<xs:documentation>unselect matching platforms</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -17244,7 +17258,7 @@
 											<xs:sequence>
 												<xs:element name="name" type="string"/>
 												<xs:element name="serial" type="string"/>
-												<xs:element name="terminalId" type="uint">
+												<xs:element name="terminalId" type="string">
 													<xs:annotation>
 														<xs:documentation>Terminal identifier (unsigned integer number)</xs:documentation>
 													</xs:annotation>

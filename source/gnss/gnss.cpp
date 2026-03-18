@@ -308,7 +308,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       std::sort(terminals.begin(), terminals.end());
 
 #if DEBUG_SYNC_ISL > 0
-      if(Parallel::isMaster(comm))
+      if(Parallel::isMaster(comm) && terminals.size()>0)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal "<<trans->name()<<" "
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
@@ -328,7 +328,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       std::sort(terminals.begin(), terminals.end());
 
 #if DEBUG_SYNC_ISL > 0
-      if(Parallel::isMaster(comm))
+      if(Parallel::isMaster(comm) && terminals.size()>0)
         logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<recv->name()<<" "
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
@@ -487,7 +487,6 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
                 graph[i].push_back(j);
                 graph[j].push_back(i);
               }
-
           Q = bfs(reference, graph);
         }
 
