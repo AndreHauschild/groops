@@ -371,17 +371,18 @@ groops instrument version=20200123
 
 
 %==================================
-\subsection{IslSignalBias}\label{general.fileFormat:islSignalBias}
-Signal biases of GNSS transmitters or receivers for different \configClass{gnssType}{gnssType}.
+\subsection{IslBias}\label{general.fileFormat:islBias}
+Biases of ISL terminals on GNSS satellites.
 
 \begin{verbatim}
-groops IslSignalBias version=20200123
-          2 # number of terminals/biases
+groops IslBias version=20200123
+          1 # number of terminals/biases
 # terminal   bias [m]
 # ====================================
   0          -1.752461109688110974e-01
-  1           4.005884595055994590e-02
  \end{verbatim}
+
+NOTE: currently only one bias per satellite is supported. It must have terminal ID 0. 
 
 See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
 
