@@ -84,7 +84,7 @@ public:
     {
     public:
       Double   sigmaFactor;
-      IslStatistics() : sigmaFactor(1.0) {}
+      IslStatistics() : sigmaFactor(0.0) {}
     };
 
     GnssPtr                        gnss;

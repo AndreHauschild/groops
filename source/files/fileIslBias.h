@@ -1,6 +1,6 @@
 /***********************************************/
 /**
-* @file fileIslSignalBias.h
+* @file fileIslBias.h
 *
 * @brief ISL biases.
 *
@@ -10,22 +10,23 @@
 */
 /***********************************************/
 
-#ifndef __GROOPS_ISLSIGNALBIAS__
-#define __GROOPS_ISLSIGNALBIAS__
+#ifndef __GROOPS_ISLBIAS__
+#define __GROOPS_ISLBIAS__
 
 // Latex documentation
-#ifdef DOCSTRING_FILEFORMAT_IslSignalBias
-static const char *docstringIslSignalBias = R"(
-Signal biases of GNSS transmitters or receivers for different \configClass{gnssType}{gnssType}.
+#ifdef DOCSTRING_FILEFORMAT_IslBias
+static const char *docstringIslBias = R"(
+Biases of ISL terminals on GNSS satellites.
 
 \begin{verbatim}
-groops IslSignalBias version=20200123
-          2 # number of terminals/biases
+groops IslBias version=20200123
+          1 # number of terminals/biases
 # terminal   bias [m]
 # ====================================
   0          -1.752461109688110974e-01
-  1           4.005884595055994590e-02
  \end{verbatim}
+
+NOTE: currently only one bias per satellite is supported. It must have terminal ID 0. 
 
 See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
 )";
@@ -33,7 +34,6 @@ See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
 
 /***********************************************/
 
-#include "base/gnssType.h"
 #include "inputOutput/fileName.h"
 #include "inputOutput/fileArchive.h"
 
@@ -42,18 +42,18 @@ See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
 
 /***** CONSTANTS ********************************/
 
-const char *const FILE_ISLSIGNALBIAS_TYPE    = "islSignalBias";
-constexpr UInt    FILE_ISLSIGNALBIAS_VERSION = std::max(UInt(20200123), FILE_BASE_VERSION);
+const char *const FILE_ISLBIAS_TYPE    = "islBias";
+constexpr UInt    FILE_ISLBIAS_VERSION = std::max(UInt(20200123), FILE_BASE_VERSION);
 
 /***** TYPES ***********************************/
 
-class IslSignalBias;
-typedef std::shared_ptr<IslSignalBias> IslSignalBiasPtr;
+class IslBias;
+typedef std::shared_ptr<IslBias> IslBiasPtr;
 
 /***** CLASS ***********************************/
 
-/** @brief Code/Phase biases. */
-class IslSignalBias
+/** @brief ISL biases. */
+class IslBias
 {
   public:
   std::vector<UInt>   terminals;
@@ -66,14 +66,14 @@ class IslSignalBias
 
 /***** FUNCTIONS *******************************/
 
-template<> void save(OutArchive &ar, const IslSignalBias &x);
-template<> void load(InArchive  &ar, IslSignalBias &x);
+template<> void save(OutArchive &ar, const IslBias &x);
+template<> void load(InArchive  &ar, IslBias &x);
 
-/** @brief Write into a IslSignalBias file. */
-void writeFileIslSignalBias(const FileName &fileName, const IslSignalBias &x);
+/** @brief Write into a IslBias file. */
+void writeFileIslBias(const FileName &fileName, const IslBias &x);
 
-/** @brief Read from a IslSignalBias file. */
-void readFileIslSignalBias(const FileName &fileName, IslSignalBias &x);
+/** @brief Read from a IslBias file. */
+void readFileIslBias(const FileName &fileName, IslBias &x);
 
 /// @}
 

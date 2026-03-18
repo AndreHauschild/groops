@@ -13,9 +13,9 @@
 #ifndef __GROOPS_GNSSTRANSCEIVER__
 #define __GROOPS_GNSSTRANSCEIVER__
 
+#include "../files/fileIslBias.h"
 #include "base/gnssType.h"
 #include "files/fileGnssSignalBias.h"
-#include "files/fileIslSignalBias.h"
 #include "files/filePlatform.h"
 
 /** @addtogroup gnssGroup */
@@ -40,8 +40,8 @@ public:
    UInt           id_; // set by Gnss::init()
    Platform       platform;
    GnssSignalBias signalBias;
-   IslSignalBias  islBiasSend;
-   IslSignalBias  islBiasRecv;
+   IslBias        islBiasSend;
+   IslBias        islBiasRecv;
 
 public:
   /// Constructor.

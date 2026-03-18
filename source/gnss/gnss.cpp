@@ -295,7 +295,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       }
     }
 
-    // adjust ISL biases to available terminals
+    // adjust ISL biases to available terminals in the ISL observations
     // NOTE: if no observations are found, a-priori biases are removed!
     // ----------------------------------------------------------------
     for(auto trans : transmitters)
@@ -397,16 +397,16 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
     // Build connection matrix for receivers and transmitters
     // ------------------------------------------------------
-    UInt nRecv  = receivers.size();
-    UInt nTrans = transmitters.size();
-    UInt nTotal = nRecv+nTrans;
+    const UInt nRecv  = receivers.size();
+    const UInt nTrans = transmitters.size();
+    const UInt nTotal = nRecv+nTrans;
 
     for(UInt idEpoch : normalEquationInfo.idEpochs)
     {
 #if DEBUG > 10
       logStatus<<"setup links "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 #endif
-      links.clear();
+      std::vector<std::vector<UInt>>  links;
       links.resize(nTotal);
 
       // GNSS observations transmitter -> receiver
@@ -449,7 +449,8 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
         // Select reference
         // ----------------
-        int reference = -1;
+        UInt reference = NULLINDEX;
+        std::vector<std::vector<UInt>> graph(nTotal);
         if(receivers.size())
         {
           for(const auto &recv : receivers)
@@ -477,18 +478,14 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
         else
           logWarningOnce<<"no receiver/satellite found as reference at "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 
-        if (reference!=-1)
-        {
-          std::vector<std::vector<UInt>> graph(nTotal);
-          if(reference != -1)
-            for (UInt i=0; i<links.size(); i++)
-              for (UInt j : links.at(i))
-              {
-                graph[i].push_back(j);
-                graph[j].push_back(i);
-              }
-          Q = bfs(reference, graph);
-        }
+        if(reference!=NULLINDEX)
+          for(UInt i=0; i<links.size(); i++)
+            for(UInt j : links.at(i))
+            {
+              graph[i].push_back(j);
+              graph[j].push_back(i);
+            }
+        Q = bfs(reference, graph);
 
       } // if(Parallel::isMaster(normalEquationInfo.comm))
 

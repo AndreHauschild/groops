@@ -74,7 +74,7 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
           fileNameVariableList.setVariable("prn", gnss->transmitters.at(idTrans)->name());
           try
           {
-            readFileIslSignalBias(fileNameInTransmitter(fileNameVariableList), gnss->transmitters.at(idTrans)->islBiasSend);
+            readFileIslBias(fileNameInTransmitter(fileNameVariableList), gnss->transmitters.at(idTrans)->islBiasSend);
           }
           catch(std::exception &/*e*/)
           {
@@ -94,7 +94,7 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
           fileNameVariableList.setVariable("prn", gnss->transmitters.at(idTrans)->name());
           try
           {
-            readFileIslSignalBias(fileNameInReceiver(fileNameVariableList), gnss->transmitters.at(idTrans)->islBiasRecv);
+            readFileIslBias(fileNameInReceiver(fileNameVariableList), gnss->transmitters.at(idTrans)->islBiasRecv);
           }
           catch(std::exception &/*e*/)
           {
@@ -467,9 +467,9 @@ void GnssParametrizationIslBiases::writeResults(const GnssNormalEquationInfo &no
       for(auto trans : gnss->transmitters)
         if(trans->useable() && selectedTransmitters.at(trans->idTrans()))
         {
-          IslSignalBias signalBias = trans->islBiasSend;
+          IslBias islBias = trans->islBiasSend;
           fileNameVariableList.setVariable("prn", trans->name());
-          writeFileIslSignalBias(fileNameOutTransmitter(fileNameVariableList).appendBaseName(suffix), signalBias);
+          writeFileIslBias(fileNameOutTransmitter(fileNameVariableList).appendBaseName(suffix), islBias);
         }
     }
 
@@ -482,9 +482,9 @@ void GnssParametrizationIslBiases::writeResults(const GnssNormalEquationInfo &no
       for(auto trans : gnss->transmitters)
         if(trans->useable() && selectedTransmitters.at(trans->idTrans()))
         {
-          IslSignalBias signalBias = trans->islBiasRecv;
+          IslBias islBias = trans->islBiasRecv;
           fileNameVariableList.setVariable("prn", trans->name());
-          writeFileIslSignalBias(fileNameOutReceiver(fileNameVariableList).appendBaseName(suffix), signalBias);
+          writeFileIslBias(fileNameOutReceiver(fileNameVariableList).appendBaseName(suffix), islBias);
         }
     }
   }

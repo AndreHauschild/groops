@@ -61,8 +61,6 @@ public:
   std::vector<std::vector<std::vector<UInt>>> islTerminalRecv;    // for each receiver and transmitter: used receive terminals (UInt)
   std::vector<std::vector<std::vector<UInt>>> islTerminalTrans;   // for each receiver and transmitter: used transmit terminals (UInt)
 
-  std::vector<std::vector<UInt>>  links;
-
   void init(std::vector<GnssType> simulationTypes, const std::vector<Time> &times, const Time &timeMargin,
             GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,
             EarthRotationPtr earthRotation, GnssParametrizationPtr parametrization, Parallel::CommunicatorPtr comm);
