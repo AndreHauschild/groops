@@ -286,9 +286,9 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
               if(transmitters.at(idTrans)->idTerm(idEpoch,obs->terminalSend)==NULLINDEX ||
                  transmitters.at(recvSatellite->idTrans())->idTerm(idEpoch,obs->terminalRecv)==NULLINDEX)
               {
-                logWarning<<"Missing ISL terminal for observation "
-                          <<transmitters.at(idTrans)->name()<<obs->terminalSend%" terminal %i ->"s
-                          <<recvSatellite->name()<<obs->terminalRecv%" terminal %i"s
+                logWarning<<"Missing terminal for ISL observation PRN(terminal): "
+                          <<transmitters.at(idTrans)->name()<<obs->terminalSend%"(%i) -> "s
+                          <<recvSatellite->name()<<obs->terminalRecv%"(%i)"s
                           <<Log::endl;
                 remove = TRUE;
                 continue;
