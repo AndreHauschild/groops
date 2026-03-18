@@ -277,14 +277,29 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
         {
           for(UInt idEpoch=0; idEpoch<recvSatellite->idEpochSize(); idEpoch++)
           {
+            Bool remove = FALSE;
             auto obs = recvSatellite->observationIsl(idTrans, idEpoch);
             if(obs)
             {
+              // Filter observations without matching ISL terminal index
+              // -------------------------------------------------------
+              if(transmitters.at(idTrans)->idTerm(idEpoch,obs->terminalSend)==NULLINDEX ||
+                 transmitters.at(recvSatellite->idTrans())->idTerm(idEpoch,obs->terminalRecv)==NULLINDEX)
+              {
+                logWarning<<"Missing ISL terminal for observation "
+                          <<transmitters.at(idTrans)->name()<<obs->terminalSend%" terminal %i ->"s
+                          <<recvSatellite->name()<<obs->terminalRecv%" terminal %i"s
+                          <<Log::endl;
+                remove = TRUE;
+                continue;
+              }
               if(!isInList(islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans),obs->terminalRecv))
                 islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalRecv);
               if(!isInList(islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans),obs->terminalSend))
                 islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalSend);
             }
+            if(remove)
+              recvSatellite->deleteObservationIsl(idTrans, idEpoch);
           }
         }
       }
@@ -547,7 +562,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
                   countEpoch(idEpoch)++;
 
           // Count ISL observations to other transmitters
-          // TODO: this does not cover all necessary cases!
+          // TODO: this may not cover all necessary cases!
           for(const auto &recv : transmitters)
             if(trans->idTrans()!=recv->idTrans() && recv->isMyRank())
               for(UInt idEpoch : normalEquationInfo.idEpochs)
@@ -852,7 +867,7 @@ std::vector<GnssType> Gnss::types(const GnssType mask) const
 }
 
 /***********************************************/
-// TODO: check this!
+// TODO: check, this is actually only used to check if ISL observations exist.
 UInt Gnss::terminalsIsl() const
 {
   try
