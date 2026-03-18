@@ -1,6 +1,6 @@
 /***********************************************/
 /**
-* @file fileIslSignalBias.cpp
+* @file fileIslBias.cpp
 *
 * @brief ISL biases.
 *
@@ -10,18 +10,18 @@
 */
 /***********************************************/
 
-#define DOCSTRING_FILEFORMAT_IslSignalBias
+#define DOCSTRING_FILEFORMAT_IslBias
 
 #include "base/import.h"
 #include "inputOutput/fileArchive.h"
 #include "files/fileFormatRegister.h"
-#include "files/fileIslSignalBias.h"
+#include "fileIslBias.h"
 
-GROOPS_REGISTER_FILEFORMAT(IslSignalBias, FILE_ISLSIGNALBIAS_TYPE)
+GROOPS_REGISTER_FILEFORMAT(IslBias, FILE_ISLBIAS_TYPE)
 
 /***********************************************/
 
-Vector IslSignalBias::compute(const std::vector<UInt> &terminals) const
+Vector IslBias::compute(const std::vector<UInt> &terminals) const
 {
   try
   {
@@ -40,7 +40,7 @@ Vector IslSignalBias::compute(const std::vector<UInt> &terminals) const
 
 /***********************************************/
 
-Bool IslSignalBias::isInList(UInt terminal, UInt &idx) const
+Bool IslBias::isInList(UInt terminal, UInt &idx) const
 {
   idx = index(terminal);
   return (idx != NULLINDEX);
@@ -48,7 +48,7 @@ Bool IslSignalBias::isInList(UInt terminal, UInt &idx) const
 
 /***********************************************/
 
-UInt IslSignalBias::index(UInt terminal) const
+UInt IslBias::index(UInt terminal) const
 {
   for(UInt i=0; i<terminals.size(); i++)
     if(terminal == terminals.at(i))
@@ -59,7 +59,7 @@ UInt IslSignalBias::index(UInt terminal) const
 /***********************************************/
 /***********************************************/
 
-template<> void save(OutArchive &ar, const IslSignalBias &x)
+template<> void save(OutArchive &ar, const IslBias &x)
 {
   try
   {
@@ -81,7 +81,7 @@ template<> void save(OutArchive &ar, const IslSignalBias &x)
 
 /***********************************************/
 
-template<> void load(InArchive  &ar, IslSignalBias &x)
+template<> void load(InArchive  &ar, IslBias &x)
 {
   try
   {
@@ -104,11 +104,11 @@ template<> void load(InArchive  &ar, IslSignalBias &x)
 /***********************************************/
 /***********************************************/
 
-void writeFileIslSignalBias(const FileName &fileName, const IslSignalBias &x)
+void writeFileIslBias(const FileName &fileName, const IslBias &x)
 {
   try
   {
-    OutFileArchive file(fileName, FILE_ISLSIGNALBIAS_TYPE, FILE_ISLSIGNALBIAS_VERSION);
+    OutFileArchive file(fileName, FILE_ISLBIAS_TYPE, FILE_ISLBIAS_VERSION);
     file<<nameValue("islBias", x);
   }
   catch(std::exception &e)
@@ -119,11 +119,11 @@ void writeFileIslSignalBias(const FileName &fileName, const IslSignalBias &x)
 
 /***********************************************/
 
-void readFileIslSignalBias(const FileName &fileName, IslSignalBias &x)
+void readFileIslBias(const FileName &fileName, IslBias &x)
 {
   try
   {
-    InFileArchive file(fileName, FILE_ISLSIGNALBIAS_TYPE, FILE_ISLSIGNALBIAS_VERSION);
+    InFileArchive file(fileName, FILE_ISLBIAS_TYPE, FILE_ISLBIAS_VERSION);
     file>>nameValue("islBias", x);
   }
   catch(std::exception &e)
