@@ -203,7 +203,7 @@ class PlatformIslTerminal : public PlatformEquipment
 public:
   static constexpr Type TYPE = ISLTERMINAL;
   Transform3d              local2terminalFrame;  // north, east, up or vehicle system -> terminal system
-  UInt                     terminalId;
+  std::string              terminalId;
 
   Type getType() const override {return TYPE;}
   void save(OutArchive &oa) const override;
