@@ -209,8 +209,8 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
 
     // GNSS signal types for transmit and receive terminal IDs
     // -------------------------------------------------------
-    const GnssType typeTx = GnssType::CHANNEL + GnssType::E1  + GnssType::A;
-    const GnssType typeRx = GnssType::CHANNEL + GnssType::E1  + GnssType::B;
+    const GnssType typeSend = GnssType::CHANNEL + GnssType::E1  + GnssType::A;
+    const GnssType typeRecv = GnssType::CHANNEL + GnssType::E1  + GnssType::B;
 
     // Simulate zero observations
     // --------------------------
@@ -231,7 +231,7 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
 
         // Skip receiver PRN
         // -----------------
-        if (this->name()==transmitters.at(idTrans)->name())
+        if(this->name()==transmitters.at(idTrans)->name())
         {
           logError<<"Identical transmitter and receiver PRN in ISL schedule for "
                   <<transmitters.at(idTrans)->PRN().str()<<" at "
@@ -239,15 +239,24 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
           continue;
         }
 
-        UInt idChanTx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
-                                      typeTx + transmitters.at(idTrans)->PRN()));
-        UInt idChanRx = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
-                                      typeRx + transmitters.at(idTrans)->PRN()));
+        UInt idChanSend = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
+                                        typeSend + transmitters.at(idTrans)->PRN()));
+        UInt idChanRecv = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
+                                        typeRecv + transmitters.at(idTrans)->PRN()));
 
         GnssObservationIsl *obs = new GnssObservationIsl();
         obs->time = times.at(idEpoch);
-        obs->terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRx);
-        obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanTx);
+        obs->terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRecv);
+        obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanSend);
+
+        if(this->idTerm(idEpoch, obs->terminalRecv)==NULLINDEX || transmitters.at(idTrans)->idTerm(idEpoch, obs->terminalSend)==NULLINDEX)
+        {
+          logError<<"Missing terminal for ISL observation of PRN(terminal):"
+                    <<transmitters.at(idTrans)->name()<<obs->terminalSend%"(%i)-> "s
+                    <<this->name()<<obs->terminalRecv%"(%i)"s
+                    <<Log::endl;
+          continue;
+        }
 
         GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, idEpoch, FALSE);
 

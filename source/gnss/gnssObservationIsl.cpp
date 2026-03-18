@@ -2,7 +2,7 @@
 /**
  * @file gnssObservationIsl.cpp
  *
- * @brief Intersatellite links.
+ * @brief Inter-satellite links.
  *
  * @author Torsten Mayer-Guerr
  * @author Andre Hauschild

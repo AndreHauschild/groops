@@ -2,7 +2,7 @@
 /**
 * @file gnssObservationIsl.h
 *
-* @brief Intersatellite links.
+* @brief Inter-satellite links.
 *
 * @author Torsten Mayer-Guerr
 * @date 2024-01-30
@@ -33,7 +33,7 @@ public:
   Double   observation; ///< original observations
   Double   residual;    ///< estimated postfit residuals
   Double   redundancy;  ///< partial redundancies of the least squares adjustment
-  Double   sigma0;      ///< expected (apriori) accuracies
+  Double   sigma0;      ///< expected (a-priori) accuracies
   Double   sigma;       ///< modified accuracies (downweighted outliers)
   UInt     terminalRecv, terminalSend;
 
