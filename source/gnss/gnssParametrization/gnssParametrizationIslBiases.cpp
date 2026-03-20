@@ -163,7 +163,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
       }
 
     applyConstraint = FALSE;
-    if(!isEnabled(normalEquationInfo, name) || normalEquationInfo.isEachReceiverSeparately)
+    if(!isEnabled(normalEquationInfo, name))
       return;
 
     // transmit ISL terminal parameters
