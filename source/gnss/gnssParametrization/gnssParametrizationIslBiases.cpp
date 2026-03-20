@@ -212,7 +212,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
     for(auto para : paraTransmitTerminal)
       if(para && para->index && selectedTransmitTerminalZeroMean.at(para->trans->idTrans()))
       {
-        x0TransmitTerminal.at(para->trans->idTrans()) = para->trans->sendIslBias();
+        x0TransmitTerminal.at(para->trans->idTrans()) = para->trans->sendIslBias({0}).at(0);
         countZeroMean++;
 #if DEBUG >0
         logInfo<<"initParameter() store initial send ISL terminal bias parameter "
@@ -224,7 +224,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
     for(auto para : paraReceiveTerminal)
       if(para && para->index && selectedReceiveTerminalZeroMean.at(para->trans->idTrans()))
       {
-        x0ReceiveTerminal.at(para->trans->idTrans()) = para->trans->recvIslBias();
+        x0ReceiveTerminal.at(para->trans->idTrans()) = para->trans->recvIslBias({0}).at(0);
         countZeroMean++;
 #if DEBUG >0
         logInfo<<"initParameter() store initial recv ISL terminal bias parameter "
@@ -252,7 +252,7 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
       for(auto para : paraTransmitTerminal)
         if(para && para->index)
         {
-          x0(normalEquationInfo.index(para->index),0) = para->trans->sendIslBias();
+          x0(normalEquationInfo.index(para->index),0) = para->trans->sendIslBias({0}).at(0);
 #if DEBUG > 0
           logInfo<<"aprioriParameter() send ISL terminal bias  "<<para->trans->name() << para->trans->sendIslBias()%" %6.2f m"s <<Log::endl;
 #endif
@@ -260,7 +260,7 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
       for(auto para : paraReceiveTerminal)
         if(para && para->index)
         {
-          x0(normalEquationInfo.index(para->index),0) = para->trans->sendIslBias();
+          x0(normalEquationInfo.index(para->index),0) = para->trans->sendIslBias({0}).at(0);
 #if DEBUG > 0
           logInfo<<"aprioriParameter() recv ISL terminal bias  "<<para->trans->name() << para->trans->sendIslBias()%" %6.2f m"s <<Log::endl;
 #endif
@@ -335,24 +335,24 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
       for(auto para : paraTransmitTerminal)
         if(para && para->index && selectedTransmitTerminalZeroMean.at(para->trans->idTrans()))
         {
-          l(0) += (x0TransmitTerminal.at(para->trans->idTrans()) - para->trans->sendIslBias())/count/sigmaZeroMean; // remove apriori value -> regularization towards 0
+          l(0) += (x0TransmitTerminal.at(para->trans->idTrans()) - para->trans->sendIslBias({0}).at(0))/count/sigmaZeroMean; // remove apriori value -> regularization towards 0
           A.column(para->index)(0,0) = 1./count/sigmaZeroMean;
 #if DEBUG > 0
           logInfo<<"constraint() send ISL terminal bias "<<para->trans->name()
                  <<x0TransmitTerminal.at(para->trans->idTrans())%" a-priori %6.2f m"s
-                 <<para->trans->sendIslBias()%" estimate %6.2f m"s
+                 <<para->trans->sendIslBias({0}).at(0)%" estimate %6.2f m"s
                  <<Log::endl;
 #endif
         }
       for(auto para : paraReceiveTerminal)
         if(para && para->index && selectedReceiveTerminalZeroMean.at(para->trans->idTrans()))
         {
-          l(0) += (x0ReceiveTerminal.at(para->trans->idTrans()) - para->trans->recvIslBias())/count/sigmaZeroMean; // remove apriori value -> regularization towards 0
+          l(0) += (x0ReceiveTerminal.at(para->trans->idTrans()) - para->trans->recvIslBias({0}).at(0))/count/sigmaZeroMean; // remove apriori value -> regularization towards 0
           A.column(para->index)(0,0) = 1./count/sigmaZeroMean;
 #if DEBUG > 0
           logInfo<<"constraint() recv ISL terminal bias "<<para->trans->name()
                  <<x0ReceiveTerminal.at(para->trans->idTrans())%" a-priori %6.2f m"s
-                 <<para->trans->recvIslBias()%" estimate %6.2f m"s
+                 <<para->trans->recvIslBias({0}).at(0)%" estimate %6.2f m"s
                  <<Log::endl;
 #endif
         }
