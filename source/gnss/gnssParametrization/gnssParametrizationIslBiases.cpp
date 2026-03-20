@@ -412,7 +412,7 @@ void GnssParametrizationIslBiases::writeResults(const GnssNormalEquationInfo &no
 {
   try
   {
-    if(!isEnabled(normalEquationInfo, name) || normalEquationInfo.isEachReceiverSeparately)
+    if(!isEnabled(normalEquationInfo, name))
       return;
 
     if(!fileNameOutTransmitter.empty() && Parallel::isMaster(normalEquationInfo.comm))
