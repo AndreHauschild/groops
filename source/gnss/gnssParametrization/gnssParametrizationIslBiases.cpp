@@ -394,7 +394,7 @@ Double GnssParametrizationIslBiases::updateParameter(const GnssNormalEquationInf
           para->trans->islBiasRecv.biases.at(idType) += dBias(idType);
         for(UInt idType=0; idType<dBias.size(); idType++)
           if(infoRecv.update(1e3*dBias(idType)))
-            infoTrans.info = "recv ISL terminal bias ("+normalEquationInfo.parameterNames().at(normalEquationInfo.index(para->index)).str()+")";
+            infoRecv.info = "recv ISL terminal bias ("+normalEquationInfo.parameterNames().at(normalEquationInfo.index(para->index)).str()+")";
       }
     infoRecv.synchronizeAndPrint(normalEquationInfo.comm, 1e-3, maxChange);
 
