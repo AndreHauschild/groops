@@ -13,7 +13,7 @@
 #ifndef __GROOPS_GNSSTRANSCEIVER__
 #define __GROOPS_GNSSTRANSCEIVER__
 
-#include "../files/fileIslBias.h"
+#include "files/fileIslBias.h"
 #include "base/gnssType.h"
 #include "files/fileGnssSignalBias.h"
 #include "files/filePlatform.h"
