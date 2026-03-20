@@ -694,7 +694,6 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
     Gnss::InfoParameterChange infoTec("tec");
     std::vector<GnssType>     typesResiduals = gnss->types(~(GnssType::PRN + GnssType::FREQ_NO));
     std::vector<Gnss::InfoParameterChange> infosResiduals(typesResiduals.size(), Gnss::InfoParameterChange("mm"));
-    Gnss::InfoParameterChange infosResidualsIsl("mm");
 
     Double minSTEC   =  std::numeric_limits<Double>::infinity();
     Double maxSTEC   = -std::numeric_limits<Double>::infinity();
@@ -904,6 +903,7 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
 
     // Residual tracking (inter satellite links)
     // -----------------------------------------
+    Gnss::InfoParameterChange infosResidualsIsl("mm");
 
     if(gnss->terminalsIsl()>0)
     {
