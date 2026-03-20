@@ -365,23 +365,26 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
     if(!applyConstraint)
       return;
 
-    logWarning<<"ISL bias zer-mean constraints temporarily disabled!"<<Log::endl;
-
-    /*
     // zero-mean constraint of ISL terminal biases
     // -------------------------------------------
 
     UInt countTrans = 0, countRecv = 0;
-    for(UInt idTrans=0; idTrans<paraTransmitTerminal.size(); idTrans++)
-      if(selectedTransmitTerminalZeroMean.at(idTrans) && paraTransmitTerminal.at(idTrans) && paraTransmitTerminal.at(idTrans)->index)
-        countTrans++;
-    for(UInt idTrans=0; idTrans<paraReceiveTerminal.size(); idTrans++)
-      if(selectedReceiveTerminalZeroMean.at(idTrans) && paraReceiveTerminal.at(idTrans) && paraReceiveTerminal.at(idTrans)->index)
-        countRecv++;
+    for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
+    {
+      for(auto para : paraTransmitTerminal.at(idTrans))
+        if(para && para->index)
+          countTrans++;
+      for(auto para : paraReceiveTerminal.at(idTrans))
+        if(para && para->index)
+          countRecv++;
+    }
     UInt count = countTrans + countRecv;
     if(!count)
       return;
 
+    logWarning<<"ISL bias zer-mean constraints temporarily disabled!"<<Log::endl;
+
+    /*
     // collect apriori bias values
     // ---------------------------
 
@@ -394,7 +397,7 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
         if(para && para->index && selectedTransmitTerminalZeroMean.at(para->trans->idTrans()))
         {
           l(0) += (x0TransmitTerminal.at(para->trans->idTrans()) - para->trans->sendIslBias(terminals).at(0))/count/sigmaZeroMean; // remove apriori value -> regularization towards 0
-         A.column(para->index)(0,0) = 1./count/sigmaZeroMean;
+          A.column(para->index)(0,0) = 1./count/sigmaZeroMean;
 #if DEBUG > 0
           logInfo<<"constraint() send ISL terminal bias "<<para->trans->name()
                  <<x0TransmitTerminal.at(para->trans->idTrans())%" a-priori %6.2f m"s

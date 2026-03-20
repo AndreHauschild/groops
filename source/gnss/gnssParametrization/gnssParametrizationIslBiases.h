@@ -52,6 +52,7 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   {
   public:
     GnssTransmitterPtr trans;
+    // TODO: add terminal IDs
   /*UInt               terminal;*/
     GnssParameterIndex index;
   };
