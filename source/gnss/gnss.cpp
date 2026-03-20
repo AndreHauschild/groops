@@ -5,7 +5,6 @@
 * @brief global navigation satellite system.
 *
 * @author Torsten Mayer-Guerr
-* @author Andre Hauschild
 * @date 2010-08-03
 *
 */
@@ -333,10 +332,10 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
       trans->islBiasSend.terminals = terminals;
     }
 
-    for(auto recv : transmitters)
+    for(auto trans : transmitters)
     {
       std::vector<UInt> terminals;
-      for(auto &termRecv : islTerminalRecv.at(recv->idTrans()))
+      for(auto &termRecv : islTerminalRecv.at(trans->idTrans()))
         for(UInt idTerm=0; idTerm<termRecv.size(); idTerm++)
           if(!isInList(terminals, termRecv.at(idTerm)))
             terminals.push_back(termRecv.at(idTerm));
@@ -344,13 +343,13 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
 #if DEBUG_SYNC_ISL > 0
       if(Parallel::isMaster(comm) && terminals.size()>0)
-        logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<recv->name()<<" "
+        logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<trans->name()<<" "
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
 #endif
       // NOTE: a-priori ISL biases are NOT retained!
-      recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // a-priori ISL bias
-      recv->islBiasRecv.terminals = terminals;
+      trans->islBiasRecv.biases    = trans->islBiasRecv.compute(terminals); // a-priori ISL bias
+      trans->islBiasRecv.terminals = terminals;
      }
 
 #if DEBUG_SYNC_ISL > 0
@@ -361,6 +360,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
           logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<transmitter->name()<<" "
                     <<transmitter->islBiasSend.terminals.at(i)%"%i"s<< " : "
                     <<transmitter->islBiasSend.biases.at(i)%" %6.2f"s
+                    <<transmitter->islBiasSend.index(transmitter->islBiasSend.terminals.at(i))%" (idx %i)"s
                     <<Log::endl;
 
       for(auto transmitter : transmitters)
@@ -368,6 +368,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
           logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<transmitter->name()<<" "
                     <<transmitter->islBiasRecv.terminals.at(i)%"%i"s<< " : "
                     <<transmitter->islBiasRecv.biases.at(i)%" %6.2f"s
+                    <<transmitter->islBiasRecv.index(transmitter->islBiasRecv.terminals.at(i))%" (idx %i)"s
                     <<Log::endl;
     }
 #endif

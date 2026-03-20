@@ -2,7 +2,7 @@
 /**
 * @file gnssParametrizationIslBiases.h
 *
-* @brief Inter Satellite Link biases.
+* @brief Inter-satellite link biases.
 * @see GnssParametrization
 *
 * @author Torsten Mayer-Guerr
@@ -52,6 +52,7 @@ class GnssParametrizationIslBiases : public GnssParametrizationBase
   {
   public:
     GnssTransmitterPtr trans;
+  /*UInt               terminal;*/
     GnssParameterIndex index;
   };
 

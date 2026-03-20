@@ -2,7 +2,7 @@
 /**
 * @file gnssParametrizationIslBiases.cpp
 *
-* @brief Inter Satellite Link biases.
+* @brief Inter-satellite link biases.
 * @see GnssParametrization
 *
 * @author Torsten Mayer-Guerr
@@ -104,6 +104,20 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
         }
     }
 
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalEquationInfo)
+{
+  try
+  {
+
     // Setup parameters
     //-----------------
 
@@ -113,11 +127,16 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
       if(selectedTransmitTerminal.at(idTrans) && gnss->transmitters.at(idTrans)->useable())
       {
         UInt nTerm=gnss->transmitters.at(idTrans)->islBiasSend.terminals.size();
+#if DEBUG > 0
+          logInfo<<"init() send ISL terminal bias parameters "<<gnss->transmitters.at(idTrans)->name()<<nTerm%" %i"s<<Log::endl;
+#endif
         for(UInt idTerm=0; idTerm<nTerm; idTerm++)
         {
           auto para = new Parameter();
           paraTransmitTerminal.at(idTrans).push_back(para);
           para->trans = gnss->transmitters.at(idTrans);
+        /*para->terminal = gnss->transmitters.at(idTrans)->islBiasSend.terminals.at(idTerm);*/
+          para->index = GnssParameterIndex();
 #if DEBUG > 0
           logInfo<<"init() send ISL terminal bias parameter "<<para->trans->name()<<Log::endl;
 #endif
@@ -135,34 +154,13 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
           auto para = new Parameter();
           paraReceiveTerminal.at(idRecv).push_back(para);
           para->trans = gnss->transmitters.at(idRecv);
+        /*para->terminal = gnss->transmitters.at(idRecv)->islBiasRecv.terminals.at(idTerm);*/
+          para->index = GnssParameterIndex();
 #if DEBUG > 0
           logInfo<<"init() recv ISL terminal bias parameter "<<para->trans->name()<<Log::endl;
 #endif
         }
       }
-
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
-void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalEquationInfo)
-{
-  try
-  {
-    for(UInt idTrans=0; idTrans<gnss->transmitters.size(); idTrans++)
-    {
-      for(auto para : paraTransmitTerminal.at(idTrans))
-        if(para)
-          para->index = GnssParameterIndex();
-      for(auto para : paraReceiveTerminal.at(idTrans))
-        if(para)
-          para->index = GnssParameterIndex();
-    }
 
     applyConstraint = FALSE;
     if(!isEnabled(normalEquationInfo, name) || normalEquationInfo.isEachReceiverSeparately)
@@ -214,10 +212,7 @@ void GnssParametrizationIslBiases::initParameter(GnssNormalEquationInfo &normalE
     // Initialize a-priori values
 
     // NOTE: the a-priori values for the zero-mean constraint are stored in
-    //       this function and used in the constraints() function. It cannot be
-    //       done in the init() function, since the a-priori values may not yet
-    //       initialized at that point depending on the parametrization order of
-    //       gnssParametrizationislBiases and gnssParametrizationSignalBiasesIsl
+    //       this function and used in the constraints() function.
 
     UInt countZeroMean = 0;
     x0TransmitTerminal.resize(gnss->transmitters.size());
@@ -318,32 +313,42 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 {
   try
   {
-#if DEBUG > 1
-    logInfo << "GnssParametrizationIslBiases::designMatrixIsl() "
-            << eqn.receiver->name() << eqn.receiver->idTrans()%" (%2i)"s
-            << " <- "
-            << eqn.transmitter->name() << eqn.transmitter->idTrans()%" (%2i)"s
-            << Log::endl;
+#if DEBUG > 0
+    logInfo<<"GnssParametrizationIslBiases::designMatrixIsl() "
+           <<eqn.transmitter->name()<< eqn.terminalSend%"(%2i)"s<<" -> "
+           <<eqn.receiver->name()<< eqn.terminalRecv%"(%2i)"s
+           <<Log::endl;
 #endif
     UInt idTerm;
 
     // transmitter terminal bias
-    idTerm = eqn.transmitter->islBiasSend.index(eqn.terminalSend);
-    if(idTerm!=NULLINDEX)
+    // -------------------------
+    if(eqn.transmitter->islBiasSend.isInList(eqn.terminalSend, idTerm))
     {
-      auto paraTransmitTerminal = this->paraTransmitTerminal.at(eqn.transmitter->idTrans()).at(idTerm);
-      if(paraTransmitTerminal && paraTransmitTerminal->index && eqn.transmitter->idTerm(eqn.idEpoch,eqn.terminalSend)!=NULLINDEX)
-        copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraTransmitTerminal->index));
+#if DEBUG > 1
+      logInfo<<"GnssParametrizationIslBiases::designMatrixIsl() send "
+             <<eqn.transmitter->name()<<eqn.terminalSend%"(%2i)"s<<idTerm%" (idx %i)"s
+             <<Log::endl;
+#endif
+      auto para = paraTransmitTerminal.at(eqn.transmitter->idTrans()).at(idTerm);
+      if(para && para->index)
+        copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(para->index));
     }
 
     // receiver terminal bias
-    idTerm = eqn.transmitter->islBiasRecv.index(eqn.terminalRecv);
-    if(idTerm!=NULLINDEX)
+    // -------------------------
+    if(eqn.receiver->islBiasRecv.isInList(eqn.terminalRecv, idTerm))
     {
-      auto paraReceiveTerminal = this->paraReceiveTerminal.at(eqn.receiver->idTrans()).at(idTerm);
-      if(paraReceiveTerminal && paraReceiveTerminal->index && eqn.receiver->idTerm(eqn.idEpoch,eqn.terminalRecv)!=NULLINDEX)
-        copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(paraReceiveTerminal->index));
+#if DEBUG > 1
+      logInfo<<"GnssParametrizationIslBiases::designMatrixIsl() recv "
+             <<eqn.receiver->name()<<eqn.terminalRecv%"(%2i)"s<<idTerm%" (idx %i)"s
+             <<Log::endl;
+#endif
+      auto para =paraReceiveTerminal.at(eqn.receiver->idTrans()).at(idTerm);
+      if(para && para->index)
+        copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(para->index));
     }
+
   }
   catch(std::exception &e)
   {
