@@ -904,8 +904,7 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
     // Residual tracking (inter satellite links)
     // -----------------------------------------
     Gnss::InfoParameterChange infosResidualsIsl("mm");
-
-    if(gnss->terminalsIsl()>0)
+    if(gnss->hasIsl)
     {
       Parallel::barrier(normalEquationInfo.comm);
       //logStatus<<"Compute residuals (inter satellite links)"<<Log::endl;

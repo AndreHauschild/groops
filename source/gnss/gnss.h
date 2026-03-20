@@ -60,6 +60,7 @@ public:
   std::vector<std::vector<std::vector<GnssType>>> typesRecvTrans; // for each receiver and transmitter: used types (receiver types)
   std::vector<std::vector<std::vector<UInt>>> islTerminalRecv;    // for each receiver and transmitter: used receive terminals (UInt)
   std::vector<std::vector<std::vector<UInt>>> islTerminalTrans;   // for each receiver and transmitter: used transmit terminals (UInt)
+  Bool                            hasIsl;
 
   void init(std::vector<GnssType> simulationTypes, const std::vector<Time> &times, const Time &timeMargin,
             GnssTransmitterGeneratorPtr transmitterGenerator, GnssReceiverGeneratorPtr receiverGenerator,
@@ -86,9 +87,6 @@ public:
 
   /** @brief sorted list of used types. */
   std::vector<GnssType> types(const GnssType mask=GnssType::ALL) const;
-
-  /** @brief list of used terminals. */
-  UInt                  terminalsIsl() const;
 
   std::vector<Byte> selectTransmitters(PlatformSelectorPtr selector);
   std::vector<Byte> selectReceivers(PlatformSelectorPtr selector);

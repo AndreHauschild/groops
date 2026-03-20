@@ -264,6 +264,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
     // collect ISL observations
     // ------------------------
+    hasIsl = FALSE;
     islTerminalRecv.clear();
     islTerminalRecv.resize(transmitters.size(), std::vector<std::vector<UInt>>(transmitters.size()));
     islTerminalTrans.clear();
@@ -292,6 +293,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                 remove = TRUE;
                 continue;
               }
+              hasIsl = TRUE;
               if(!isInList(islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans),obs->terminalRecv))
                 islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalRecv);
               if(!isInList(islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans),obs->terminalSend))
@@ -860,27 +862,6 @@ std::vector<GnssType> Gnss::types(const GnssType mask) const
              types.push_back(type & mask);
     std::sort(types.begin(), types.end());
     return types;
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-// TODO: check, this is actually only used to check if ISL observations exist.
-UInt Gnss::terminalsIsl() const
-{
-  try
-  {
-    UInt terminals=0;
-    for(UInt idRecv=0; idRecv<transmitters.size(); idRecv++)
-      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
-      {
-        terminals+=islTerminalRecv.at(idRecv).at(idTrans).size();
-        terminals+=islTerminalTrans.at(idRecv).at(idTrans).size();
-      }
-    return terminals;
   }
   catch(std::exception &e)
   {
