@@ -78,8 +78,10 @@ public:
 
   /** @brief ISL terminal bias corrections.
   * observed range = range + bias. */
-  Vector sendIslBias(std::vector<UInt> terminals) const;
-  Vector recvIslBias(std::vector<UInt> terminals) const;
+  Double sendIslBias(UInt terminal) const;
+  Double recvIslBias(UInt terminal) const;
+  Vector sendIslBias(std::vector<UInt> &terminals) const;
+  Vector recvIslBias(std::vector<UInt> &terminals) const;
 
   void save(OutArchive &oa) const;
   void load(InArchive  &ia);
@@ -185,7 +187,21 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
 
 /***********************************************/
 
-inline Vector GnssTransceiver::sendIslBias(std::vector<UInt> terminals) const
+inline Double GnssTransceiver::sendIslBias(UInt terminal) const
+{
+  try
+  {
+    return islBiasSend.compute({terminal}).at(0);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+inline Vector GnssTransceiver::sendIslBias(std::vector<UInt> &terminals) const
 {
   try
   {
@@ -199,7 +215,21 @@ inline Vector GnssTransceiver::sendIslBias(std::vector<UInt> terminals) const
 
 /***********************************************/
 
-inline Vector GnssTransceiver::recvIslBias(std::vector<UInt> terminals) const
+inline Double GnssTransceiver::recvIslBias(UInt terminal) const
+{
+  try
+  {
+    return islBiasRecv.compute({terminal}).at(0);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+inline Vector GnssTransceiver::recvIslBias(std::vector<UInt> &terminals) const
 {
   try
   {
