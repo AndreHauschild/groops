@@ -1957,24 +1957,24 @@
 								<xs:documentation>used for parameter selection</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="selectTransmitIslTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
-						<xs:element name="selectReceiveIslTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
-						<xs:element name="outputfileTransmitIslTerminal" type="filename" minOccurs="0">
+						<xs:element name="selectTransmitterSendTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectTransmitterRecvTerminal" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="outputfileSendTerminal" type="filename" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="outputfileReceiveIslTerminal" type="filename" minOccurs="0">
+						<xs:element name="outputfileRecvTerminal" type="filename" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="inputfileTransmitIslTerminal" type="filename" minOccurs="0">
+						<xs:element name="inputfileSendTerminal" type="filename" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="inputfileReceiveIslTerminal" type="filename" minOccurs="0">
+						<xs:element name="inputfileRecvTerminal" type="filename" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
@@ -1984,8 +1984,8 @@
 								<xs:documentation>used for parameter selection</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="selectTransmitTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
-						<xs:element name="selectReceiveTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element name="selectSendTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded" default="[&quot;all&quot;]"/>
+						<xs:element name="selectRecvTerminalZeroMean" type="platformSelectorType" minOccurs="0" maxOccurs="unbounded"/>
 						<xs:element name="sigmaZeroMeanConstraint" type="double" minOccurs="0" default="0.0001">
 							<xs:annotation>
 								<xs:documentation>(0 = unconstrained) sigma [m] for constraint over all selected biases</xs:documentation>
