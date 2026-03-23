@@ -12,7 +12,7 @@
 */
 /***********************************************/
 
-#define DEBUG 1
+#define DEBUG 0
 
 #include "base/import.h"
 #include "config/config.h"
@@ -78,8 +78,8 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
           }
           catch(std::exception &/*e*/)
           {
-            logWarningOnce<<"Unable to read transmit ISL terminal bias file <"<<fileNameInSendTerminal(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
-            gnss->transmitters.at(idTrans)->disable("Unable to read transmit ISL terminal bias file <"+fileNameInSendTerminal(fileNameVariableList).str()+">");
+            logWarningOnce<<"Unable to read send ISL terminal bias file <"<<fileNameInSendTerminal(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
+            gnss->transmitters.at(idTrans)->disable("Unable to read send ISL terminal bias file <"+fileNameInSendTerminal(fileNameVariableList).str()+">");
           }
         }
     }
@@ -98,8 +98,8 @@ void GnssParametrizationIslBiases::init(Gnss *gnss, Parallel::CommunicatorPtr co
           }
           catch(std::exception &/*e*/)
           {
-            logWarningOnce<<"Unable to read receive ISL terminal bias file <"<<fileNameInRecvTerminal(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
-            gnss->transmitters.at(idTrans)->disable("Unable to read receive ISL terminal bias file <"+fileNameInRecvTerminal(fileNameVariableList).str()+">");
+            logWarningOnce<<"Unable to read recv ISL terminal bias file <"<<fileNameInRecvTerminal(fileNameVariableList)<<">, disabling transmitter."<<Log::endl;
+            gnss->transmitters.at(idTrans)->disable("Unable to read recv ISL terminal bias file <"+fileNameInRecvTerminal(fileNameVariableList).str()+">");
           }
         }
     }
@@ -457,7 +457,7 @@ void GnssParametrizationIslBiases::writeResults(const GnssNormalEquationInfo &no
     {
       VariableList fileNameVariableList;
       fileNameVariableList.setVariable("prn", "***");
-      logStatus<<"write transmit ISL terminal biases to files <"<<fileNameOutSendTerminal(fileNameVariableList).appendBaseName(suffix)<<">"<<Log::endl;
+      logStatus<<"write send ISL terminal biases to files <"<<fileNameOutSendTerminal(fileNameVariableList).appendBaseName(suffix)<<">"<<Log::endl;
       auto selectedTransmitters = gnss->selectTransmitters(selectTransmitterSendTerminal);
       for(auto trans : gnss->transmitters)
         if(trans->useable() && selectedTransmitters.at(trans->idTrans()))
@@ -471,7 +471,7 @@ void GnssParametrizationIslBiases::writeResults(const GnssNormalEquationInfo &no
     {
       VariableList fileNameVariableList;
       fileNameVariableList.setVariable("prn", "***");
-      logStatus<<"write receive ISL terminal biases to files <"<<fileNameOutRecvTerminal(fileNameVariableList).appendBaseName(suffix)<<">"<<Log::endl;
+      logStatus<<"write recv ISL terminal biases to files <"<<fileNameOutRecvTerminal(fileNameVariableList).appendBaseName(suffix)<<">"<<Log::endl;
       auto selectedTransmitters = gnss->selectTransmitters(selectTransmitterRecvTerminal);
       for(auto trans : gnss->transmitters)
         if(trans->useable() && selectedTransmitters.at(trans->idTrans()))
