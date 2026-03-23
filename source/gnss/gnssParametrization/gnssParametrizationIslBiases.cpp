@@ -392,8 +392,8 @@ void GnssParametrizationIslBiases::constraints(const GnssNormalEquationInfo &nor
                    <<Log::endl;
 #endif
           }
-        GnssDesignMatrix::accumulateNormals(A, l, normals, n, lPl, obsCount);
       }
+      GnssDesignMatrix::accumulateNormals(A, l, normals, n, lPl, obsCount);
     }
   }
   catch(std::exception &e)
