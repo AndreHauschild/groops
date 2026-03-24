@@ -159,23 +159,20 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     Parallel::reduceSum(countTracks, 0, comm);
     logInfo<<"  number of tracks: "<<countTracks<<Log::endl;
 
+    // count ISL observations
+    // ----------------------
     if(gnss->hasIsl)
     {
-      // count ISL observations
-      // ----------------------
       logInfo<<"number of ISL observations:"<<Log::endl;
-      countTypes = Vector(1);
+      double countIsl = 0;
       for(auto recv : gnss->transmitters)
         if(recv->isMyRank())
           for(UInt idEpoch=0; idEpoch<recv->idEpochSize(); idEpoch++)
             for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
-            {
-              auto obs = recv->observationIsl(idTrans, idEpoch);
-              if(obs)
-                countTypes(0)++;
-            }
-      Parallel::reduceSum(countTypes, 0, comm);
-      logInfo<<"  total:"<<countTypes(0)%"%11i"s<<Log::endl;
+              if(recv->observationIsl(idTrans, idEpoch))
+                countIsl++;
+      Parallel::reduceSum(countIsl, 0, comm);
+      logInfo<<"  total:"<<countIsl%"%11i"s<<Log::endl;
     }
 
     // Processing steps
