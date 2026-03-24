@@ -312,7 +312,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
     }
 
     // adjust ISL biases to available terminals in the ISL observations
-    // NOTE: if no observations are found, a-priori biases are removed!
+    // NOTE: if no observations are found, a priori biases are removed!
     // ----------------------------------------------------------------
     for(auto trans : transmitters)
     {
@@ -323,15 +323,14 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
             terminals.push_back(terminal);
       std::sort(terminals.begin(), terminals.end());
 
+      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // a priori ISL bias
+      trans->islBiasSend.terminals = terminals;
 #if DEBUG_SYNC_ISL > 0
       if(Parallel::isMaster(comm) && terminals.size()>0)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal "<<trans->name()<<" "
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
 #endif
-      // NOTE: a-priori ISL biases are NOT retained!
-      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // a-priori ISL bias
-      trans->islBiasSend.terminals = terminals;
     }
 
     for(auto trans : transmitters)
@@ -343,15 +342,14 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
             terminals.push_back(termRecv.at(idTerm));
       std::sort(terminals.begin(), terminals.end());
 
+      trans->islBiasRecv.biases    = trans->islBiasRecv.compute(terminals); // a priori ISL bias
+      trans->islBiasRecv.terminals = terminals;
 #if DEBUG_SYNC_ISL > 0
       if(Parallel::isMaster(comm) && terminals.size()>0)
         logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<trans->name()<<" "
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
 #endif
-      // NOTE: a-priori ISL biases are NOT retained!
-      trans->islBiasRecv.biases    = trans->islBiasRecv.compute(terminals); // a-priori ISL bias
-      trans->islBiasRecv.terminals = terminals;
      }
 
 #if DEBUG_SYNC_ISL > 0
