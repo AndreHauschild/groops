@@ -27,9 +27,11 @@
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteNormalEquations.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteAprioriSolution.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteResiduals.h"
+#include "gnss/gnssProcessingStep/gnssProcessingStepWriteResidualsIsl.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteUsedStationList.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteUsedTransmitterList.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepPrintResidualStatistics.h"
+#include "gnss/gnssProcessingStep/gnssProcessingStepPrintResidualStatisticsIsl.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepSelectParametrizations.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepSelectEpochs.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepSelectNormalsBlockStructure.h"
@@ -48,9 +50,11 @@ GROOPS_REGISTER_CLASS(GnssProcessingStep, "gnssProcessingStepType",
                       GnssProcessingStepWriteNormalEquations,
                       GnssProcessingStepWriteAprioriSolution,
                       GnssProcessingStepWriteResiduals,
+                      GnssProcessingStepWriteResidualsIsl,
                       GnssProcessingStepWriteUsedStationList,
                       GnssProcessingStepWriteUsedTransmitterList,
                       GnssProcessingStepPrintResidualStatistics,
+                      GnssProcessingStepPrintResidualStatisticsIsl,
                       GnssProcessingStepSelectParametrizations,
                       GnssProcessingStepSelectEpochs,
                       GnssProcessingStepSelectNormalsBlockStructure,
@@ -80,16 +84,20 @@ GnssProcessingStep::GnssProcessingStep(Config &config, const std::string &name)
         bases.push_back(new GnssProcessingStepWriteResults(config));
       if(readConfigChoiceElement(config, "writeNormalEquations",           type, "write unconstrained and constraint normal equations"))
         bases.push_back(new GnssProcessingStepWriteNormalEquations(config));
-      if(readConfigChoiceElement(config, "writeAprioriSolution",           type, "write apriori solution vector"))
+      if(readConfigChoiceElement(config, "writeAprioriSolution",           type, "write a priori solution vector"))
         bases.push_back(new GnssProcessingStepWriteAprioriSolution(config));
       if(readConfigChoiceElement(config, "writeResiduals",                 type, "write observation residuals"))
         bases.push_back(new GnssProcessingStepWriteResiduals(config));
+      if(readConfigChoiceElement(config, "writeResidualsIsl",              type, "write ISL observation residuals"))
+        bases.push_back(new GnssProcessingStepWriteResidualsIsl(config));
       if(readConfigChoiceElement(config, "writeUsedStationList",           type, "write used stations"))
         bases.push_back(new GnssProcessingStepWriteUsedStationList(config));
       if(readConfigChoiceElement(config, "writeUsedTransmitterList",       type, "write used transmitters"))
         bases.push_back(new GnssProcessingStepWriteUsedTransmitterList(config));
       if(readConfigChoiceElement(config, "printResidualStatistics",        type, "print residual statistics"))
         bases.push_back(new GnssProcessingStepPrintResidualStatistics(config));
+      if(readConfigChoiceElement(config, "printResidualStatisticsIsl",     type, "print residual statistics for ISL observations"))
+        bases.push_back(new GnssProcessingStepPrintResidualStatisticsIsl(config));
       if(readConfigChoiceElement(config, "selectParametrizations",         type, "select parametrizations for all subsequent processing steps"))
         bases.push_back(new GnssProcessingStepSelectParametrizations(config));
       if(readConfigChoiceElement(config, "selectEpochs",                   type, "select epochs to be used in all subsequent processing steps"))

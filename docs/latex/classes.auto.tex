@@ -2397,11 +2397,9 @@ Name & Type & Annotation\\
 
 \subsection{WriteResiduals}\label{gnssProcessingStepType:writeResiduals}
 Writes the \file{observation residuals}{instrument} for all
-\configClass{selectReceivers}{platformSelectorType} for GNSS observations and all
-\configClass{selectTransmitters}{platformSelectorType} for ISL observations.
-One file is written for each station and transmitter. The file name is interpreted as
-a template with the variable \verb|{station}| being replaced by the station name
-or \verb|{prn}| being replaced by the satellite PRN.
+\configClass{selectReceivers}{platformSelectorType}.
+For each station a file is written. The file name is interpreted as
+a template with the variable \verb|{station}| being replaced by the station name.
 
 
 \keepXColumns
@@ -2411,8 +2409,24 @@ Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~selectReceivers & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used stations\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
+\hline
+\end{tabularx}
+
+
+\subsection{WriteResidualsIsl}\label{gnssProcessingStepType:writeResidualsIsl}
+Writes the ISL \file{observation residuals}{instrument} for all
+\configClass{selectTransmitters}{platformSelectorType}.
+One file is written for each transmitter. The file name is interpreted as
+a template with the variable \verb|{prn}| being replaced by the satellite PRN.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitter & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used transmitters\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileResidualsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hline
 \end{tabularx}
 
@@ -2471,6 +2485,40 @@ Print residual statistics.
   areq: L5XE**: factor =  0.82, sigma0 = 0.84, count =  1264, outliers =    15 (1.19 \%)
   areq: L7XE**: factor =  0.82, sigma0 = 0.94, count =  1264, outliers =    15 (1.19 \%)
   badg: C1CG**: factor =  1.25, sigma0 = 1.00, count =  2564, outliers =    47 (1.83 \%)
+  ...
+\end{verbatim}
+
+
+\subsection{PrintResidualStatisticsIsl}\label{gnssProcessingStepType:PrintResidualStatisticsIsl}
+Print residual statistics for ISL observations.
+\begin{verbatim}
+  E02 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E03 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E04 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E05 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E06 : ISL   : factor =  0.00, sigma0 = 0.97, count =  5758, outliers =     0 (0.00 \%)
+  E07 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E08 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E09 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E10 : ISL   : factor =  0.00, sigma0 = 1.02, count =  5758, outliers =     0 (0.00 \%)
+  E11 : ISL   : factor =  0.00, sigma0 = 1.02, count =  5758, outliers =     0 (0.00 \%)
+  E12 : ISL   : factor =  0.00, sigma0 = 1.01, count =  5758, outliers =     0 (0.00 \%)
+  E13 : ISL   : factor =  0.00, sigma0 = 0.97, count =  5758, outliers =     0 (0.00 \%)
+  E15 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E16 : ISL   : factor =  0.00, sigma0 = 0.98, count =  5758, outliers =     0 (0.00 \%)
+  E19 : ISL   : factor =  0.00, sigma0 = 1.01, count =  5758, outliers =     0 (0.00 \%)
+  E21 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E23 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E24 : ISL   : factor =  0.00, sigma0 = 1.01, count =  5758, outliers =     0 (0.00 \%)
+  E25 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E26 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E27 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E29 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E30 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
+  E31 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E33 : ISL   : factor =  0.00, sigma0 = 0.99, count =  5758, outliers =     0 (0.00 \%)
+  E34 : ISL   : factor =  0.00, sigma0 = 0.98, count =  5758, outliers =     0 (0.00 \%)
+  E36 : ISL   : factor =  0.00, sigma0 = 1.00, count =  5758, outliers =     0 (0.00 \%)
   ...
 \end{verbatim}
 
