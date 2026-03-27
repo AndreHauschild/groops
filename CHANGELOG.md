@@ -3,6 +3,7 @@
 - New program:      Orbit2GraceL1b.
 - New program:      SatelliteTracking2GraceL1b.
 - New program:      StarCamera2GraceL1b.
+- New class:        ParameterSelector: group.
 - New option:       conditionStringContains/MatchPattern: supports wildcards.
 - Bugfix:           ConditionFileExist: fixed bug with wildcards.
 - Bugfix:           GUI: fixed MatchCaseSensitive for schema selction.
@@ -13,6 +14,7 @@
 - Other:            NetCDF: enable to read multidimensional variables to store in muliple columns.
 - Other:            Changed ftp.tugraz.at/outgoing/ITSG to ftp.tugraz.at/pub/ITSG.
 - Other:            ModelEquilibriumTide: Taking into account spatially varying density.
+- Other:            GnssTroposphere2TropoSinex: Revised interface.
 
 # Release 2025-11-15
 - New program:      StarCamera2Orbex (replaces GnssAttitude2Orbex).
