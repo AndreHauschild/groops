@@ -66,6 +66,7 @@ GnssReceiverGeneratorStationNetwork::GnssReceiverGeneratorStationNetwork(Config 
     readConfig(config, "inputfilePotentialLoadLoveNumber",   potentialName,           Config::OPTIONAL, "{groopsDataDir}/loading/loadLoveNumbers_Gegout97.txt", "if full potential is given and not only loading potential");
     readConfig(config, "useType",                            useType,                 Config::OPTIONAL, "",     "only use observations that match any of these patterns");
     readConfig(config, "ignoreType",                         ignoreType,              Config::OPTIONAL, "",     "ignore observations that match any of these patterns");
+    readConfig(config, "extraType",                          extraType,               Config::OPTIONAL, "L5*G", "ignore observations in pre-processing that match any of these patterns");
     readConfig(config, "elevationCutOff",                    elevationCutOff,         Config::DEFAULT,  "5",    "[degree] ignore observations below cutoff");
     readConfig(config, "elevationTrackMinimum",              elevationTrackMinimum,   Config::DEFAULT,  "15",   "[degree] ignore tracks that never exceed minimum elevation");
     readConfig(config, "minObsCountPerTrack",                minObsCountPerTrack,     Config::DEFAULT,  "60",   "tracks with less number of epochs with observations are dropped");
@@ -127,7 +128,10 @@ void GnssReceiverGeneratorStationNetwork::init(std::vector<GnssType> simulationT
         {
           fileNameVariableList.setVariable("station", stationName.at(i).at(k));
           if(!isSimulation && !System::exists(fileNameObs(fileNameVariableList)))
+          {
+            logWarningOnce<<"Unable to read observation file <"<<fileNameObs(fileNameVariableList)<<">, disabling receiver "<<stationName.at(i).at(k)<<"."<<Log::endl;
             continue;
+          }
 
           Platform platform;
           readFilePlatform(fileNameStationInfo(fileNameVariableList), platform);
@@ -395,13 +399,13 @@ void GnssReceiverGeneratorStationNetwork::preprocessing(Gnss *gnss, Parallel::Co
           recv->pos = std::move(posApriori); // restore apriori positions
 
           recv->disableEpochsWithGrossCodeObservationOutliers(eqn, codeMaxPosDiff, 0.5);
-          recv->createTracks(gnss->transmitters, minObsCountPerTrack, {GnssType::L5_G});
-          recv->writeTracks(fileNameTrackBefore, eqn, {GnssType::L5_G});
-          recv->cycleSlipsDetection(eqn, minObsCountPerTrack, denoisingLambda, tecWindowSize, tecSigmaFactor, {GnssType::L5_G});
+          recv->createTracks(gnss->transmitters, minObsCountPerTrack, extraType);
+          recv->writeTracks(fileNameTrackBefore, eqn, extraType);
+          recv->cycleSlipsDetection(eqn, minObsCountPerTrack, denoisingLambda, tecWindowSize, tecSigmaFactor, extraType);
           recv->removeLowElevationTracks(eqn, elevationTrackMinimum);
-          recv->trackOutlierDetection(eqn, {GnssType::L5_G}, huber, huberPower);
+          recv->trackOutlierDetection(eqn, extraType, huber, huberPower);
           recv->cycleSlipsRepairAtSameFrequency(eqn);
-          recv->writeTracks(fileNameTrackAfter, eqn, {GnssType::L5_G});
+          recv->writeTracks(fileNameTrackAfter, eqn, extraType);
 
           // count epochs with observations
           UInt countEpochs = 0;

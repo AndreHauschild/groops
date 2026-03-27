@@ -21,7 +21,7 @@ static const char *docstringOrbitPropagatorRungeKutta4 = R"(
 This class implements the classical Runge-Kutta 4 method of orbit propagation
 for satellite orbit under the influence of \configClass{Forces}{forcesType}.
 No step-width control or other advanced features are implemented.
-Satellite is assumed to be oriented along-track.
+Satellite is assumed to be oriented according to nominal yaw-steering.
 See: Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 )";
 #endif

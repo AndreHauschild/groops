@@ -123,7 +123,7 @@ inline void GnssProcessingStepWriteResiduals::process(GnssProcessingStep::State 
 
                 for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType+=3)
                 {
-                  epoch.observation.insert(epoch.observation.end(), {0., 0., 1.});
+                  epoch.observation.insert(epoch.observation.end(), {NAN_EXPR, NAN_EXPR, NAN_EXPR});
                   for(UInt i=0; i<obs.size(); i++)
                     if(obs.at(i).type == epoch.obsType.at(idType))
                     {
