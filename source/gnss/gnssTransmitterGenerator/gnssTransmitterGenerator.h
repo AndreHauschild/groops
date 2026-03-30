@@ -58,8 +58,8 @@ public:
   /// Destructor.
  ~GnssTransmitterGenerator();
 
-  /** @brief Iniatialize and returns a vector of transmitters. */
-  std::vector<GnssTransmitterPtr> transmitters(const std::vector<Time> &times);
+  /** @brief Initialize and returns a vector of transmitters. */
+  std::vector<GnssTransmitterPtr> transmitters(const std::vector<Time> &times, const Time &timeMargin, Parallel::CommunicatorPtr comm);
 
   /** @brief creates an derived instance of this class. */
   static GnssTransmitterGeneratorPtr create(Config &config, const std::string &name) {return GnssTransmitterGeneratorPtr(new GnssTransmitterGenerator(config, name));}
@@ -88,7 +88,7 @@ class GnssTransmitterGeneratorBase
 {
 public:
   virtual ~GnssTransmitterGeneratorBase() {}
-  virtual void init(const std::vector<Time> &times, std::vector<GnssTransmitterPtr> &transmitters) = 0;
+  virtual void init(const std::vector<Time> &times, const Time &timeMargin, Parallel::CommunicatorPtr comm, std::vector<GnssTransmitterPtr> &transmitters) = 0;
 };
 
 /***********************************************/

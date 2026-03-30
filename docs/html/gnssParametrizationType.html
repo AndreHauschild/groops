@@ -87,7 +87,7 @@ Any <strong class="groops-config-element">outputfiles</strong> defined in the pa
 <a class="groops-class" href="gnssProcessingStepType.html#writeResults">GnssProcessing:processingStep:writeResults</a>.</p><p>Each parametrization (and possible constraint equations) has a <strong class="groops-config-element">name</strong> which enables
 activating/deactivating the estimation of subsets of $\Delta\M x$ with
 <a class="groops-class" href="gnssProcessingStepType.html#selectParametrizations">GnssProcessing:processingStep:selectParametrizations</a>.
-The a priori model $\M f(\M x_0)$ is unaffected and is always reduced.</p><p>The model for the different observation types can be described as
+The a priori model $\M f(\M x_0)$ is unaffected and is always reduced.</p><p>The model for the different GNSS pseudorange and carrier-phase observation types can be described as
 \[\label{gnssParametrizationType:gnssFullModel}
 \begin{split}
   f[\tau\nu a]_r^s(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
@@ -100,7 +100,16 @@ The a priori model $\M f(\M x_0)$ is unaffected and is always reduced.</p><p>The
 attribution to a signal type $\tau$ (i.e., C or L), frequency $\nu$,
 signal attribute $a$ (e.g., C, W, Q, X), transmitting satellite $s$, and observing receiver $r$.
 It follows the <a href="https://files.igs.org/pub/data/format/rinex305.pdf">RINEX 3 definition</a>,
-see <a class="groops-ref" href="gnssType.html">GnssType</a>.</p><p>See also <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>.
+see <a class="groops-ref" href="gnssType.html">GnssType</a>.</p><p>The model for the ISL observations can be described as
+\[\label{gnssParametrizationType:islFullModel}
+\begin{split}
+  f[]_{r,i}^{s,k}(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
+               &+ \text{terminal}[]^{s,k}  + \text{terminal}[]_{r,i} \\
+               &+ \text{bias}[]^{s,k} + \text{bias}[]_{r,i}
+               + \text{other}(\ldots) + \epsilon[]_{r,i}^{s,k}
+\end{split}
+\]where $ i $ is the terminal identifier of the receiving satellite $ r $ and $ k $ is the terminal identifier of the transmitting satellite $ s $.
+See also <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>.
 </p>
 
 <h2 id="ionosphereSTEC">IonosphereSTEC</h2><p>
@@ -306,6 +315,33 @@ All biases for a transmitter/receiver are accumulated and written to the respect
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">outputfileSignalBiasReceiver</div></div></td><td>filename</td><td>variable {station} available</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileSignalBiasTransmitter</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileSignalBiasReceiver</div></div></td><td>filename</td><td>variable {station} available</td></tr>
+</table>
+
+<h2 id="islBiases">IslBiases</h2><p>
+Each inter-satellite-link observation contains a bias for the ISL terminals of the transmitting and receiving satellite
+\[
+  []_{r,i}^{s,k}(t) = \dots + \text{bias}[]^{s,k} + \text{bias}[]_{r,i} + \dots
+\]
+The <a class="groops-class" href="fileFormat_islBias.html">inputfileIslBiasTransmitter/Receiver</a> are read
+for each satellite. The biases of all transmitting and receiving terminals must be stored in separate files.
+The corresponding terminal must be identified by an integer number.
+The file name is interpreted as a template with the variable <code>{prn}</code> being replaced by the satellite PRN.
+(Infos regarding the variable <code>{prn}</code> can be found in
+<a class="groops-class" href="gnssTransmitterGeneratorType.html">gnssTransmitterGeneratorType</a>).
+</p>
+<table class="table table-hover">
+<tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">name</div></div></td><td>string</td><td>used for parameter selection</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectTransmitterSendTerminal</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectTransmitterRecvTerminal</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">outputfileSendTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">outputfileRecvTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileSendTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">inputfileRecvTerminal</div></div></td><td>filename</td><td>variable {prn} available</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">nameConstraint</div></div></td><td>string</td><td>used for parameter selection</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectSendTerminalZeroMean</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">selectRecvTerminalZeroMean</div></div></td><td><a href="platformSelectorType.html">platformSelector</a></td><td></td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">sigmaZeroMeanConstraint</div></div></td><td>double</td><td>(0 = unconstrained) sigma [m] for constraint over all selected biases</td></tr>
 </table>
 
 <h2 id="ambiguities">Ambiguities</h2><p>

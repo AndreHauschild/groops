@@ -59,13 +59,13 @@ GnssTransmitterGenerator::~GnssTransmitterGenerator()
 
 /***********************************************/
 
-std::vector<GnssTransmitterPtr> GnssTransmitterGenerator::transmitters(const std::vector<Time> &times)
+std::vector<GnssTransmitterPtr> GnssTransmitterGenerator::transmitters(const std::vector<Time> &times, const Time &timeMargin, Parallel::CommunicatorPtr comm)
 {
   try
   {
     std::vector<GnssTransmitterPtr> transmitters;
     for(UInt i=0; i<base.size(); i++)
-      base.at(i)->init(times, transmitters);
+      base.at(i)->init(times, timeMargin, comm, transmitters);
     return transmitters;
   }
   catch(std::exception &e)

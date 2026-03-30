@@ -37,7 +37,7 @@ Each step is processed consecutively. Some steps allow the selection of paramete
 or the normal equation structure, which affects all subsequent steps.
 A minimal example consists of following steps:
 \begin{itemize}
-  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downeighting
+  \item \configClass{estimate}{gnssProcessingStepType:estimate}: iterative float solution with outlier downweighting
   \item \configClass{resolveAmbiguities}{gnssProcessingStepType:resolveAmbiguities}:
         fix ambiguities to integer and remove them from the normals
   \item \configClass{estimate}{gnssProcessingStepType:estimate}: few iteration for final outlier downweighting
@@ -108,6 +108,7 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
     gnss->init({}, times, seconds2time(marginSeconds), transmitterGenerator, receiverGenerator, earthRotation, gnssParametrization, comm);
     receiverGenerator->preprocessing(gnss.get(), comm);
     gnss->synchronizeTransceivers(comm);
+    gnss->synchronizeTransceiversIsl(comm);
     transmitterGenerator = nullptr;
     receiverGenerator    = nullptr;
     gnssParametrization  = nullptr;
@@ -125,9 +126,9 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
       return;
     }
 
-    // count observation types
-    // -----------------------
-    logInfo<<"types and number of observations:"<<Log::endl;
+    // count GNSS observation types
+    // ----------------------------
+    logInfo<<"types and number of GNSS observations:"<<Log::endl;
     std::vector<GnssType> types = gnss->types(~(GnssType::PRN + GnssType::FREQ_NO));
     Vector countTypes(types.size());
     for(auto recv : gnss->receivers)
@@ -157,6 +158,22 @@ void GnssProcessing::run(Config &config, Parallel::CommunicatorPtr comm)
         countTracks += recv->tracks.size();
     Parallel::reduceSum(countTracks, 0, comm);
     logInfo<<"  number of tracks: "<<countTracks<<Log::endl;
+
+    // count ISL observations
+    // ----------------------
+    if(gnss->hasIsl)
+    {
+      logInfo<<"number of ISL observations:"<<Log::endl;
+      double countIsl = 0;
+      for(auto recv : gnss->transmitters)
+        if(recv->isMyRank())
+          for(UInt idEpoch=0; idEpoch<recv->idEpochSize(); idEpoch++)
+            for(UInt idTrans=0; idTrans<recv->idTransmitterSize(idEpoch); idTrans++)
+              if(recv->observationIsl(idTrans, idEpoch))
+                countIsl++;
+      Parallel::reduceSum(countIsl, 0, comm);
+      logInfo<<"  total:"<<countIsl%"%11i"s<<Log::endl;
+    }
 
     // Processing steps
     // ----------------
