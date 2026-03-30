@@ -1303,7 +1303,7 @@ activating/deactivating the estimation of subsets of $\Delta\M x$ with
 \configClass{GnssProcessing:processingStep:selectParametrizations}{gnssProcessingStepType:selectParametrizations}.
 The a priori model $\M f(\M x_0)$ is unaffected and is always reduced.
 
-The model for the different observation types can be described as
+The model for the different GNSS pseudorange and carrier-phase observation types can be described as
 \begin{equation}\label{gnssParametrizationType:gnssFullModel}
 \begin{split}
   f[\tau\nu a]_r^s(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
@@ -1319,6 +1319,16 @@ signal attribute $a$ (e.g., C, W, Q, X), transmitting satellite $s$, and observi
 It follows the \href{https://files.igs.org/pub/data/format/rinex305.pdf}{RINEX 3 definition},
 see \reference{GnssType}{gnssType}.
 
+The model for the ISL observations can be described as
+\begin{equation}\label{gnssParametrizationType:islFullModel}
+\begin{split}
+  f[]_{r,i}^{s,k}(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
+               &+ \text{terminal}[]^{s,k}  + \text{terminal}[]_{r,i} \\
+               &+ \text{bias}[]^{s,k} + \text{bias}[]_{r,i}
+               + \text{other}(\ldots) + \epsilon[]_{r,i}^{s,k}
+\end{split}
+\end{equation}
+where $ i $ is the terminal identifier of the receiving satellite $ r $ and $ k $ is the terminal identifier of the transmitting satellite $ s $.
 See also \program{GnssProcessing}.
 
 
@@ -1592,6 +1602,40 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileSignalBiasReceiver & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileSignalBiasTransmitter & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileSignalBiasReceiver & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
+\hline
+\end{tabularx}
+
+
+\subsection{IslBiases}\label{gnssParametrizationType:islBiases}
+Each inter-satellite-link observation contains a bias for the ISL terminals of the transmitting and receiving satellite
+\begin{equation}
+  []_{r,i}^{s,k}(t) = \dots + \text{bias}[]^{s,k} + \text{bias}[]_{r,i} + \dots
+\end{equation}
+
+The \configFile{inputfileIslBiasTransmitter/Receiver}{islBias} are read
+for each satellite. The biases of all transmitting and receiving terminals must be stored in separate files.
+The corresponding terminal must be identified by an integer number.
+The file name is interpreted as a template with the variable \verb|{prn}| being replaced by the satellite PRN.
+(Infos regarding the variable \verb|{prn}| can be found in
+\configClass{gnssTransmitterGeneratorType}{gnssTransmitterGeneratorType}).
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveIslTerminal & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileTransmitIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileReceiveIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileTransmitIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileReceiveIslTerminal & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~nameConstraint & \hfuzz=500pt string & \hfuzz=500pt used for parameter selection\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitTerminalZeroMean & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectReceiveTerminalZeroMean & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~sigmaZeroMeanConstraint & \hfuzz=500pt double & \hfuzz=500pt (0 = unconstrained) sigma [m] for constraint over all selected biases\\
 \hline
 \end{tabularx}
 
@@ -2353,9 +2397,11 @@ Name & Type & Annotation\\
 
 \subsection{WriteResiduals}\label{gnssProcessingStepType:writeResiduals}
 Writes the \file{observation residuals}{instrument} for all
-\configClass{selectReceivers}{platformSelectorType}.
-For each station a file is written. The file name is interpreted as
-a template with the variable \verb|{station}| being replaced by the station name.
+\configClass{selectReceivers}{platformSelectorType} for GNSS observations and all
+\configClass{selectTransmitters}{platformSelectorType} for ISL observations.
+One file is written for each station and transmitter. The file name is interpreted as
+a template with the variable \verb|{station}| being replaced by the station name
+or \verb|{prn}| being replaced by the satellite PRN.
 
 
 \keepXColumns
@@ -2365,6 +2411,8 @@ Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~selectReceivers & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used stations\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt variable \{station\} available\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~selectTransmitter & \hfuzz=500pt \hyperref[platformSelectorType]{platformSelector} & \hfuzz=500pt subset of used transmitters\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileResidualsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hline
 \end{tabularx}
 
@@ -2778,7 +2826,7 @@ Metadata input files (marked with \textbf{*} below) are provided in GROOPS file 
         types a satellite transmits.
   \item \configFile{inputfileClockFrequencyScale}{instrument}\textbf{*}:
         Scale factor of transmitted signals due to frequency offset/clock drift.
-        Can be dreived from broadcast clocks drifts.
+        Can be derived from broadcast clocks drifts.
   \item \configFile{inputfileOrbit}{instrument}: Converted via \program{Sp3Format2Orbit} or
         output of \program{GnssProcessing}.
   \item \configFile{inputfileAttitude}{instrument}:
@@ -2807,6 +2855,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileAttitude & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileClock & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~interpolateClock & \hfuzz=500pt boolean & \hfuzz=500pt linear interpolation of missing epochs\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileObservationsIsl & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~interpolationDegree & \hfuzz=500pt uint & \hfuzz=500pt for orbit interpolation and velocity calculation\\
 \hline
 \end{tabularx}
@@ -4132,6 +4181,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~slrStation & \hfuzz=500pt  & \hfuzz=500pt loop over SLR stations\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~slrRetroReflector & \hfuzz=500pt  & \hfuzz=500pt loop over laser retroreflectors\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~satelliteIdentifier & \hfuzz=500pt  & \hfuzz=500pt loop over satellite identifiers\\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~islTerminal & \hfuzz=500pt  & \hfuzz=500pt loop over ISL terminals\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~other & \hfuzz=500pt  & \hfuzz=500pt loop over other types\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~variableLoopName & \hfuzz=500pt string & \hfuzz=500pt variable with name\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~variableLoopSerial & \hfuzz=500pt string & \hfuzz=500pt variable with serial\\
@@ -7104,8 +7154,10 @@ Name & Type & Annotation\\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~norad & \hfuzz=500pt string & \hfuzz=500pt wildcards: * and ?\\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~sic & \hfuzz=500pt string & \hfuzz=500pt wildcards: * and ?\\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~sp3 & \hfuzz=500pt string & \hfuzz=500pt wildcards: * and ?\\
+\hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~islTerminal & \hfuzz=500pt sequence & \hfuzz=500pt ISL terminal\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~terminalId & \hfuzz=500pt string & \hfuzz=500pt wildcards: * and ?\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~other & \hfuzz=500pt  & \hfuzz=500pt other types\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~exclude & \hfuzz=500pt boolean & \hfuzz=500pt deselect matching platforms\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~exclude & \hfuzz=500pt boolean & \hfuzz=500pt unselect matching platforms\\
 \hline
 \end{tabularx}
 

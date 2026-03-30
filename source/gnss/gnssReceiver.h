@@ -74,6 +74,7 @@ public:
   /** @brief Disable receiver completely. */
   void disable(const std::string &reason) override;
 
+  /** @brief Returns true if receiver is assigned to current node. */
   Bool isMyRank() const {return isMyRank_;}
 
   /** @brief Clock error.

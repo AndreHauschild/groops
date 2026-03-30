@@ -93,6 +93,24 @@ inline void GnssProcessingStepPrintResidualStatistics::process(GnssProcessingSte
                     <<", outliers = "  <<outlierCount.at(i)%"%5i"s<<" ("<<(100.*outlierCount.at(i)/obsCount.at(i))%"%4.2f"s<<" %)"<<Log::endl;
             }
       } // for(idRecv)
+
+    logStatus<<"=== print ISL residual statistics  =========================="<<Log::endl;
+    for(UInt idTrans=0; idTrans<state.gnss->transmitters.size(); idTrans++)
+    {
+      Double   ePe=0, redundancy=0;
+      UInt     obsCount=0, outlierCount=0;
+      state.residualsStatisticsIsl(idTrans, ePe, redundancy, obsCount, outlierCount);
+      Double factor = state.transmitters.at(idTrans).sigmaFactor;
+	    Parallel::reduceSum(factor, 0, state.normalEquationInfo.comm);
+      if(Parallel::isMaster(state.normalEquationInfo.comm))
+        if(obsCount>0)
+          logInfo<<"  "<<state.gnss->transmitters.at(idTrans)->name()<<" : ISL   "
+                 <<": factor = "    <<factor%"%5.2f"s
+                 <<", sigma0 = "    <<Vce::standardDeviation(ePe, redundancy, 2.5/*huber*/, 1.5/*huberPower*/)%"%4.2f"s
+                 <<", count = "     <<obsCount%"%5i"s
+                 <<", outliers = "  <<outlierCount%"%5i"s<<" ("<<(100.*outlierCount/obsCount)%"%4.2f"s<<" %)"<<Log::endl;
+    } // for(idTrans)
+
   }
   catch(std::exception &e)
   {

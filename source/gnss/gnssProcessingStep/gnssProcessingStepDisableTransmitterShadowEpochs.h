@@ -134,6 +134,7 @@ inline void GnssProcessingStepDisableTransmitterShadowEpochs::process(GnssProces
     if(countEpochs)
     {
       state.gnss->synchronizeTransceivers(state.normalEquationInfo.comm);
+      state.gnss->synchronizeTransceiversIsl(state.normalEquationInfo.comm);
       state.changedNormalEquationInfo = TRUE;
     }
     logInfo<<"  "<<countEpochs<<" disabled transmitter epochs"<<Log::endl;
