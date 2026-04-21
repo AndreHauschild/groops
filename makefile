@@ -13,6 +13,7 @@
 #   2024/11/12  AHA  Remove and re-create xsd schema file
 #   2025/04/10  AHA  Avoid using rm -rf *
 #   2025/10/20  AHA  Add building GROOPS html doc after compilation
+#   2026/04/20  AHA  Remove previous html documentation on build
 #
 #-------------------------------------------------------------------------------
 
@@ -77,7 +78,7 @@ groopsgui_:
 # Documentation
 
 groopsdoc_:
-	cd $(GROOPS_doc); ../$(GROOPS_bin)/groops --doc .
+	cd $(GROOPS_doc); rm html/*.*; ../$(GROOPS_bin)/groops --doc .
 
 groopsdoc_full_:
 	cd $(GROOPS_doc); ./makeDocumentation.sh
