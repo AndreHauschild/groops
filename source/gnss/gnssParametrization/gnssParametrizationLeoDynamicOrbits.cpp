@@ -78,12 +78,13 @@ void GnssParametrizationLeoDynamicOrbits::init(Gnss *gnss, Parallel::Communicato
     for(UInt idRecv=0; idRecv<gnss->receivers.size(); idRecv++)
       if(selectedReceivers.at(idRecv) && gnss->receivers.at(idRecv)->useable())
       {
-        recvProcess(idRecv) = Parallel::myRank(comm)+1;
         auto para = new Parameter();
         parameters.at(idRecv) = para;
         para->recv = gnss->receivers.at(idRecv);
 
-        if(!para->recv->isMyRank())
+        if(para->recv->isMyRank())
+          recvProcess(idRecv) = Parallel::myRank(comm)+1;
+        else
           continue;
 
         // find first and last valid epoch
