@@ -1206,7 +1206,11 @@
 								<xs:documentation>[rad/s]</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="time0" type="time" default="51740.5"/>
+						<xs:element name="time0" type="time" default="51740.5">
+							<xs:annotation>
+								<xs:documentation>Time of the initial angle</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -24345,8 +24349,16 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="outputfileOceanPole" type="filename"/>
-						<xs:element name="inputfile" type="filename"/>
-						<xs:element name="inputfileLoadingLoveNumber" type="filename" default="{groopsDataDir}/loading/loadLoveNumbers_Gegout97.txt"/>
+						<xs:element name="inputfile" type="filename">
+							<xs:annotation>
+								<xs:documentation>coefficients of the ocean pole tide model</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileLoadingLoveNumber" type="filename" default="{groopsDataDir}/loading/loadLoveNumbers_Gegout97.txt">
+							<xs:annotation>
+								<xs:documentation>load deformation coefficients</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="maxDegree" type="uint"/>
 						<xs:element name="GM" type="double" minOccurs="0" default="3.986004415e+14">
 							<xs:annotation>
@@ -24390,8 +24402,16 @@
 					<xs:sequence>
 						<xs:element name="outputfileEOP" type="filename"/>
 						<xs:element name="inputfile" type="filename"/>
-						<xs:element name="timeStart" type="time" minOccurs="0"/>
-						<xs:element name="timeEnd" type="time" minOccurs="0"/>
+						<xs:element name="timeStart" type="time" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Start time of EOPs to read (inclusive). Default: MJD 0</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeEnd" type="time" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>End time of EOPs to read (inclusive). Default: Date 9999-01-01</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -24445,9 +24465,21 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="outputfileEOP" type="filename"/>
-						<xs:element name="inputfile" type="filename"/>
-						<xs:element name="timeStart" type="time" minOccurs="0"/>
-						<xs:element name="timeEnd" type="time" minOccurs="0"/>
+						<xs:element name="inputfile" type="filename">
+							<xs:annotation>
+								<xs:documentation>IERS Rapid EOP file</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeStart" type="time" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Start time of EOPs to read (inclusive). Default: MJD 0</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeEnd" type="time" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>End time of EOPs to read (inclusive). Default: Date 9999-01-01</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -24504,9 +24536,21 @@
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="outputfileEOP" type="filename"/>
-						<xs:element name="inputfile" type="filename" maxOccurs="unbounded"/>
-						<xs:element name="timeStart" type="time" minOccurs="0"/>
-						<xs:element name="timeEnd" type="time" minOccurs="0"/>
+						<xs:element name="inputfile" type="filename" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>IGS daily ERP files</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeStart" type="time" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Start time of ERPs to read (inclusive). Default: MJD 0</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timeEnd" type="time" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>End time of ERPs to read (inclusive). Default: Date 9999-01-01</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>

@@ -1194,7 +1194,7 @@ followed by a column for each GNSS \configClass{type}{gnssType}.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
 has several lines per observed epoch (epochs with the same time, one for each transmitter).
 
-The second data column of the output contains a number representating the system
+The second data column of the output contains a number representing the system
 \begin{itemize}
 \item 71: 'G', GPS
 \item 82: 'R', GLONASS
@@ -1221,7 +1221,7 @@ To get access to all values the corresponding type must be repeated in \configCl
 
 Example: Selected GPS phase residuals (\configClass{type}{gnssType}='\verb|L1*G|' and \configClass{type}{gnssType}='\verb|L2*G|').
 Plotted with \program{PlotGraph} with two \configClass{layer:linesAndPoints}{plotGraphLayerType}
-(\config{valueX}='\verb|data0|',  \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
+(\config{valueX}='\verb|data0|', \config{valueY}='\verb|100*data3+data1|' and \config{valueY}='\verb|100*data4+data1|' respectively).
 \fig{!hb}{0.8}{instrumentGnssReceiver2TimeSeries}{fig:instrumentGnssReceiver2TimeSeries}{GPS residuals in cm, shifted by PRN}
 
 
@@ -9241,8 +9241,8 @@ and convert into \file{oceanPoleTide file}{oceanPoleTide}.
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileOceanPole & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfile & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileLoadingLoveNumber & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfile & \hfuzz=500pt filename & \hfuzz=500pt coefficients of the ocean pole tide model\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileLoadingLoveNumber & \hfuzz=500pt filename & \hfuzz=500pt load deformation coefficients\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~maxDegree & \hfuzz=500pt uint & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~GM & \hfuzz=500pt double & \hfuzz=500pt Geocentric gravitational constant\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~R & \hfuzz=500pt double & \hfuzz=500pt Reference radius\\
@@ -9267,8 +9267,8 @@ Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileEOP & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfile & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt Start time of EOPs to read (inclusive). Default: MJD 0\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt End time of EOPs to read (inclusive). Default: Date 9999-01-01\\
 \hline
 \end{tabularx}
 
@@ -9323,9 +9323,9 @@ and write it as \configFile{outputfileEOP}{earthOrientationParameter}.
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileEOP & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfile & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfile & \hfuzz=500pt filename & \hfuzz=500pt IERS Rapid EOP file\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt Start time of EOPs to read (inclusive). Default: MJD 0\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt End time of EOPs to read (inclusive). Default: Date 9999-01-01\\
 \hline
 \end{tabularx}
 
@@ -9366,9 +9366,9 @@ and write it as \configFile{outputfileEOP}{earthOrientationParameter}.
 Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileEOP & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~inputfile & \hfuzz=500pt filename & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt \\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~inputfile & \hfuzz=500pt filename & \hfuzz=500pt IGS daily ERP files\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt Start time of ERPs to read (inclusive). Default: MJD 0\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt End time of ERPs to read (inclusive). Default: Date 9999-01-01\\
 \hline
 \end{tabularx}
 
