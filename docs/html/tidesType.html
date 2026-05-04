@@ -189,16 +189,16 @@ read from <a class="groops-class" href="fileFormat_meanPolarMotion.html">inputfi
 <h2 id="doodsonHarmonicTide">DoodsonHarmonicTide</h2><p>
 The time variable potential of ocean tides is given by a fourier expansion
 \[
-V(\M x,t) = \sum_{f} V_f^c(\M x)\cos(\Theta_f(t)) + V_f^s(\M x)\sin(\Theta_f(t)),
+V(\M x,t) = \sum_{f} V_f^c(\M x)\cos(\theta_f(t)) + V_f^s(\M x)\sin(\theta_f(t)),
 \]where $V_f^c(\M x)$ and $V_f^s(\M x)$ are spherical harmonics expansions and are
 read from the file <a class="groops-class" href="fileFormat_doodsonHarmonic.html">inputfileDoodsonHarmonic</a>.
 If set the expansion is limited in the range between <strong class="groops-config-element">minDegree</strong>
 and <strong class="groops-config-element">maxDegree</strong> inclusivly.
-$\Theta_f(t)$ are the arguments of the tide constituents $f$:
+$\theta_f(t)$ are the arguments of the tide constituents $f$:
 \[
-\Theta_f(t) = \sum_{i=1}^6 n_f^i\beta_i(t),
+\theta_f(t) = \sum_{i=1}^6 n_f^i\beta_i(t),
 \]where $\beta_i(t)$ are the Doodson's fundamental arguments ($\tau,s,h,p,N',p_s$)
-and $n_f^i$ are the Doodson multipliers for the term at frequency $f$.</p><p>The major constituents given by <a class="groops-class" href="fileFormat_doodsonHarmonic.html">inputfileDoodsonHarmonic</a> can be used to
+and $n_f^i$ are the Doodson multipliers for the term at frequency $f$.</p><p>The major constituents given by <a class="groops-class" href="fileFormat_doodsonHarmonic.html">inputfileTides</a> can be used to
 interpolate minor tidal constituents using the file <a class="groops-class" href="fileFormat_admittance.html">inputfileAdmittance</a>.
 This file can be created with <a class="groops-program" href="DoodsonHarmonicsCalculateAdmittance.html">DoodsonHarmonicsCalculateAdmittance</a>.</p><p>After the interpolation step a selection of the computed constituents can be
 choosen by <a class="groops-class" href="doodson.html">selectDoodson</a>. Only these constiuents are considered for the results.

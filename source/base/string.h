@@ -62,10 +62,10 @@ namespace String
   /** @brief Replace all occurrences of @p substitutes.first with the @p substitutes.second string. */
   std::string replaceAll(const std::string &str, const std::vector<std::pair<std::string, std::string>> &substitutes);
 
-  /** @brief Returns a splitted string separated by @p seperator. */
+  /** @brief Returns a splitted string separated by @p separator. */
   std::vector<std::string> split(const std::string &str, Char seperator);
 
-  /** @brief Returns a splitted string separated by any character of @p seperators. */
+  /** @brief Returns a splitted string separated by any character of @p separators. */
   std::vector<std::string> split(const std::string &str, const std::string &seperators);
 
   /** @brief Convert a simple wildcard pattern into an equivalent regex expression.
