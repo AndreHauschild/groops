@@ -2,7 +2,7 @@
 /**
 * @file expressionParser.h
 *
-* @brief Mathemtical expression parser
+* @brief Mathematical expression parser
 *
 * @author Torsten Mayer-Guerr
 * @author Sebastian Strasser
@@ -55,7 +55,7 @@ typedef std::shared_ptr<ExpressionVariable> ExpressionVariablePtr;
 /***** CLASS ***********************************/
 
 /** @brief List of variables for expressions
-* With smart memmory management. The variables are only copied if needed (copy on write, late copy).
+* With smart memory management. The variables are only copied if needed (copy on write, late copy).
 * This is not threat save.
 * @ingroup parserGroup
 * @see ExpressionVariable */
@@ -186,7 +186,7 @@ public:
   * if not all variables {names} can be resolved an exception is thrown. */
   ExpressionVariablePtr derivative(const std::string &varName, const VariableList &varList) const;
 
-  /** @brief Calculate thep result of an expression.
+  /** @brief Calculate the result of an expression.
   * Example: "5*x" results in 10 if variable x=5 is given.
   * The @a StringParser with the @a varList is called before and
   * if not all variables {names} can be resolved an exception is thrown.
