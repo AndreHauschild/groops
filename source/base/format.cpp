@@ -172,7 +172,7 @@ std::string operator%(LongDouble value, const std::string &format)
         }
 
         default:
-          throw(Exception(std::string("unknown formater '%")+c+"'"));
+          throw(Exception(std::string("unknown formatter '%")+c+"'"));
       } // switch
       result += ss.str();
     } // for(;;)
