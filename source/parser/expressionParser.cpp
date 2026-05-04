@@ -2,7 +2,7 @@
 /**
 * @file expressionParser.cpp
 *
-* @brief mathemtical expression parser
+* @brief mathematical expression parser
 *
 * @author Torsten Mayer-Guerr
 * @author Sebastian Strasser
@@ -20,10 +20,10 @@
 
 /***** CLASS ***********************************/
 
-/** @brief Mathematcial Expression
+/** @brief Mathematical Expression
  * @ingroup parserGroup
  * Represented as a tree.
- * Can be created by the standard mathemtical operators.
+ * Can be created by the standard mathematical operators.
  * Example:
  * @code ExpressionPtr expr = exprValue(5)+(sin(exprVar(x))^2); @endcode
  * expr->string() results in "5+sin(x)^2" */

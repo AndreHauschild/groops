@@ -59,7 +59,7 @@ public:
   * @param[out] day day
   * @param[out] hour hour
   * @param[out] minute minutes
-  * @param[out] second seconds with frations */
+  * @param[out] second seconds with fractions */
   void date(UInt &year, UInt &month, UInt &day, UInt &hour, UInt &minute, Double &second) const;
 
   /// Date as string (yyyy-mm-dd).
