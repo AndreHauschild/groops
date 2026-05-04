@@ -127,7 +127,7 @@ namespace StringParser
 
   /** @brief string manipulation.
   * Convenience function.
-  * An expception is thrown if the string cannot resolved completly. */
+  * An exception is thrown if the string cannot resolved completely. */
   std::string parse(const std::string &text, const VariableList &varList);
 }
 
