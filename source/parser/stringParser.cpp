@@ -33,7 +33,7 @@ std::string parseUntil(const std::string &text, const char *search, const Variab
     pos = text.find_first_of(search, pos);
     textPart += text.substr(posOld, pos-posOld);
     if((pos != std::string::npos) && (pos > 0) && (text.at(pos-1) == '#')) // escape '#' before?
-      textPart.back() = text.at(pos++);                                    // replace '#' by excapted character
+      textPart.back() = text.at(pos++);                                    // replace '#' by escaped character
     else if((pos != std::string::npos) && (text.at(pos) == '{'))
       textPart += parseVariable(text, varList, ++pos, resolved);
     else
@@ -74,7 +74,7 @@ static std::string parseVariable(const std::string &text, const VariableList &va
       throw(Exception("missing closing '}' of {expression:format}"));
     if(resolvedVar)
     {
-      try {return ExpressionVariable::parse(textPart, varList) % format;} // parse expression -> caluclate new result string
+      try {return ExpressionVariable::parse(textPart, varList) % format;} // parse expression -> calculate new result string
       catch(std::exception &/*e*/) {}
     }
     resolved = FALSE;

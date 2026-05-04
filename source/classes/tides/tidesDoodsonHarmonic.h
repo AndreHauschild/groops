@@ -21,20 +21,20 @@ static const char *docstringTidesDoodsonHarmonic = R"(
 \subsection{DoodsonHarmonicTide}\label{tidesType:doodsonHarmonicTide}
 The time variable potential of ocean tides is given by a fourier expansion
 \begin{equation}
-V(\M x,t) = \sum_{f} V_f^c(\M x)\cos(\Theta_f(t)) + V_f^s(\M x)\sin(\Theta_f(t)),
+V(\M x,t) = \sum_{f} V_f^c(\M x)\cos(\theta_f(t)) + V_f^s(\M x)\sin(\theta_f(t)),
 \end{equation}
 where $V_f^c(\M x)$ and $V_f^s(\M x)$ are spherical harmonics expansions and are
 read from the file \configFile{inputfileDoodsonHarmonic}{doodsonHarmonic}.
 If set the expansion is limited in the range between \config{minDegree}
 and \config{maxDegree} inclusivly.
-$\Theta_f(t)$ are the arguments of the tide constituents~$f$:
+$\theta_f(t)$ are the arguments of the tide constituents~$f$:
 \begin{equation}
-\Theta_f(t) = \sum_{i=1}^6 n_f^i\beta_i(t),
+\theta_f(t) = \sum_{i=1}^6 n_f^i\beta_i(t),
 \end{equation}
 where $\beta_i(t)$ are the Doodson's fundamental arguments ($\tau,s,h,p,N',p_s$)
 and $n_f^i$ are the Doodson multipliers for the term at frequency~$f$.
 
-The major constituents given by \configFile{inputfileDoodsonHarmonic}{doodsonHarmonic} can be used to
+The major constituents given by \configFile{inputfileTides}{doodsonHarmonic} can be used to
 interpolate minor tidal constituents using the file \configFile{inputfileAdmittance}{admittance}.
 This file can be created with \program{DoodsonHarmonicsCalculateAdmittance}.
 
