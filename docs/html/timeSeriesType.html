@@ -178,13 +178,12 @@ epoch of the last arc (using median sampling).
 
 <h2>Revolution</h2><p>
 Reads an <a class="groops-file" href="fileFormat_instrument.html">orbit file</a> and create a time stamp for each ascending equator crossing.
-The time series can be restricted to the interval
-starting from <strong class="groops-config-element">timeStart</strong> and before <strong class="groops-config-element">timeEnd</strong>.
+The time series can be restricted to the interval starting from <strong class="groops-config-element">timeStart</strong> and before <strong class="groops-config-element">timeEnd</strong>.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">inputfileOrbit</div></div></td><td>filename</td><td></td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">timeStart</div></div></td><td>time</td><td>exclude eochs before this epoch</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">timeStart</div></div></td><td>time</td><td>exclude epochs before this epoch</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">timeEnd</div></div></td><td>time</td><td>only epochs before this time are used</td></tr>
 </table>
 
