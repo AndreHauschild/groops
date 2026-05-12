@@ -10754,7 +10754,7 @@
 						<xs:element name="inputfileOrbit" type="filename"/>
 						<xs:element name="timeStart" type="time" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>exclude eochs before this epoch</xs:documentation>
+								<xs:documentation>exclude epochs before this epoch</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="timeEnd" type="time" minOccurs="0">
