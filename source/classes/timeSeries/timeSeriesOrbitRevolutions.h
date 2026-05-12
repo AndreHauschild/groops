@@ -19,7 +19,8 @@
 static const char *docstringTimeSeriesOrbitRevolutions = R"(
 \subsection{Revolution}
 Reads an \file{orbit file}{instrument} and create a time stamp for each ascending equator crossing.
-The time series can be restricted to the interval starting from \config{timeStart} and before \config{timeEnd}.
+The time series can be restricted to the interval
+starting from \config{timeStart} and before \config{timeEnd}.
 )";
 #endif
 
@@ -53,7 +54,7 @@ inline TimeSeriesOrbitRevolutions::TimeSeriesOrbitRevolutions(Config &config)
     timeEnd = date2time(9999, 1, 1);
 
     readConfig(config, "inputfileOrbit", fileName,  Config::MUSTSET,  "", "");
-    readConfig(config, "timeStart",      timeStart, Config::OPTIONAL, "", "exclude epochs before this epoch");
+    readConfig(config, "timeStart",      timeStart, Config::OPTIONAL, "", "exclude eochs before this epoch");
     readConfig(config, "timeEnd",        timeEnd,   Config::OPTIONAL, "", "only epochs before this time are used");
     if(isCreateSchema(config)) return;
   }
@@ -72,8 +73,6 @@ inline std::vector<Time> TimeSeriesOrbitRevolutions::times() const
     const OrbitArc orbit = InstrumentFile::read(fileName);
 
     std::vector<Time> times;
-    if(orbit.size()>0 && orbit.at(0).time.isInInterval(timeStart, timeEnd))
-      times.push_back(orbit.at(0).time);
     for(UInt i=0; i<orbit.size()-1; i++)
       if((orbit.at(i).position.phi() < 0) && (orbit.at(i+1).position.phi() > 0))
       {
@@ -82,8 +81,6 @@ inline std::vector<Time> TimeSeriesOrbitRevolutions::times() const
         if(time.isInInterval(timeStart, timeEnd))
           times.push_back(time);
       }
-    if(orbit.size()>1 && orbit.at(orbit.size()-1).time.isInInterval(timeStart, timeEnd))
-      times.push_back(orbit.at(orbit.size()-1).time);
     return times;
   }
   catch(std::exception &e)
