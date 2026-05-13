@@ -2368,6 +2368,11 @@
 								<xs:documentation>maximum number of iterations</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="failOnMaxIterations" type="boolean" minOccurs="0" default="1">
+							<xs:annotation>
+								<xs:documentation>throw exception after reaching max. iterations</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
