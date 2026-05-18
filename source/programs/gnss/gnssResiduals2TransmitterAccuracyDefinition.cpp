@@ -134,12 +134,11 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
             idObs  += 4;  // skip azimuth and elevation
             idType += 4;
 
-            // residuals, redundancy, sigma/sigma0
+            // resiudals, redundancy, sigma/sigma0
             while((idType<epoch.obsType.size()) && (idObs<epoch.observation.size()) && (epoch.obsType.at(idType) == satType))
             {
               GnssType type  = epoch.obsType.at(idType++);
               Double   value = epoch.observation.at(idObs++);
-              if(std::isnan(value)) continue;
 
               Double redundancy=0, sigma=0;
               if((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // next redundancy?

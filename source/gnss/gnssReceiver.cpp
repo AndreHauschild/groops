@@ -134,7 +134,7 @@ void GnssReceiver::deleteObservation(UInt idTrans, UInt idEpoch)
 
 /***********************************************/
 
-void GnssReceiver::signalComposition(UInt /*idEpoch*/, const std::vector<GnssType> &types, std::vector<GnssType> &typesTrans, Matrix &A) const
+void GnssReceiver::signalCompositionDefault(const std::vector<GnssType> &types, std::vector<GnssType> &typesTrans, Matrix &A)
 {
   try
   {
@@ -220,6 +220,14 @@ void GnssReceiver::signalComposition(UInt /*idEpoch*/, const std::vector<GnssTyp
   }
 }
 
+/***********************************************/
+
+void GnssReceiver::signalComposition(UInt /*idEpoch*/, const std::vector<GnssType> &types, std::vector<GnssType> &typesTrans, Matrix &A) const
+{
+  signalCompositionDefault(types, typesTrans, A);
+}
+
+/***********************************************/
 /***********************************************/
 
 GnssReceiver::ObservationEquationList::ObservationEquationList(const GnssReceiver &receiver, const std::vector<GnssTransmitterPtr> &transmitters,
