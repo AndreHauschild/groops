@@ -131,7 +131,7 @@ void GnssResiduals2Skyplot::run(Config &config, Parallel::CommunicatorPtr /*comm
               const GnssType type  = epoch.obsType.at(idType++) + satType;
               const Double   value = epoch.observation.at(idObs++);
               const UInt     idx   = GnssType::index(typesTmp, type);
-              if((idx != NULLINDEX) && (type == typeTransmitter) && value)
+              if((idx != NULLINDEX) && (type == typeTransmitter) && value && !std::isnan(value))
               {
                 valuesPerPoint.at(idx) = value;
                 typesTmp.at(idx) = GnssType(static_cast<UInt64>(-1));
