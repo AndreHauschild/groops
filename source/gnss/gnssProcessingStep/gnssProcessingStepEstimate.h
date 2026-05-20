@@ -99,7 +99,7 @@ inline GnssProcessingStepEstimate::GnssProcessingStepEstimate(Config &config)
     readConfig(config, "huberPower",           huberPower,           Config::DEFAULT, "1.5",  "residuals > huber: sigma=(e/huber)^huberPower*sigma0");
     readConfig(config, "convergenceThreshold", convergenceThreshold, Config::DEFAULT, "0.01", "[m] stop iteration once full convergence is reached");
     readConfig(config, "maxIterationCount",    iterCount,            Config::DEFAULT, "3",    "maximum number of iterations");
-    readConfig(config, "failOnMaxIterations",  failOnMaxIteration,   Config::DEFAULT, "1",    "throw exception after reaching max. iterations");
+    readConfig(config, "failOnMaxIterations",  failOnMaxIteration,   Config::DEFAULT, "0",    "throw exception after reaching max. iterations");
   }
   catch(std::exception &e)
   {
@@ -122,7 +122,7 @@ inline void GnssProcessingStepEstimate::process(GnssProcessingStep::State &state
         break;
     }
     if(iter==iterCount && failOnMaxIteration)
-      throw(Exception("no convergence after"+iterCount%"%i iterations"s));
+      throw(Exception("no convergence after"+iterCount%" %i iterations"s));
   }
   catch(std::exception &e)
   {
