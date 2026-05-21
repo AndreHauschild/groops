@@ -264,7 +264,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
 
     // collect ISL observations
     // ------------------------
-    hasIsl = FALSE;
     islTerminalRecv.clear();
     islTerminalRecv.resize(transmitters.size(), std::vector<std::vector<UInt>>(transmitters.size()));
     islTerminalTrans.clear();
@@ -293,7 +292,6 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
                 remove = TRUE;
                 continue;
               }
-              hasIsl = TRUE;
               if(!isInList(islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans),obs->terminalRecv))
                 islTerminalRecv.at(recvSatellite->idTrans()).at(idTrans).push_back(obs->terminalRecv);
               if(!isInList(islTerminalTrans.at(recvSatellite->idTrans()).at(idTrans),obs->terminalSend))

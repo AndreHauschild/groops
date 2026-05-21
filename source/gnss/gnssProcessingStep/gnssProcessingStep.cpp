@@ -912,61 +912,62 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
     // Residual tracking (inter satellite links)
     // -----------------------------------------
     Gnss::InfoParameterChange infosResidualsIsl("mm");
-    if(gnss->hasIsl)
+    Parallel::barrier(normalEquationInfo.comm);
+
+    UInt countISL = 0;
+
+    for(UInt idEpoch : normalEquationInfo.idEpochs)
     {
-      Parallel::barrier(normalEquationInfo.comm);
-      //logStatus<<"Compute residuals (inter satellite links)"<<Log::endl;
-      UInt idLoop = 0;
-      //Log::Timer timer(normalEquationInfo.idEpochs.size());
-      for(UInt idEpoch : normalEquationInfo.idEpochs)
-      {
-        //timer.loopStep(idLoop++);
+      GnssObservationEquationIsl eqn;
+      for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
+        if(gnss->transmitters.at(idRecv)->isMyRank())
+          for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+            if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
+            {
+              // setup observation equations
+              A.init(eqn.l.rows());
+              gnss->designMatrixIsl(normalEquationInfo, eqn, A);
+              Vector We  = eqn.l - A.mult(x); // homogenized residuals
+              Matrix AWz = A.mult(Wz);        // redundancies
 
-        GnssObservationEquationIsl eqn;
-        for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
-        {
-          if(gnss->transmitters.at(idRecv)->isMyRank())
-            for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
-              if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
-              {
-                // setup observation equations
-                A.init(eqn.l.rows());
-                gnss->designMatrixIsl(normalEquationInfo, eqn, A);
-                Vector We  = eqn.l - A.mult(x); // homogenized residuals
-                Matrix AWz = A.mult(Wz);        // redundancies
+              countISL++;
 
-                // redundancies
-                // ------------
-                Vector r(We.rows());
-                for(UInt i=0; i<We.rows(); i++)
-                  r(i) = 1. - quadsum(AWz.row(i));
+              // redundancies
+              // ------------
+              Vector r(We.rows());
+              for(UInt i=0; i<We.rows(); i++)
+                r(i) = 1. - quadsum(AWz.row(i));
 
-                // find max. residual (for statistics)
-                // -----------------------------------
-                if(norm(eqn.sigma-eqn.sigma0) < 1e-8) // without outlier
-                  if(infosResidualsIsl.update(1e3*(We(0)*eqn.sigma(0) - gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->residual)))
-                    infosResidualsIsl.info = "ISL"+ eqn.transmitter->name()+", ("+eqn.receiver->name()+" , "+gnss->times.at(idEpoch).dateTimeStr()+")";
-                gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->setHomogenizedResiduals(We(0), r(0));
-              }
-        } // for(idRecv)
-      } // for(idEpoch)
-      Parallel::barrier(normalEquationInfo.comm);
-      //timer.loopEnd();
+              // find max. residual (for statistics)
+              // -----------------------------------
+              if(norm(eqn.sigma-eqn.sigma0) < 1e-8) // without outlier
+                if(infosResidualsIsl.update(1e3*(We(0)*eqn.sigma(0) - gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->residual)))
+                  infosResidualsIsl.info = "ISL"+ eqn.transmitter->name()+", ("+eqn.receiver->name()+" , "+gnss->times.at(idEpoch).dateTimeStr()+")";
 
+              gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->setHomogenizedResiduals(We(0), r(0));
+            }
+    } // for(idEpoch)
+    Parallel::barrier(normalEquationInfo.comm);
+
+    Parallel::reduceSum(countISL, 0, normalEquationInfo.comm);
+    Parallel::broadCast(countISL, 0, normalEquationInfo.comm);
+
+    if(countISL)
+    {
       // new weights
       // -----------
       if(computeWeights || adjustSigma0)
       {
+        // TODO: new weights and adjusted sigmas should also be computed here for ISL observations
         if(computeWeights) logStatus<<"Downweight outliers"<<Log::endl;
         if(adjustSigma0)   logStatus<<"Estimate variance factors"<<Log::endl;
-        // TODO: new weights and adjusted sigmas should also be computed here for ISL observations
         logError<<"Not yet implemented!"<<Log::endl;
       }
 
       // ISL residual analysis
       // ---------------------
-      Double   ePe, redundancy;
-      UInt     obsCount, outlierCount;
+      Double   ePe=0, redundancy=0;
+      UInt     obsCount=0, outlierCount=0;
       residualsStatisticsIsl(NULLINDEX/*idRecv*/, ePe, redundancy, obsCount, outlierCount);
       if(Parallel::isMaster(normalEquationInfo.comm))
         if(obsCount)
