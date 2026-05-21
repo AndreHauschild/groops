@@ -495,13 +495,15 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           logWarningOnce<<"no receiver/satellite found as reference at "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 
         if(reference!=NULLINDEX)
+        {
           for(UInt i=0; i<links.size(); i++)
             for(UInt j : links.at(i))
             {
               graph[i].push_back(j);
               graph[j].push_back(i);
             }
-        Q = bfs(reference, graph);
+          Q = bfs(reference, graph);
+        }
 
       } // if(Parallel::isMaster(normalEquationInfo.comm))
 
