@@ -14,6 +14,7 @@
 #   2025/04/10  AHA  Avoid using rm -rf *
 #   2025/10/20  AHA  Add building GROOPS html doc after compilation
 #   2026/04/20  AHA  Remove previous html documentation on build
+#   2026/05/22  AHA  Set number of parallel jobs correctly in slurm job
 #
 #-------------------------------------------------------------------------------
 
@@ -27,10 +28,10 @@ GROOPS_bld = $(GROOPS)/source/build
 
 # Get number of parallel build jobs
 
-ifneq ($(shell which nproc 2> /dev/null),)
-  NJOBS = $(shell nproc)
+ifneq ($(SLURM_NTASKS),)
+  NJOBS = $(SLURM_NTASKS)
 else
-  NJOBS = 1
+  NJOBS = $(shell nproc 2>/dev/null || echo 1)
 endif
 
 # Parallel compilation on Linux and Cygwin
@@ -71,12 +72,12 @@ init:
 groops_:
 	cd $(GROOPS_bld); cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../..; $(PMAKE); $(PMAKE) install
 	rm groops.xsd; $(GROOPS_bin)/groops --xsd groops.xsd
-	
 
 groopsgui_:
 	cd $(GROOPS_gui); $(QMAKE); $(PMAKE)
 
 # Documentation
+
 groopsdoc_:
 	cd $(GROOPS_doc); rm html/*.*; ../$(GROOPS_bin)/groops --doc .
 
