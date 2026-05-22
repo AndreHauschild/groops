@@ -82,7 +82,7 @@ GitHub repository: https://github.com/groops-devs/groops
 
 /***********************************************/
 
-static void groopsHelp(const std::string &progName, Parallel::CommunicatorPtr comm)
+static void groopsHelp(const std::string &progName, Parallel::CommunicatorPtr comm, UInt exitCode=EXIT_FAILURE)
 {
   if(Parallel::isMaster(comm))
   {
@@ -104,7 +104,7 @@ static void groopsHelp(const std::string &progName, Parallel::CommunicatorPtr co
     std::cout<<"GitHub repository: https://github.com/groops-devs/groops"<<std::endl;
     std::cout<<"(Compiled: "<<__DATE__<<" "<<__TIME__<<")"<<std::endl;
   }
-  exit(EXIT_FAILURE);
+  exit(exitCode);
 }
 
 /***********************************************/
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
         else if((opt == "-c") || (opt == "--settings"))       {settingsFileName      = FileName(optArg());}
         else if((opt == "-C") || (opt == "--write-settings")) {writeSettingsFileName = FileName(optArg());}
         else if((opt == "-s") || (opt == "--silent"))         {silent = TRUE;}
-        else if((opt == "-h") || (opt == "--help"))           {groopsHelp(argv[0], comm);}
+        else if((opt == "-h") || (opt == "--help"))           {groopsHelp(argv[0], comm, EXIT_SUCCESS);}
         else if((opt == "-g") || (opt == "--global"))
         {
           std::string keyVal(optArg());
