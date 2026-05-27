@@ -30,8 +30,8 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
   {
     std::string choice;
 
-    renameDeprecatedConfig(config, "inputfileAntennaDefintion", "inputfileAntennaDefinition", date2time(2025, 5, 27));
-    renameDeprecatedConfig(config, "inputfileSignalDefintion", "inputfileSignalDefinition", date2time(2025, 5, 27));
+    renameDeprecatedConfig(config, "inputfileAntennaDefintion", "inputfileAntennaDefinition", date2time(2026, 5, 27));
+    renameDeprecatedConfig(config, "inputfileSignalDefintion", "inputfileSignalDefinition", date2time(2026, 5, 27));
 
     readConfig(config, "inputfileTransmitterList",  fileNamesTransmitterList, Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterList.gps.txt", "ascii file with transmitter PRNs, used to loop variable {prn}");
     readConfig(config, "inputfileTransmitterInfo",  fileNameTransmitterInfo,  Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterInfo/igs/igs20/transmitterInfo_igs20.{prn}.xml", "variable {prn} available");
