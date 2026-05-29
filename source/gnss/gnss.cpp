@@ -242,7 +242,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
 
           UInt epochCount = 0;
           for(UInt idEpoch : normalEquationInfo.idEpochs)
-            if(countEpoch(idEpoch) > transCountEpoch.at(trans->idTrans()))
+            if(countEpoch(idEpoch) >= transCountEpoch.at(trans->idTrans()))
               epochCount++;
           if(epochCount < transCount.at(trans->idTrans()))
           {
@@ -275,7 +275,7 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
                 recv->disable(idEpoch, "failed parametrization requirements");
                 mustSync = TRUE;
               }
-              else if(count > recvCountEpoch.at(recv->idRecv()))
+              else if(count >= recvCountEpoch.at(recv->idRecv()))
                 epochCount++;
             }
 
