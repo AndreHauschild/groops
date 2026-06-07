@@ -72,10 +72,13 @@ inline void GnssProcessingStepSelectEpochs::process(GnssProcessingStep::State &s
     for(UInt idEpoch=0; idEpoch<state.gnss->times.size(); idEpoch+=nthEpoch)
       state.normalEquationInfo.idEpochs.push_back(idEpoch);
     logInfo<<"  "<<state.normalEquationInfo.idEpochs.size()<<" of "<<state.gnss->times.size()<<" epochs selected"<<Log::endl;
-    if((oldEpochs != state.normalEquationInfo.idEpochs) && std::any_of(state.stations.begin(), state.stations.end(), [](auto &s){return s.arOrder;}))
-      logWarningOnce<<"estimated decorrelation AR process has been reset because the select epochs have changed"<<Log::endl;
-    std::for_each(state.stations.begin(), state.stations.end(), [](auto &s){s.arOrder = 0;});
-    state.changedNormalEquationInfo = TRUE;
+    if(oldEpochs != state.normalEquationInfo.idEpochs)
+    {
+      state.changedNormalEquationInfo = TRUE;
+      if(std::any_of(state.receiverNoiseModels.begin(), state.receiverNoiseModels.end(), [](auto &s){return s.arOrder;}))
+        logWarningOnce<<"estimated decorrelation AR process has been reset because the selected epochs have changed"<<Log::endl;
+      std::for_each(state.receiverNoiseModels.begin(), state.receiverNoiseModels.end(), [](auto &s){s.arOrder = 0;});
+    }
   }
   catch(std::exception &e)
   {

@@ -151,7 +151,7 @@ void GnssProcessingStep::process(GnssProcessingStep::State &state)
 
 GnssProcessingStep::State::State(GnssPtr gnss, Parallel::CommunicatorPtr comm) :
   gnss(gnss), normalEquationInfo(gnss->times.size(), gnss->receivers.size(), gnss->transmitters.size(), comm),
-  changedNormalEquationInfo(TRUE), stations(gnss->receivers.size()) {}
+  changedNormalEquationInfo(TRUE), receiverNoiseModels(gnss->receivers.size()) {}
 
 /***********************************************/
 
@@ -159,8 +159,8 @@ void GnssProcessingStep::State::decorrelatedDesignMatrix(GnssObservationEquation
 {
   try
   {
-    auto &station = stations.at(eqn.receiver->idRecv());
-    if(!station.arOrder)
+    auto &noiseModel = receiverNoiseModels.at(eqn.receiver->idRecv());
+    if(!noiseModel.arOrder)
     {
       gnss->designMatrix(normalEquationInfo, eqn, A);
       return;
@@ -170,7 +170,7 @@ void GnssProcessingStep::State::decorrelatedDesignMatrix(GnssObservationEquation
     // find future epochs of same track
     std::vector<UInt> idEpochs(1, eqn.idEpoch);
     auto iterIdEpoch = std::upper_bound(normalEquationInfo.idEpochs.begin(), normalEquationInfo.idEpochs.end(), idEpochs.back());
-    for(UInt lag=1; (lag <= station.arOrder) && (iterIdEpoch != normalEquationInfo.idEpochs.end()); lag++, iterIdEpoch++)
+    for(UInt lag=1; (lag <= noiseModel.arOrder) && (iterIdEpoch != normalEquationInfo.idEpochs.end()); lag++, iterIdEpoch++)
     {
       const GnssObservation *obs = eqn.receiver->observation(eqn.transmitter->idTrans(), *iterIdEpoch);
       if(!obs || (obs->track != eqn.track))
@@ -186,22 +186,26 @@ void GnssProcessingStep::State::decorrelatedDesignMatrix(GnssObservationEquation
 
     const UInt obsCount = eqn.types.size();
     const UInt order    = idEpochs.size()-1;
-    std::vector<Double> factors(obsCount);
-    std::vector<UInt>   rowInA(obsCount);
-    std::vector<UInt>   idxType(obsCount);
-    std::iota(rowInA.begin(), rowInA.end(), 0);
+    std::vector<UInt> idxType(obsCount);
     for(UInt i=0; i<obsCount; i++)
-      idxType.at(i) = GnssType::index(station.arTypes, eqn.types.at(i));
+      idxType.at(i) = GnssType::index(noiseModel.arTypes, eqn.types.at(i));
 
     // lag 0
     for(UInt i=0; i<obsCount; i++)
-    {
-      eqn.l.row(i) *= station.arProcesses.at(idxType.at(i)).at(order).at(0);
-      eqn.A.row(i) *= station.arProcesses.at(idxType.at(i)).at(order).at(0);
-    }
+      if(idxType.at(i) != NULLINDEX)
+      {
+        eqn.l.row(i) *= noiseModel.arProcesses.at(idxType.at(i)).at(order).at(0);
+        eqn.A.row(i) *= noiseModel.arProcesses.at(idxType.at(i)).at(order).at(0);
+      }
     gnss->designMatrix(normalEquationInfo, eqn, A);
 
     // other lags
+    std::vector<UInt> rowInA(obsCount);
+    std::iota(rowInA.begin(), rowInA.end(), 0);
+    for(UInt i=0; i<obsCount; i++)
+      if(idxType.at(i) == NULLINDEX)
+        rowInA.at(i) = NULLINDEX;
+
     for(UInt k=1; k<idEpochs.size(); k++)
     {
       const GnssObservation *obs = eqn.receiver->observation(eqn.transmitter->idTrans(), idEpochs.at(k));
@@ -210,11 +214,16 @@ void GnssProcessingStep::State::decorrelatedDesignMatrix(GnssObservationEquation
       eqnB.eliminateGroupParameters(FALSE);
       B.init(eqnB.l.rows());
       gnss->designMatrix(normalEquationInfo, eqnB, B);
+
+      std::vector<Double> factors(obsCount);
       for(UInt i=0; i<obsCount; i++)
-        factors.at(i) = station.arProcesses.at(idxType.at(i)).at(order).at(k);
+        if(idxType.at(i) != NULLINDEX)
+          factors.at(i) = noiseModel.arProcesses.at(idxType.at(i)).at(order).at(k);
+
       GnssDesignMatrix::axpy(rowInA, factors, B, A);
       for(UInt i=0; i<obsCount; i++)
-        eqn.l(i) += factors.at(i) * eqnB.l(i);
+        if(idxType.at(i) != NULLINDEX)
+          eqn.l(i) += factors.at(i) * eqnB.l(i);
     }
   }
   catch(std::exception &e)
@@ -370,7 +379,7 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
               for(UInt idTrans=0; idTrans<gnss->receivers.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
                 if(gnss->basicObservationEquations(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
                 {
-                  eqn.eliminateGroupParameters(!stations.at(idRecv).arOrder);
+                  eqn.eliminateGroupParameters(!receiverNoiseModels.at(idRecv).arOrder);
                   A.init(eqn.l.rows());
                   decorrelatedDesignMatrix(eqn, B, A);
                   GnssDesignMatrix::accumulateNormals(A, eqn.l, normals, n, lPl(0), obsCount);
@@ -384,7 +393,7 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
               UInt countEqn = 0;
               for(UInt idTrans=0; idTrans<gnss->receivers.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
                 if(gnss->basicObservationEquations(normalEquationInfo, idRecv, idTrans, idEpoch, eqns.at(countEqn)))
-                  eqns.at(countEqn++).eliminateGroupParameters(!stations.at(idRecv).arOrder);
+                  eqns.at(countEqn++).eliminateGroupParameters(!receiverNoiseModels.at(idRecv).arOrder);
               // copy all observations to a single vector
               Vector l(std::accumulate(eqns.begin(), eqns.begin()+countEqn, UInt(0), [](UInt count, auto &eqn) {return count+eqn.l.rows();}));
               A.init(l.rows());
@@ -565,7 +574,7 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
             for(UInt idTrans=0; idTrans<gnss->receivers.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
               if(gnss->basicObservationEquations(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
               {
-                eqn.eliminateGroupParameters(!stations.at(idRecv).arOrder);
+                eqn.eliminateGroupParameters(!receiverNoiseModels.at(idRecv).arOrder);
                 A.init(eqn.l.rows());
                 decorrelatedDesignMatrix(eqn, B, A);
                 A.transMult(eqn.l-A.mult(n, blockStart, normalEquationInfo.blockCount()-blockStart), n, 0, blockStart);
@@ -809,10 +818,10 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
 
               // apply old factors to store total factor
               for(UInt idType=0; idType<types.size(); idType++)
-                if(types.at(idType).isInList(stations.at(recv->idRecv()).sigmaTypes, idx))
-                  factors.at(idType) *= stations.at(recv->idRecv()).sigmaFactors.at(idx);
-              stations.at(recv->idRecv()).sigmaTypes   = std::move(types);
-              stations.at(recv->idRecv()).sigmaFactors = std::move(factors);
+                if(types.at(idType).isInList(receiverNoiseModels.at(recv->idRecv()).sigmaTypes, idx))
+                  factors.at(idType) *= receiverNoiseModels.at(recv->idRecv()).sigmaFactors.at(idx);
+              receiverNoiseModels.at(recv->idRecv()).sigmaTypes   = std::move(types);
+              receiverNoiseModels.at(recv->idRecv()).sigmaFactors = std::move(factors);
             } // if(adjustSigma0)
 
             if(computeWeights)
