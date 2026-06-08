@@ -19,6 +19,7 @@
 - Other:            GnssTroposphere2TropoSinex: Revised interface.
 - Other:            GnssAntex2AntennaDefinition: Handling of changing antennas of a SVN.
 - Other:            GnssSinexBias2SignalBias: Transform combined X signals to actually transmitted signals.
+- Other:            GnssParametrizationAmbiguities: Consider more resolved ambiguities in the next processing steps.
 
 # Release 2025-11-15
 - New program:      StarCamera2Orbex (replaces GnssAttitude2Orbex).
