@@ -113,7 +113,8 @@ public:
                    GNSSRECEIVER        = 3,
                    SLRSTATION          = 4,
                    LASERRETROREFLECTOR = 5,
-                   SATELLITEIDENTIFIER = 6};
+                   SATELLITEIDENTIFIER = 6,
+                   ISLTERMINAL         = 7};
 
   static constexpr Type TYPE = OTHER;
   std::string comment;
@@ -191,6 +192,20 @@ public:
 
   Type getType() const override {return TYPE;}
   std::string str() const override {return name;}
+  void save(OutArchive &oa) const override;
+  void load(InArchive  &ia) override;
+};
+
+/***** CLASS ***********************************/
+
+class PlatformIslTerminal : public PlatformEquipment
+{
+public:
+  static constexpr Type TYPE = ISLTERMINAL;
+  Transform3d              local2terminalFrame;  // north, east, up or vehicle system -> terminal system
+  std::string              terminalId;
+
+  Type getType() const override {return TYPE;}
   void save(OutArchive &oa) const override;
   void load(InArchive  &ia) override;
 };

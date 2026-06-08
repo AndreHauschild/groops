@@ -40,6 +40,7 @@ class PlatformSelectorEquipment : public PlatformSelectorBase
   std::regex patternName, patternSerial;
   std::regex patternRadome, patternVersion;
   std::regex patternCospar, patternNorad, patternSic, patternSp3;
+  std::regex patternTerminal;
 
 public:
   PlatformSelectorEquipment(Config &config);
@@ -55,6 +56,7 @@ inline PlatformSelectorEquipment::PlatformSelectorEquipment(Config &config)
     std::string choice;
     std::string name("*"), serial("*"), radome("*"), version("*");
     std::string cospar("*"), norad("*"), sic("*"), sp3("*");
+    std::string terminal("*");
 
     readConfig(config, "name",   name,   Config::OPTIONAL, "*", "wildcards: * and ?");
     readConfig(config, "serial", serial, Config::OPTIONAL, "*", "wildcards: * and ?");
@@ -81,10 +83,15 @@ inline PlatformSelectorEquipment::PlatformSelectorEquipment(Config &config)
         readConfig(config, "sic",    sic,    Config::OPTIONAL, "*", "wildcards: * and ?");
         readConfig(config, "sp3",    sp3,    Config::OPTIONAL, "*", "wildcards: * and ?");
       }
+      if(readConfigChoiceElement(config, "islTerminal",         choice, "ISL terminal"))
+      {
+        type = PlatformEquipment::ISLTERMINAL;
+        readConfig(config, "terminalId", terminal, Config::OPTIONAL, "*", "wildcards: * and ?");
+      }
       if(readConfigChoiceElement(config, "other", choice, "other types")) type = PlatformEquipment::OTHER;
       endChoice(config);
     }
-    readConfig(config, "exclude", exclude, Config::DEFAULT, "0", "deselect matching platforms");
+    readConfig(config, "exclude", exclude, Config::DEFAULT, "0", "unselect matching platforms");
     if(isCreateSchema(config)) return;
 
     patternName     = String::wildcard2regex(name);
@@ -95,6 +102,7 @@ inline PlatformSelectorEquipment::PlatformSelectorEquipment(Config &config)
     patternNorad    = String::wildcard2regex(norad);
     patternSic      = String::wildcard2regex(sic);
     patternSp3      = String::wildcard2regex(sp3);
+    patternTerminal = String::wildcard2regex(terminal);
   }
   catch(std::exception &e)
   {
@@ -132,6 +140,10 @@ inline void PlatformSelectorEquipment::select(const Time &timeStart, const Time 
                    std::regex_match(std::dynamic_pointer_cast<PlatformSatelliteIdentifier>(eq)->sic,    patternSic)    &&
                    std::regex_match(std::dynamic_pointer_cast<PlatformSatelliteIdentifier>(eq)->sp3,    patternSp3))
                 selected.at(i) = !exclude;
+                break;
+              case PlatformEquipment::ISLTERMINAL:
+                if(std::regex_match(std::dynamic_pointer_cast<PlatformIslTerminal>(eq)->terminalId, patternTerminal))
+                  selected.at(i) = !exclude;
                 break;
               case PlatformEquipment::SLRSTATION:          [[fallthrough]];
               case PlatformEquipment::LASERRETROREFLECTOR: [[fallthrough]];

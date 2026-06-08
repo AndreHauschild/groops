@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>GROOPS - File Formats</title>
+    <title>GROOPS - GnssSimulateIsl</title>
 
     <!-- JQuery and Popper -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
@@ -69,52 +69,25 @@
     </header>
     <main class="container px-0 pt-2 top-buffer">
         <div id="content" class="container">
-            <h1 id="general.fileFormat">File formats</h1><p>
-All GROOPS files are written either in XML, JSON, binary, or ASCII format depending on the filename extension.
-<ul>
+            <h1>GnssSimulateIsl</h1><p>
 
-<li><code>.xml</code>: XML format
-</li><li>
-<code>.json</code>: JSON format
-</li><li>
-<code>.dat</code>: binary format
-</li><li>
-<code>.txt</code> and all other extensions: ASCII format
-</li></ul>
-</p><p>With an additional extension of '<code>.gz</code>' files are directly compressed and uncompressed. It is also possible to directly uncompress and read (but not write) <a href="https://en.wikipedia.org/wiki/Compress">Unix compress</a>'d files ('<code>.Z</code>').</p><p>Comments are allowed in ASCII files and all the text starting from the character '<code>#</code>' to the end of the line is ignored.</p><p>The program <a class="groops-program" href="FileConvert.html">FileConvert</a> can be used to convert between the different formats. This program is also useful to get
-some general information of files in binary format.</p><p>The following special file types are used in GROOPS:
+This program simulates inter-satellite link (ISL) observations between terminals on GNSS satellites.
+These simulated observations can then be used in <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>, for example to conduct closed-loop simulations.</p><p>One or more GNSS constellations must be defined via <a class="groops-class" href="gnssTransmitterGeneratorType.html">transmitter</a>.</p><p>The <a class="groops-class" href="gnssParametrizationType.html">parametrization</a> are used to simulate a-priori models (e.g. ISL biases).
+Parameter settings and output files are ignored.</p><p>The option <strong class="groops-config-element">noiseObservation</strong> specifies the sigma of the noise which is applied to the simulated observations.</p><p>The option <strong class="groops-config-element">sigmaObservation</strong> sets the expected sigma of the observations used as weights in the parameter estimation.
 </p>
-<p><ul>
-<li><a href="fileFormat_admittance.html">Admittance</a></li>
-<li><a href="fileFormat_arcList.html">ArcList</a></li>
-<li><a href="fileFormat_doodsonEarthOrientationParameter.html">DoodsonEarthOrientationParameter</a></li>
-<li><a href="fileFormat_doodsonHarmonic.html">DoodsonHarmonic</a></li>
-<li><a href="fileFormat_earthOrientationParameter.html">EarthOrientationParameter</a></li>
-<li><a href="fileFormat_earthTide.html">EarthTide</a></li>
-<li><a href="fileFormat_ephemerides.html">Ephemerides</a></li>
-<li><a href="fileFormat_gnssAntennaDefinition.html">GnssAntennaDefinition</a></li>
-<li><a href="fileFormat_gnssReceiverDefinition.html">GnssReceiverDefinition</a></li>
-<li><a href="fileFormat_gnssSignalBias.html">GnssSignalBias</a></li>
-<li><a href="fileFormat_griddedData.html">GriddedData</a></li>
-<li><a href="fileFormat_griddedDataTimeSeries.html">GriddedDataTimeSeries</a></li>
-<li><a href="fileFormat_instrument.html">Instrument</a></li>
-<li><a href="fileFormat_islBias.html">IslBias</a></li>
-<li><a href="fileFormat_matrix.html">Matrix</a></li>
-<li><a href="fileFormat_meanPolarMotion.html">MeanPolarMotion</a></li>
-<li><a href="fileFormat_normalEquation.html">NormalEquation</a></li>
-<li><a href="fileFormat_oceanPoleTide.html">OceanPoleTide</a></li>
-<li><a href="fileFormat_parameterName.html">ParameterName</a></li>
-<li><a href="fileFormat_platform.html">Platform</a></li>
-<li><a href="fileFormat_polygon.html">Polygon</a></li>
-<li><a href="fileFormat_potentialCoefficients.html">PotentialCoefficients</a></li>
-<li><a href="fileFormat_satelliteModel.html">SatelliteModel</a></li>
-<li><a href="fileFormat_stringList.html">StringList</a></li>
-<li><a href="fileFormat_stringTable.html">StringTable</a></li>
-<li><a href="fileFormat_tideGeneratingPotential.html">TideGeneratingPotential</a></li>
-<li><a href="fileFormat_timeSplinesCovariance.html">TimeSplinesCovariance</a></li>
-<li><a href="fileFormat_timeSplinesGravityField.html">TimeSplinesGravityField</a></li>
-<li><a href="fileFormat_variationalEquation.html">VariationalEquation</a></li>
-</ul></p>
+<table class="table table-hover">
+<tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">outputfileGnssIsl</div></div></td><td>filename</td><td>variable {prn} available, simulated observations</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">timeSeries</div></div></td><td><a href="timeSeriesType.html">timeSeries</a></td><td>defines observation epochs</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">timeMargin</div></div></td><td>double</td><td>[seconds] margin to consider two times identical</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">transmitter</div></div></td><td><a href="gnssTransmitterGeneratorType.html">gnssTransmitterGenerator</a></td><td>constellation of GNSS satellites</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">islSchedule</div></div></td><td>filename</td><td>variable {prn} available, schedule with ISL connections</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">earthRotation</div></div></td><td><a href="earthRotationType.html">earthRotation</a></td><td>apriori earth rotation</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">parametrization</div></div></td><td><a href="gnssParametrizationType.html">gnssParametrization</a></td><td>models and parameters</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional-unbounded">noiseObservation</div></div></td><td><a href="noiseGeneratorType.html">noiseGenerator</a></td><td>[m] ISL observation noise (simulated)</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">sigmaObservation</div></div></td><td>double</td><td>[m] ISL observation sigma (for observation weighting)</td></tr>
+</table>
+This program is <a class="groops-ref" href="general.parallelization.html">parallelized</a>.
 
         </div>
     </main>
