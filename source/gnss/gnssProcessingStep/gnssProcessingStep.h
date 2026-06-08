@@ -68,7 +68,7 @@ public:
   class State
   {
   public:
-    class StationStatistics
+    class ReceiverNoiseModel
     {
     public:
       std::vector<GnssType> sigmaTypes;
@@ -77,17 +77,17 @@ public:
       std::vector<GnssType> arTypes;
       std::vector<std::vector<std::vector<Double>>> arProcesses; // for each type, order, order
 
-      StationStatistics() : arOrder(0) {}
+      ReceiverNoiseModel() : arOrder(0) {}
     };
 
-    GnssPtr                        gnss;
-    GnssNormalEquationInfo         normalEquationInfo;
-    Bool                           changedNormalEquationInfo;
-    MatrixDistributed              normals;
-    std::vector<Matrix>            n;        // at master (after solve)
-    Vector                         lPl;      // at master (after solve)
-    UInt                           obsCount; // at master (after solve)
-    std::vector<StationStatistics> stations;
+    GnssPtr                         gnss;
+    GnssNormalEquationInfo          normalEquationInfo;
+    Bool                            changedNormalEquationInfo;
+    MatrixDistributed               normals;
+    std::vector<Matrix>             n;        // at master (after solve)
+    Vector                          lPl;      // at master (after solve)
+    UInt                            obsCount; // at master (after solve)
+    std::vector<ReceiverNoiseModel> receiverNoiseModels;
 
     /** @brief Constructor. */
     State(GnssPtr gnss, Parallel::CommunicatorPtr comm);

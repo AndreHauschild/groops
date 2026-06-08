@@ -56,7 +56,7 @@ namespace GnssLambda
   Matrix phaseDecorrelation(const std::vector<GnssType> &types, Double wavelengthFactor, Double weightRange=0.0);
 
   // LAMBDA method
-  UInt   choleskyReversePivot(Matrix &N, Transformation &Z, UInt index0Z, Double tolerance, Bool timing);
+  UInt   choleskyPivot(Bool reverse, Matrix &N, Transformation &Z, UInt index0Z, Double tolerance, Bool timing);
   Bool   choleskyReduce(UInt i, UInt k, MatrixSliceRef W, Transformation &transformation);
   Vector choleskyTransform(MatrixSliceRef W, Transformation &transformation, Bool timing);
   Bool   searchInteger(const_MatrixSliceRef xFloat, MatrixSliceRef W, const_MatrixSliceRef d, UInt maxSearchSteps, Vector &solution, Double &minNorm);
