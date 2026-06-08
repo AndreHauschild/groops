@@ -39,7 +39,7 @@ activating/deactivating the estimation of subsets of $\Delta\M x$ with
 \configClass{GnssProcessing:processingStep:selectParametrizations}{gnssProcessingStepType:selectParametrizations}.
 The a priori model $\M f(\M x_0)$ is unaffected and is always reduced.
 
-The model for the different observation types can be described as
+The model for the different GNSS pseudorange and carrier-phase observation types can be described as
 \begin{equation}\label{gnssParametrizationType:gnssFullModel}
 \begin{split}
   f[\tau\nu a]_r^s(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
@@ -55,6 +55,16 @@ signal attribute $a$ (e.g., C, W, Q, X), transmitting satellite $s$, and observi
 It follows the \href{https://files.igs.org/pub/data/format/rinex305.pdf}{RINEX 3 definition},
 see \reference{GnssType}{gnssType}.
 
+The model for the ISL observations can be described as
+\begin{equation}\label{gnssParametrizationType:islFullModel}
+\begin{split}
+  f[]_{r,i}^{s,k}(\M x) &= \text{geometry}(\M r_r^s) + \text{clock}^s(t) + \text{clock}_r(t) \\
+               &+ \text{terminal}[]^{s,k}  + \text{terminal}[]_{r,i} \\
+               &+ \text{bias}[]^{s,k} + \text{bias}[]_{r,i}
+               + \text{other}(\ldots) + \epsilon[]_{r,i}^{s,k}
+\end{split}
+\end{equation}
+where $ i $ is the terminal identifier of the receiving satellite $ r $ and $ k $ is the terminal identifier of the transmitting satellite $ s $.
 See also \program{GnssProcessing}.
 )";
 #endif
@@ -66,6 +76,7 @@ See also \program{GnssProcessing}.
 #include "parallel/matrixDistributed.h"
 #include "gnss/gnss.h"
 #include "gnss/gnssObservation.h"
+#include "gnss/gnssObservationIsl.h"
 #include "gnss/gnssDesignMatrix.h"
 #include "gnss/gnssNormalEquationInfo.h"
 
@@ -110,11 +121,17 @@ public:
   /** @brief Correct observation equations/apply models. */
   void observationCorrections(GnssObservationEquation &eqn) const;
 
+  /** @brief Correct observation equations/apply models. */
+  void observationCorrectionsIsl(GnssObservationEquationIsl &eqn) const;
+
   /** @brief Total parameter vector used as priori Taylor point. */
   Vector aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo) const;
 
   /** @brief Design matrix for the basic observation equations @p eqn. */
   void designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const;
+
+  /** @brief Design matrix for the basic observation equations @p eqn. */
+  void designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const;
 
   /** @brief Add additional (pseudo-) observations equations to the normals for @p idEpoch. */
   void constraintsEpoch(const GnssNormalEquationInfo &normalEquationInfo, UInt idEpoch, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const;
@@ -171,8 +188,10 @@ public:
                               std::vector<UInt> &/*recvCount*/, std::vector<UInt> &/*recvCountEpoch*/) {}
   virtual void   initParameter(GnssNormalEquationInfo &/*normalEquationInfo*/) {}
   virtual void   observationCorrections(GnssObservationEquation &/*eqn*/) const {}
+  virtual void   observationCorrectionsIsl(GnssObservationEquationIsl &/*eqn*/) const {}
   virtual void   aprioriParameter(const GnssNormalEquationInfo &/*normalEquationInfo*/, MatrixSliceRef /*x0*/) const {}
   virtual void   designMatrix(const GnssNormalEquationInfo &/*normalEquationInfo*/, const GnssObservationEquation &/*eqn*/, GnssDesignMatrix &/*A*/) const {}
+  virtual void   designMatrixIsl(const GnssNormalEquationInfo &/*normalEquationInfo*/, const GnssObservationEquationIsl &/*eqn*/, GnssDesignMatrix &/*A*/) const {}
   virtual void   constraintsEpoch(const GnssNormalEquationInfo &/*normalEquationInfo*/, UInt /*idEpoch*/, MatrixDistributed &/*normals*/, std::vector<Matrix> &/*n*/, Double &/*lPl*/, UInt &/*obsCount*/) const {}
   virtual void   constraints(const GnssNormalEquationInfo &/*normalEquationInfo*/, MatrixDistributed &/*normals*/, std::vector<Matrix> &/*n*/, Double &/*lPl*/, UInt &/*obsCount*/) const {}
   virtual Double ambiguityResolve(const GnssNormalEquationInfo &/*normalEquationInfo*/, MatrixDistributed &/*normals*/, std::vector<Matrix> &/*n*/, Double &/*lPl*/, UInt &/*obsCount*/,

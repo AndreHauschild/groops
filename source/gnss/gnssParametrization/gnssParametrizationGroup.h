@@ -46,8 +46,10 @@ public:
                       std::vector<UInt> &recvCount, std::vector<UInt> &recvCountEpoch) override;
   void   initParameter(GnssNormalEquationInfo &normalEquationInfo) override;
   void   observationCorrections(GnssObservationEquation &eqn) const override;
+  void   observationCorrectionsIsl(GnssObservationEquationIsl &eqn) const override;
   void   aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo, MatrixSliceRef x0) const override;
   void   designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const override;
+  void   designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const override;
   void   constraintsEpoch(const GnssNormalEquationInfo &normalEquationInfo, UInt idEpoch, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const override;
   void   constraints(const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount) const override;
   Double ambiguityResolve(const GnssNormalEquationInfo &normalEquationInfo, MatrixDistributed &normals, std::vector<Matrix> &n, Double &lPl, UInt &obsCount,
@@ -131,6 +133,20 @@ inline void GnssParametrizationGroup::observationCorrections(GnssObservationEqua
 
 /***********************************************/
 
+inline void GnssParametrizationGroup::observationCorrectionsIsl(GnssObservationEquationIsl &eqn) const
+{
+  try
+  {
+    base->observationCorrectionsIsl(eqn);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 inline void GnssParametrizationGroup::aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo, MatrixSliceRef x0) const
 {
   try
@@ -150,6 +166,19 @@ inline void GnssParametrizationGroup::designMatrix(const GnssNormalEquationInfo 
   try
   {
     base->designMatrix(normalEquationInfo, eqn, A);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+/***********************************************/
+
+inline void GnssParametrizationGroup::designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const
+{
+  try
+  {
+    base->designMatrixIsl(normalEquationInfo, eqn, A);
   }
   catch(std::exception &e)
   {
