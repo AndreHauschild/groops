@@ -21,7 +21,7 @@ Performs a least squares adjustment like \configClass{processingStep:estimate}{g
 but with additional integer phase ambiguity resolution.
 After this step all resolved ambiguities are removed from the normal equation system.
 Only ambiguities involving \configClass{selectTransmitters/Receivers}{platformSelectorType} are resolved.
-If \configClass{selectTransmitters/Receivers}{platformSelectorType} is not set, all usable transmitters and/or 
+If \configClass{selectTransmitters/Receivers}{platformSelectorType} is not set, all usable transmitters and/or
 receivers are selected for ambiguity resolution.
 
 Integer ambiguity resolution is performed based on the least squares ambiguity decorrelation adjustment
