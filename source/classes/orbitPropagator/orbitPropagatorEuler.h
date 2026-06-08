@@ -19,7 +19,7 @@
 static const char *docstringOrbitPropagatorEuler = R"(
 \subsection{Euler}
 This class implements Euler's method to propagate a satellite orbit under the influence of \configClass{Forces}{forcesType}.
-Satellite is assumed to be oriented along-track.
+Satellite is assumed to be oriented according to nominal yaw-steering.
 )";
 #endif
 

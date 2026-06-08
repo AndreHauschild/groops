@@ -21,7 +21,7 @@ static const char *docstringOrbitPropagatorAdamsBashforthMoulton = R"(
 This class implements the Adams-Moulton class of predictor-corrector orbit propagators
 for a satellite orbit under the influence of \configClass{Forces}{forcesType} using an implicit
 Adams-Bashforth corrector. The coefficients for the propagator are derived using the equations
-given in section 4.2.3 of [1]. Satellite is assumed to be oriented along-track.
+given in section 4.2.3 of [1]. Satellite is assumed to be oriented according to nominal yaw-steering.
 [1] Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 )";
 #endif

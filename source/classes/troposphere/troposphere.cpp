@@ -17,6 +17,8 @@
 #include "files/fileGriddedData.h"
 #include "troposphereGpt.h"
 #include "troposphereMendesAndPavlis.h"
+#include "troposphereSaastamoinen.h"
+#include "troposphereHopfield.h"
 #include "troposphereViennaMapping.h"
 #include "troposphere.h"
 
@@ -25,7 +27,9 @@
 GROOPS_REGISTER_CLASS(Troposphere, "troposphereType",
                       TroposphereViennaMapping,
                       TroposphereGpt,
-                      TroposphereMendesAndPavlis)
+                      TroposphereMendesAndPavlis,
+                      TroposphereSaastamoinen,
+                      TroposphereHopfield)
 
 GROOPS_READCONFIG_CLASS(Troposphere, "troposphereType")
 
@@ -45,6 +49,10 @@ TropospherePtr Troposphere::create(Config &config, const std::string &name)
       troposphere = TropospherePtr(new TroposphereGpt(config));
     if(readConfigChoiceElement(config, "mendesAndPavlis", type, "SLR troposphere model by Mendes and Pavlis, 2004"))
       troposphere = TropospherePtr(new TroposphereMendesAndPavlis(config));
+    if(readConfigChoiceElement(config, "saastamoinen",    type, "Saastamoinen troposphere model"))
+      troposphere = TropospherePtr(new TroposphereSaastamoinen(config));
+    if(readConfigChoiceElement(config, "hopfield",        type, "Hopfield troposphere model (simplified)"))
+      troposphere = TropospherePtr(new TroposphereHopfield(config));
     endChoice(config);
 
     return troposphere;
@@ -112,9 +120,9 @@ void Troposphere::computeEmpiricalCoefficients(const Time &time) const
     if(timeRef.mjdInt() == time.mjdInt())
       return; // computing empirical coefficients once per day is sufficient, since they only have annual and semiannual variations
 
-    timeRef = time;
+    timeRef = Time(time.mjdInt(),0.0);
 
-    const Double t = (time.mjd()-J2000)/365.25;
+    const Double t = (timeRef.mjd()-J2000)/365.25;
     Vector fourier(5);
     fourier(0) = 1.;               // constant
     fourier(1) = std::cos(2*PI*t); // cos annual
