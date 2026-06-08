@@ -74,8 +74,8 @@ class GnssParametrizationAmbiguities : public GnssParametrizationBase
   public:
     GnssReceiverPtr       recv;
     GnssParameterIndex    index;
-    std::vector<GnssType> types;
-    Matrix                Bias;
+    std::vector<GnssType> types; // without PRN
+    Matrix                Bias;  // [cycles -> m]
   };
 
   class ParameterTrans
@@ -83,21 +83,21 @@ class GnssParametrizationAmbiguities : public GnssParametrizationBase
   public:
     GnssTransmitterPtr    trans;
     GnssParameterIndex    index;
-    std::vector<GnssType> types;
-    Matrix                Bias;
+    std::vector<GnssType> types; // without ATTRIBUTE
+    Matrix                Bias;  // [cycles -> m]
   };
 
   class Ambiguity : public GnssAmbiguity
   {
   public:
-    std::vector<GnssType> types;
+    std::vector<GnssType> types;      // without ATTRIBUTE
     Matrix                T;          // Matrix to transform ambiguities to observations [cycles -> m]
     Vector                value;      // ambiguities in cycles
     GnssParameterIndex    index;      // index in the parameter vector
     Vector                resolved;
-    Bool                  isInteger;
 
     explicit Ambiguity(GnssTrack *track) : GnssAmbiguity(track) {}
+
     Vector ambiguities(const std::vector<GnssType> &types) const override;
   };
 
