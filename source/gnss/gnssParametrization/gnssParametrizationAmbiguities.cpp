@@ -118,6 +118,7 @@ public:
   UInt                  idEpochStart, idEpochEnd;
   UInt                  parameterCount;
   std::vector<GnssType> typesAmbiguity, typesTrack;
+  // indicies of simplified normals to determine estimable ambiguities
   std::vector<GnssType> typesFreqSys, typesNew;
   UInt                  idxTrans, idxAmbi;
   std::vector<UInt>     idxRecv;
@@ -171,7 +172,14 @@ void GnssParametrizationAmbiguities::initParameter(GnssNormalEquationInfo &norma
         recv->deleteEmptyTracks();
         for(auto &track : recv->tracks)
           if(!track->ambiguity)
-            new Ambiguity(track.get()); // track is owner of ambiguity
+          {
+            auto ambi = new Ambiguity(track.get()); // track is owner of ambiguity
+            for(auto &type : track->types)
+              if((type == GnssType::PHASE) && !type.isInList(ambi->types))
+                ambi->types.push_back(type & ~GnssType::ATTRIBUTE);
+            ambi->T     = GnssLambda::phaseDecorrelation(ambi->types, track->receiver->wavelengthFactor, 1.);
+            ambi->value = Vector(ambi->T.columns());
+          }
       }
 
     // reset parameter indices
@@ -292,7 +300,7 @@ void GnssParametrizationAmbiguities::initParameter(GnssNormalEquationInfo &norma
     for(auto &info : ambiguityInfos)
       for(GnssType &type : info.typesTrack)
         if(!type.isInList(typesFreqSys))
-          typesFreqSys.push_back(type & ~(GnssType::ATTRIBUTE + GnssType::PRN + GnssType::FREQ_NO));
+          typesFreqSys.push_back(type & (GnssType::TYPE + GnssType::FREQUENCY + GnssType::FREQ_NO + GnssType::SYSTEM));
 
     for(GnssType typeFreqSys : typesFreqSys)
     {
@@ -301,48 +309,52 @@ void GnssParametrizationAmbiguities::initParameter(GnssNormalEquationInfo &norma
       std::vector<std::pair<UInt, std::vector<GnssType>>> idTypeAmbi;  // idRecv,   GnssTypes
       std::vector<std::pair<UInt, GnssType>>              idTypeRecv;  // idRecv,   GnssType w/o PRN
       std::vector<std::pair<UInt, GnssType>>              idTypeTrans; // idRTrans, GnssType w/o ATTRIBUTE
+
       for(auto &info : ambiguityInfos)
       {
         // reset indices
         info.typesFreqSys.clear();
         for(GnssType &type : info.typesTrack)
           if((type == typeFreqSys) && !type.isInList(info.typesFreqSys))
-            info.typesFreqSys.push_back(type);
-        info.idxTrans = info.idxAmbi = NULLINDEX;
-        info.idxRecv = std::vector<UInt>(info.typesFreqSys.size(), NULLINDEX);
+            info.typesFreqSys.push_back(type); // with ATTRIBUTE, PRN
+        info.idxTrans = NULLINDEX;
+        info.idxAmbi  = NULLINDEX;
+        info.idxRecv  = std::vector<UInt>(info.typesFreqSys.size(), NULLINDEX);
         if(!info.typesFreqSys.size())
           continue;
 
         // integer ambiguities
-        const std::pair<UInt, std::vector<GnssType>> idType(info.idRecv, info.typesFreqSys);
-        if(std::find(idTypeAmbi.begin(), idTypeAmbi.end(), idType) == idTypeAmbi.end())
+        if(info.typesFreqSys.front().isInList(info.typesAmbiguity))
         {
-          info.idxAmbi = idTypeAmbi.size();
-          idTypeAmbi.push_back(idType);
-        }
-        else
-        {
-          // following tracks with same types can directly setup as integer ambiguities
-          info.typesNew.push_back(info.typesFreqSys.front() & ~GnssType::ATTRIBUTE);
-          info.typesFreqSys.clear();
-          continue;
+          const std::pair<UInt, std::vector<GnssType>> idType(info.idRecv, info.typesFreqSys);
+          if(std::find(idTypeAmbi.begin(), idTypeAmbi.end(), idType) == idTypeAmbi.end())
+          {
+            info.idxAmbi = idTypeAmbi.size();
+            idTypeAmbi.push_back(idType);
+          }
+          else
+          {
+            // following tracks with same types can directly setup as integer ambiguities
+            info.typesNew.push_back(info.typesFreqSys.front() & ~GnssType::ATTRIBUTE);
+            continue;
+          }
         }
 
         // float biases at receivers
         if(paraRecv.at(info.idRecv))
-         for(UInt i=0; i<info.typesFreqSys.size(); i++)
-           if(info.typesFreqSys.at(i).isInList(typesRecv.at(info.idRecv)))
-           {
-             const std::pair<UInt, GnssType> idType(info.idRecv, info.typesFreqSys.at(i) & ~GnssType::PRN);
-             info.idxRecv.at(i) = std::distance(idTypeRecv.begin(), std::find(idTypeRecv.begin(), idTypeRecv.end(), idType));
-             if(info.idxRecv.at(i) == idTypeRecv.size())
-               idTypeRecv.push_back(idType);
-           }
+          for(UInt i=0; i<info.typesFreqSys.size(); i++)
+            if(info.typesFreqSys.at(i).isInList(typesRecv.at(info.idRecv)))
+            {
+              const std::pair<UInt, GnssType> idType(info.idRecv, info.typesFreqSys.at(i) & ~GnssType::PRN);
+              info.idxRecv.at(i) = std::distance(idTypeRecv.begin(), std::find(idTypeRecv.begin(), idTypeRecv.end(), idType));
+              if(info.idxRecv.at(i) == idTypeRecv.size())
+                idTypeRecv.push_back(idType);
+            }
 
         // float biases at transmitters
         if(!normalEquationInfo.isEachReceiverSeparately && paraTrans.at(info.idTrans))
         {
-          const std::pair<UInt, GnssType> idType(info.idTrans, info.typesFreqSys.front() & ~GnssType::ATTRIBUTE);
+          const std::pair<UInt, GnssType> idType(info.idTrans, info.typesFreqSys.front() & ~GnssType::ATTRIBUTE & ~GnssType::PRN);
           info.idxTrans = std::distance(idTypeTrans.begin(), std::find(idTypeTrans.begin(), idTypeTrans.end(), idType));
           if(info.idxTrans == idTypeTrans.size())
             idTypeTrans.push_back(idType);
@@ -385,8 +397,14 @@ void GnssParametrizationAmbiguities::initParameter(GnssNormalEquationInfo &norma
 
         // block wise cholesky
         // -------------------
+        Double tolerance = -1;
         if(Nrr.size()) // receiver bias
         {
+          // Compute stopping value
+          for(UInt i=0; i<Nrr.rows(); i++)
+            tolerance = std::max(tolerance, std::fabs(Nrr(i)));
+          tolerance *= 1e-8*Nrr.rows();
+
           if(Ntt.size())
           {
             for(UInt i=0; i<Nrr.rows(); i++)
@@ -404,11 +422,16 @@ void GnssParametrizationAmbiguities::initParameter(GnssNormalEquationInfo &norma
         }
         if(Ntt.size()) // transmitter bias
         {
-          Double tolerance = 0;
-          for(UInt i=0; i<Ntt.rows(); i++)
-            tolerance = std::max(tolerance, std::fabs(Ntt(i,i)));
+          // Compute stopping value
+          if(tolerance < 0)
+          {
+            for(UInt i=0; i<Ntt.rows(); i++)
+              tolerance = std::max(tolerance, std::fabs(Ntt(i,i)));
+            tolerance *= 1e-8*Ntt.rows();
+          }
+
           GnssLambda::Transformation Z(Ntt.rows());
-          UInt rank = GnssLambda::choleskyReversePivot(Ntt, Z, 0, 1e-8*Ntt.rows()*tolerance, FALSE/*timing*/);
+          UInt rank = GnssLambda::choleskyPivot(TRUE/*reverse*/, Ntt, Z, 0, tolerance, FALSE/*timing*/);
           isTrans = Vector(Ntt.rows());
           isTrans.row(0, rank).fill(1.);
           isTrans = Z.transformBack(isTrans);
@@ -421,11 +444,16 @@ void GnssParametrizationAmbiguities::initParameter(GnssNormalEquationInfo &norma
         }
         if(Naa.size()) // ambiguites
         {
-          Double tolerance = 0;
-          for(UInt i=0; i<Naa.rows(); i++)
-            tolerance = std::max(tolerance, std::fabs(Naa(i,i)));
+          // Compute stopping value
+          if(tolerance < 0)
+          {
+            for(UInt i=0; i<Naa.rows(); i++)
+              tolerance = std::max(tolerance, std::fabs(Naa(i,i)));
+            tolerance *= 1e-8*Naa.rows();
+          }
+
           GnssLambda::Transformation Z(Naa.rows());
-          UInt rank = GnssLambda::choleskyReversePivot(Naa, Z, 0, 1e-8*Naa.rows()*tolerance, FALSE/*timing*/);
+          UInt rank = GnssLambda::choleskyPivot(TRUE/*reverse*/, Naa, Z, 0, tolerance, FALSE/*timing*/);
           isAmbi = Vector(Naa.rows());
           isAmbi.row(0, rank).fill(1.);
           isAmbi = Z.transformBack(isAmbi);
@@ -489,8 +517,7 @@ void GnssParametrizationAmbiguities::initParameter(GnssNormalEquationInfo &norma
 
       if(info.ambi)
       {
-        info.ambi->index     = index;
-        info.ambi->isInteger = gnss->receivers.at(info.idRecv)->integerAmbiguities;
+        info.ambi->index = index;
         if(info.ambi->types != info.typesNew)
         {
           info.ambi->types = info.typesNew;
@@ -611,7 +638,7 @@ Double GnssParametrizationAmbiguities::ambiguityResolve(const GnssNormalEquation
       {
         const UInt index = normalEquationInfo.index(ambi->index) - index0;
         copy(ambi->value, x0.row(index, ambi->value.rows()));
-        if(ambi->isInteger &&
+        if(ambi->track->receiver->integerAmbiguities &&  // receiver supports integer?
            selectedTransmitters.at(ambi->track->transmitter->idTrans()) &&
            selectedReceivers.at(ambi->track->receiver->idRecv()))
           isInteger.row(index, ambi->value.rows()).fill(1);
@@ -672,7 +699,7 @@ Double GnssParametrizationAmbiguities::ambiguityResolve(const GnssNormalEquation
       if(startInteger > 0)
         normalsAmbi.cholesky(FALSE/*timing*/, 0, 1, TRUE/*collect*/);
       if(normalsAmbi.isMyRank(1,1))
-        GnssLambda::choleskyReversePivot(normalsAmbi.N(1,1), Z, startInteger, 0., TRUE/*timing*/);  // Z is now only valid at master
+        GnssLambda::choleskyPivot(TRUE/*reverse*/, normalsAmbi.N(1,1), Z, startInteger, 0., TRUE/*timing*/);  // Z is now only valid at master
       // permuted normals: Nx=rhs => (Z^-T W^T W Z^-1) Zx = Z^-T*rhs with the orthogonal permutation matrix Z = Z^-T
 
       // float solution
@@ -734,7 +761,7 @@ Double GnssParametrizationAmbiguities::ambiguityResolve(const GnssNormalEquation
 
       // mark resolved ambiguities
       for(auto ambi : getAmbiguities())
-        if(ambi->index && ambi->value.size() && ambi->isInteger)
+        if(ambi->index && ambi->value.size())
         {
           ambi->resolved = Vector(ambi->value.rows(), 1.);
           const UInt index = normalEquationInfo.index(ambi->index) - index0;
@@ -877,19 +904,31 @@ Double GnssParametrizationAmbiguities::updateParameter(const GnssNormalEquationI
     for(auto ambi : ambiguities)
       if(ambi->resolved.size())
       {
-        const UInt remove = static_cast<UInt>(sum(ambi->resolved));
-        Matrix T(ambi->T.rows(), ambi->T.columns() - remove);
-        Vector value(ambi->value.rows() - remove);
-        UInt idx = 0;
-        for(UInt i=0; i<ambi->value.rows(); i++)
+        // removed resolved values
+        UInt countCols = 0;
+        for(UInt i=0; i<ambi->T.columns(); i++)
           if(ambi->resolved(i) == 0.)
           {
-            copy(ambi->T.column(i), T.column(idx));
-            value(idx) = ambi->value(i);
-            idx++;
+            if(i != countCols)
+              copy(ambi->T.column(i), ambi->T.column(countCols));
+            ambi->value(countCols) = ambi->value(i);
+            countCols++;
           }
-        ambi->T        = T;
-        ambi->value    = value;
+
+        // removed resolved types
+        UInt countRows = 0;
+        for(UInt i=0; i<ambi->types.size(); i++)
+          if(maxabs(ambi->T.slice(i, 0, 1, countCols)) > 0.0001)
+          {
+            if(i != countRows)
+              copy(ambi->T.row(i), ambi->T.row(countRows));
+            ambi->types.at(countRows) = ambi->types.at(i);
+            countRows++;
+          }
+
+        ambi->types.resize(countRows);
+        ambi->value    = ambi->value.row(0, countCols);
+        ambi->T        = ambi->T.slice(0, 0, countRows, countCols);
         ambi->resolved = Vector();
       }
 
