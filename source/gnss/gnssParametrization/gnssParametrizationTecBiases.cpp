@@ -102,7 +102,7 @@ void GnssParametrizationTecBiases::initParameter(GnssNormalEquationInfo &normalE
     UInt countParaTrans = 0;
     if(!normalEquationInfo.isEachReceiverSeparately)
       for(auto para : paraTrans)
-        if(para && para->trans->useable())
+        if(para && para->trans->useable() && para->trans->signalBias.types.size())
         {
           // determine nullspace
           Matrix N(para->trans->signalBias.types.size(), Matrix::SYMMETRIC);
@@ -175,6 +175,8 @@ void GnssParametrizationTecBiases::initParameter(GnssNormalEquationInfo &normalE
             else if(!type.isInList(trendTypes))
               trendTypes.push_back(type & ~GnssType::FREQ_NO);
           }
+        if(!(biasTypes.size()+trendTypes.size()))
+          continue;
 
         // transformation matrix
         Matrix T(para->recv->signalBias.types.size(), biasTypes.size()+trendTypes.size());
