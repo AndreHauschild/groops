@@ -63,12 +63,20 @@ Matrix GnssLambda::phaseDecorrelation(const std::vector<GnssType> &types, Double
 
 /***********************************************/
 
-UInt GnssLambda::choleskyReversePivot(Matrix &N, Transformation &Z, UInt index0Z, Double tolerance, Bool timing)
+UInt GnssLambda::choleskyPivot(Bool reverse, Matrix &N, Transformation &Z, UInt index0Z, Double tolerance, Bool timing)
 {
   try
   {
+    // Compute stopping value
+    if(tolerance < 0)
+    {
+      for(UInt i=0; i<N.rows(); i++)
+        tolerance = std::max(tolerance, std::fabs(N(i,i)));
+      tolerance *= 1e-8*N.rows();
+    }
+
     UInt rank = N.rows();
-    const UInt blockSize = 64;
+    constexpr UInt blockSize = 64;
     Log::Timer timer(N.rows(), 1, timing);
     for(UInt block=0; block<N.rows(); block+=blockSize)
     {
@@ -78,15 +86,18 @@ UInt GnssLambda::choleskyReversePivot(Matrix &N, Transformation &Z, UInt index0Z
       {
         timer.loopStep(i);
 
-        // find minimium
+        // find maximum (or minimium if reverse)
         UInt   k    = NULLINDEX;
-        Double minN = std::numeric_limits<Double>::infinity();
+        Double maxN = (reverse ? std::numeric_limits<Double>::infinity() : 0);
         for(UInt j=i; j<N.rows(); j++)
-          if((N(j, j)-tmp(j) < minN) && (N(j, j)-tmp(j) > tolerance))
+        {
+          const Double njj = N(j, j)-tmp(j);
+          if((reverse ? (njj < maxN) : (njj > maxN)) && (njj > tolerance))
           {
             k    = j;
-            minN = N(k, k)-tmp(k);
+            maxN = njj;
           }
+        }
         if(k == NULLINDEX) {rank = i; break;} // rank deficit
         // swap
         if(i != k)

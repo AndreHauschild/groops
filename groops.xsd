@@ -3113,6 +3113,10 @@
 	<xs:complexType name="gnssTransmitterGeneratorType">
 		<xs:choice>
 			<xs:element name="GNSS">
+				<xs:annotation>
+					<xs:appinfo>rename: inputfileAntennaDefintion = inputfileAntennaDefinition</xs:appinfo>
+					<xs:appinfo>rename: inputfileSignalDefintion = inputfileSignalDefinition</xs:appinfo>
+				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="inputfileTransmitterList" type="filename" default="{groopsDataDir}/gnss/transmitter/transmitterList.gps.txt" maxOccurs="unbounded">
@@ -3125,7 +3129,7 @@
 								<xs:documentation>variable {prn} available</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="inputfileAntennaDefintion" type="filename" default="{groopsDataDir}/gnss/transmitter/antennaDefinition/igs/igs20/antennaDefinition_igs20.dat">
+						<xs:element name="inputfileAntennaDefinition" type="filename" default="{groopsDataDir}/gnss/transmitter/antennaDefinition/igs/igs20/antennaDefinition_igs20.dat">
 							<xs:annotation>
 								<xs:documentation>phase centers and variations (ANTEX like)</xs:documentation>
 							</xs:annotation>
@@ -3154,7 +3158,7 @@
 								</xs:choice>
 							</xs:complexType>
 						</xs:element>
-						<xs:element name="inputfileSignalDefintion" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml">
+						<xs:element name="inputfileSignalDefinition" type="filename" minOccurs="0" default="{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml">
 							<xs:annotation>
 								<xs:documentation>transmitted signal types</xs:documentation>
 							</xs:annotation>
@@ -4623,7 +4627,7 @@
 								<xs:documentation>variable with position y</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="variableLoopPositionY" type="string" minOccurs="0" default="loopPositionZ">
+						<xs:element name="variableLoopPositionZ" type="string" minOccurs="0" default="loopPositionZ">
 							<xs:annotation>
 								<xs:documentation>variable with position z</xs:documentation>
 							</xs:annotation>
