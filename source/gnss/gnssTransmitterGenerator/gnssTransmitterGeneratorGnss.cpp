@@ -30,9 +30,12 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
   {
     std::string choice;
 
-    readConfig(config, "inputfileTransmitterList",  fileNamesTransmitterList, Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterList.gps.txt", "ascii file with transmitter PRNs, used to loop variable {prn}");
-    readConfig(config, "inputfileTransmitterInfo",  fileNameTransmitterInfo,  Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterInfo/igs/igs20/transmitterInfo_igs20.{prn}.xml", "variable {prn} available");
-    readConfig(config, "inputfileAntennaDefintion", fileNameAntennaDef,       Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/antennaDefinition/igs/igs20/antennaDefinition_igs20.dat", "phase centers and variations (ANTEX like)");
+    renameDeprecatedConfig(config, "inputfileAntennaDefintion", "inputfileAntennaDefinition", date2time(2026, 5, 27));
+    renameDeprecatedConfig(config, "inputfileSignalDefintion", "inputfileSignalDefinition",   date2time(2026, 5, 27));
+
+    readConfig(config, "inputfileTransmitterList",   fileNamesTransmitterList, Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterList.gps.txt", "ascii file with transmitter PRNs, used to loop variable {prn}");
+    readConfig(config, "inputfileTransmitterInfo",   fileNameTransmitterInfo,  Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterInfo/igs/igs20/transmitterInfo_igs20.{prn}.xml", "variable {prn} available");
+    readConfig(config, "inputfileAntennaDefinition", fileNameAntennaDef,       Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/antennaDefinition/igs/igs20/antennaDefinition_igs20.dat", "phase centers and variations (ANTEX like)");
     if(readConfigChoice(config, "noAntennaPatternFound", choice, Config::MUSTSET, "useNearestFrequency", "what should happen is no antenna pattern is found for an observation"))
     {
       if(readConfigChoiceElement(config, "ignoreObservation",   choice, "ignore observation if no matching pattern is found"))
@@ -43,7 +46,7 @@ GnssTransmitterGeneratorGnss::GnssTransmitterGeneratorGnss(Config &config)
         noPatternFoundAction = GnssAntennaDefinition::NoPatternFoundAction::THROW_EXCEPTION;
       endChoice(config);
     }
-    readConfig(config, "inputfileSignalDefintion",     fileNameSignalDef,   Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
+    readConfig(config, "inputfileSignalDefinition",    fileNameSignalDef,   Config::OPTIONAL, "{groopsDataDir}/gnss/transmitter/signalDefinition/signalDefinition.xml", "transmitted signal types");
     readConfig(config, "inputfileClockFrequencyScale", fileNameScale,       Config::OPTIONAL, "",                                 "variable {prn} available");
     readConfig(config, "inputfileOrbit",               fileNameOrbit,       Config::MUSTSET,  "orbit_{loopTime:%D}.{prn}.dat",    "variable {prn} available");
     readConfig(config, "inputfileAttitude",            fileNameAttitude,    Config::MUSTSET,  "attitude_{loopTime:%D}.{prn}.dat", "variable {prn} available");

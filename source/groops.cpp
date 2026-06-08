@@ -104,7 +104,6 @@ static void groopsHelp(const std::string &progName, Parallel::CommunicatorPtr co
     std::cout<<"GitHub repository: https://github.com/groops-devs/groops"<<std::endl;
     std::cout<<"(Compiled: "<<__DATE__<<" "<<__TIME__<<")"<<std::endl;
   }
-  exit(EXIT_FAILURE);
 }
 
 /***********************************************/
@@ -140,7 +139,7 @@ int main(int argc, char *argv[])
           {
             logWarningOnce<<"Expected argument for: '"<<argv[i]<<"'"<<Log::endl;
             groopsHelp(argv[0], comm);
-            return std::string();
+            std::exit(EXIT_FAILURE);
           }
           return std::string(argv[++i]);
         };
@@ -152,7 +151,7 @@ int main(int argc, char *argv[])
         else if((opt == "-c") || (opt == "--settings"))       {settingsFileName      = FileName(optArg());}
         else if((opt == "-C") || (opt == "--write-settings")) {writeSettingsFileName = FileName(optArg());}
         else if((opt == "-s") || (opt == "--silent"))         {silent = TRUE;}
-        else if((opt == "-h") || (opt == "--help"))           {groopsHelp(argv[0], comm);}
+        else if((opt == "-h") || (opt == "--help"))           {groopsHelp(argv[0], comm); return;}
         else if((opt == "-g") || (opt == "--global"))
         {
           std::string keyVal(optArg());
@@ -161,6 +160,7 @@ int main(int argc, char *argv[])
           {
             logWarningOnce<<"Unable to parse key-value pair <"<<keyVal<<"> for option '-g'."<<Log::endl;
             groopsHelp(argv[0], comm);
+            std::exit(EXIT_FAILURE);
           }
           else
             commandlineGlobals[keyVal.substr(0, delim)] = keyVal.substr(delim+1);
@@ -169,6 +169,7 @@ int main(int argc, char *argv[])
         {
           logWarningOnce<<"Unknown option: '"<<opt<<"'"<<Log::endl;
           groopsHelp(argv[0], comm);
+          std::exit(EXIT_FAILURE);
         }
         else
         {

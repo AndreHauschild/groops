@@ -75,12 +75,10 @@ inline void GnssProcessingStepPrintResidualStatistics::process(GnssProcessingSte
         std::vector<UInt>     obsCount(types.size(), 0), outlierCount(types.size(), 0);
         state.residualsStatistics(idRecv, NULLINDEX/*idTrans*/, types, ePe, redundancy, obsCount, outlierCount);
         Vector factors(types.size());
+        UInt idx;
         for(UInt i=0; i<types.size(); i++)
-        {
-          const UInt idx = GnssType::index(state.stations.at(idRecv).sigmaTypes, types.at(i));
-          if(idx != NULLINDEX)
-            factors(i) = state.stations.at(idRecv).sigmaFactors.at(idx);
-        }
+          if(types.at(i).isInList(state.receiverNoiseModels.at(idRecv).sigmaTypes, idx))
+            factors(i) = state.receiverNoiseModels.at(idRecv).sigmaFactors.at(idx);
         Parallel::reduceSum(factors, 0, state.normalEquationInfo.comm);
         if(Parallel::isMaster(state.normalEquationInfo.comm))
           for(UInt i=0; i<types.size(); i++)
