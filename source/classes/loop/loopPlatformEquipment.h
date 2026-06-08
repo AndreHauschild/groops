@@ -78,7 +78,7 @@ inline LoopPlatformEquipment::LoopPlatformEquipment(Config &config)
     readConfig(config, "variableLoopTimeEnd",   nameTimeEnd,         Config::OPTIONAL,  "loopTimeEnd",   "variable with end time");
     readConfig(config, "variableLoopPositionX", namePositionX,       Config::OPTIONAL,  "loopPositionX", "variable with position x");
     readConfig(config, "variableLoopPositionY", namePositionY,       Config::OPTIONAL,  "loopPositionY", "variable with position y");
-    readConfig(config, "variableLoopPositionY", namePositionZ,       Config::OPTIONAL,  "loopPositionZ", "variable with position z");
+    readConfig(config, "variableLoopPositionZ", namePositionZ,       Config::OPTIONAL,  "loopPositionZ", "variable with position z");
     readConfig(config, "variableLoopIndex",     nameIndex,           Config::OPTIONAL,  "",              "variable with index of current iteration (starts with zero)");
     readConfig(config, "variableLoopCount",     nameCount,           Config::OPTIONAL,  "",              "variable with total number of iterations");
     readConfigCondition(config);
