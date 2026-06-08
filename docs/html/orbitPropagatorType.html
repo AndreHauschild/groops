@@ -79,14 +79,14 @@ used in <a class="groops-program" href="SimulateOrbit.html">SimulateOrbit</a>
 
 <h2>Euler</h2><p>
 This class implements Euler's method to propagate a satellite orbit under the influence of <a class="groops-class" href="forcesType.html">Forces</a>.
-Satellite is assumed to be oriented along-track.
+Satellite is assumed to be oriented according to nominal yaw-steering.
 </p>
 
 <h2>RungeKutta4</h2><p>
 This class implements the classical Runge-Kutta 4 method of orbit propagation
 for satellite orbit under the influence of <a class="groops-class" href="forcesType.html">Forces</a>.
 No step-width control or other advanced features are implemented.
-Satellite is assumed to be oriented along-track.
+Satellite is assumed to be oriented according to nominal yaw-steering.
 See: Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 </p>
 
@@ -94,7 +94,7 @@ See: Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 This class implements the Adams-Moulton class of predictor-corrector orbit propagators
 for a satellite orbit under the influence of <a class="groops-class" href="forcesType.html">Forces</a> using an implicit
 Adams-Bashforth corrector. The coefficients for the propagator are derived using the equations
-given in section 4.2.3 of [1]. Satellite is assumed to be oriented along-track.
+given in section 4.2.3 of [1]. Satellite is assumed to be oriented according to nominal yaw-steering.
 [1] Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 </p>
 <table class="table table-hover">
@@ -108,8 +108,8 @@ given in section 4.2.3 of [1]. Satellite is assumed to be oriented along-track.
 This class implements the Stoermer-Cowell class of predictor-corrector orbit propagators for a satellite orbit
 under the influence of <a class="groops-class" href="forcesType.html">Forces</a>. The coefficients for the Stoermer predictor and Cowell corrector
 are derived using the equations given in section 4.2.6 of [1]. Stoermer-Cowell is a double integration algorithm,
-yielding positions directly from accelertions. It does not produce velocities. The velocities are derived using
-Adams-type propagators as suggested in [2]. Satellite is assumed to be oriented along-track.
+yielding positions directly from accelerations. It does not produce velocities. The velocities are derived using
+Adams-type propagators as suggested in [2]. Satellite is assumed to be oriented according to nominal yaw-steering.
 [1] Montenbruck, Oliver, and Eberhard Gill. 2000. Satellite Orbits
 [2] Berry, Matthew M., and Liam M. Healy. 2004. “Implementation of Gauss-Jackson Integration for Orbit Propagation.”
 </p>
@@ -122,7 +122,7 @@ Adams-type propagators as suggested in [2]. Satellite is assumed to be oriented 
 <h2>GaussJackson</h2><p>
 This class implements the Gauss-Jackson multi-step predictor-corrector method to
 propagate a satellite orbit under the influence of <a class="groops-class" href="forcesType.html">Forces</a>.
-Satellite is assumed to be oriented along-track. Implementation is based on [1].
+Satellite is assumed to be oriented according to nominal yaw-steering. Implementation is based on [1].
 [1] Berry, Matthew M., and Liam M. Healy. 2004. “Implementation of Gauss-Jackson Integration for Orbit Propagation.”
 </p>
 <table class="table table-hover">
@@ -135,7 +135,7 @@ Satellite is assumed to be oriented along-track. Implementation is based on [1].
 
 <h2 id="Polynomial">Polynomial</h2><p>
 This class implements an integration Polynomial method to propagate a satellite orbit under
-the influence of <a class="groops-class" href="forcesType.html">Forces</a>. Satellite is assumed to be oriented along-track.
+the influence of <a class="groops-class" href="forcesType.html">Forces</a>. Satellite is assumed to be oriented according to nominal yaw-steering.
 Implementation is based on code by Torsten Mayer-Gürr.
 </p>
 <table class="table table-hover">
@@ -149,6 +149,7 @@ Implementation is based on code by Torsten Mayer-Gürr.
 
 <h2>File</h2><p>
 Reads an orbit from file. If the needed epochs are not given an exception is thrown.
+Satellite is assumed to be oriented according to nominal yaw-steering.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
