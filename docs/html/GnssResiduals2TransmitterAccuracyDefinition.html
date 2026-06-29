@@ -95,8 +95,9 @@ of the computed pattern grid points can be written.</p><p>See also <a class="gro
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">outputfileAntennaRedundancy</div></div></td><td>filename</td><td>redundancy of adjustment</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">inputfileAccuracyDefinition</div></div></td><td>filename</td><td>apriori accuracies</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">inputfileTransmitterInfo</div></div></td><td>filename</td><td>to assign residuals to antennas</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">minRedundancy</div></div></td><td>double</td><td>min number of residuals. to estimate sigma</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">inputfileResiduals</div></div></td><td>filename</td><td>GNSS receiver residuals</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">thresholdOutlier</div></div></td><td>double</td><td>ignore residuals with sigma/sigma0 greater than threshold</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">minRedundancy</div></div></td><td>double</td><td>min number of residuals to estimate sigma</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">inputfileResiduals</div></div></td><td>filename</td><td>GNSS receiver residuals</td></tr>
 </table>
 
         </div>

@@ -67,14 +67,13 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
     FileName              fileNameAntennaMean, fileNameAntennaAccuracy, fileNameAntennaRedundancy;
     FileName              fileNameTransmitterInfo, fileNameAntenna;
     std::vector<FileName> fileNameResiduals;
-    Double                thresholdOutlier,minRedundancy;
+    Double                minRedundancy;
 
     readConfig(config, "outputfileAccuracyDefinition", fileNameAntennaAccuracy,   Config::OPTIONAL, "",   "elevation and azimuth dependent accuracy");
     readConfig(config, "outputfileAntennaMean",        fileNameAntennaMean,       Config::OPTIONAL, "",   "weighted mean of the residuals");
     readConfig(config, "outputfileAntennaRedundancy",  fileNameAntennaRedundancy, Config::OPTIONAL, "",   "redundancy of adjustment");
     readConfig(config, "inputfileAccuracyDefinition",  fileNameAntenna,           Config::MUSTSET,  "",   "apriori accuracies");
     readConfig(config, "inputfileTransmitterInfo",     fileNameTransmitterInfo,   Config::MUSTSET,  "",   "to assign residuals to antennas");
-    readConfig(config, "thresholdOutlier",             thresholdOutlier,          Config::DEFAULT,  "10", "ignore residuals with sigma/sigma0 greater than threshold");
     readConfig(config, "minRedundancy",                minRedundancy,             Config::DEFAULT,  "3",  "min number of residuals to estimate sigma");
     readConfig(config, "inputfileResiduals",           fileNameResiduals,         Config::MUSTSET,  "",   "GNSS receiver residuals");
     if(isCreateSchema(config)) return;
@@ -136,7 +135,7 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
             if(epoch.obsType.at(idType+4) != GnssType::IONODELAY)
               throw(Exception("ionosphere expected"));
 
-            idObs  += 5;  // skip azimuth and elevation and ionosphere
+            idObs  += 5;  // skip azimuth, elevation and ionosphere
             idType += 5;
 
             // residuals, redundancy, sigma/sigma0
@@ -178,14 +177,13 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
                     pattern.count      = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
                   }
 
-                  // residuals?
                   if((redundancy > 0) && (sigma > 0) && (sigma <= thresholdOutlier))
                   {
                     const Double p = 1./std::pow(sigma, 2); // weight
                     pattern.ePe(idxL,idxB)        += p * std::pow(value, 2);
                     pattern.redundancy(idxL,idxB) += redundancy;
                     pattern.sum(idxL,idxB)        += p * value;
-                    pattern.count(idxL,idxB)      += 1;
+                    pattern.count(idxL,idxB)      += p;
                   }
 
                   break;
@@ -222,7 +220,7 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
             pattern.offset = Vector3d();
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
-                if(pattern.count(i, k) >= minRedundancy)
+                if(pattern.redundancy(i, k) >= minRedundancy)
                   pattern.pattern(i, k) = std::sqrt(pattern.ePe(i, k)/pattern.redundancy(i, k));
           }
       writeFileGnssAntennaDefinition(fileNameAntennaAccuracy, antennaList);
@@ -230,10 +228,7 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
 
     for(auto &antenna : antennaList)
       for(auto &pattern : antenna->patterns)
-      {
-        pattern.offset   = Vector3d();
         pattern.pattern *= NAN_EXPR;
-      }
 
     if(!fileNameAntennaMean.empty())
     {
@@ -243,17 +238,13 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
           if(pattern.count.size())
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
-                if(pattern.count(i, k) >= minRedundancy)
-                  pattern.pattern(i, k) = pattern.sum(i, k)/pattern.count(i, k);
+                pattern.pattern(i, k) = pattern.sum(i, k)/pattern.count(i, k);
       writeFileGnssAntennaDefinition(fileNameAntennaMean, antennaList);
     }
 
     for(auto &antenna : antennaList)
       for(auto &pattern : antenna->patterns)
-      {
-        pattern.offset   = Vector3d();
         pattern.pattern *= NAN_EXPR;
-      }
 
     if(!fileNameAntennaRedundancy.empty())
     {
@@ -263,8 +254,7 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
           if(pattern.count.size())
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
-                if(pattern.count(i, k) >= minRedundancy)
-                  pattern.pattern(i, k) = pattern.redundancy(i, k);
+                pattern.pattern(i, k) = pattern.redundancy(i, k);
       writeFileGnssAntennaDefinition(fileNameAntennaRedundancy, antennaList);
     }
   }

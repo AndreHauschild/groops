@@ -90,7 +90,7 @@ of the computed pattern grid points can be written.</p><p>Example: Analysis of T
 GPS satellites are not tracked by the onboard receiver. An estimation of accuracies
 for these directions is not possible from the residuals and the apriori accuracies
 are left untouched. The other directions show very low phase noise hardly elevation
-and azimuth dependent for L2W. A nearly zero mean indicates the use of adequate antennca
+and azimuth dependent for L2W. A nearly zero mean indicates the use of adequate antenna
 center variations in the processing.</p><p><figure><img class="figure" style="width:80%;" src="../figures/gnssResiduals2AccuracyDefinition.png" alt="gnssResiduals2AccuracyDefinition"><figcaption class="center">Figure: L2W accuracies of TerraSAR-X determined from residuals of one month</figcaption></figure></p><p>See also <a class="groops-program" href="GnssResiduals2TransmitterAccuracyDefinition.html">GnssResiduals2TransmitterAccuracyDefinition</a>.
 </p>
 <table class="table table-hover">
@@ -102,7 +102,7 @@ center variations in the processing.</p><p><figure><img class="figure" style="wi
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">inputfileStationInfo</div></div></td><td>filename</td><td>to assign residuals to antennas</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">isTransmitter</div></div></td><td>boolean</td><td>stationInfo is of a transmitter</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">thresholdOutlier</div></div></td><td>double</td><td>ignore residuals with sigma/sigma0 greater than threshold</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">minRedundancy</div></div></td><td>double</td><td>min number of residuals. to estimate sigma</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">minRedundancy</div></div></td><td>double</td><td>min number of residuals to estimate sigma</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">inputfileResiduals</div></div></td><td>filename</td><td>GNSS receiver residuals</td></tr>
 </table>
 
