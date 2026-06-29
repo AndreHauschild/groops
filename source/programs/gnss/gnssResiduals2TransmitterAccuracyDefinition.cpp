@@ -178,8 +178,7 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
                     pattern.count      = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
                   }
 
-                  // residuals?
-                  if((redundancy > 0) && (sigma > 0) && (sigma <= thresholdOutlier))
+                  if(redundancy > 0 && sigma > 0)
                   {
                     const Double p = 1./std::pow(sigma, 2); // weight
                     pattern.ePe(idxL,idxB)        += p * std::pow(value, 2);
