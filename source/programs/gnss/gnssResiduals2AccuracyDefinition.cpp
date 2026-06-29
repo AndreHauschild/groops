@@ -201,7 +201,7 @@ void GnssResiduals2AccuracyDefinition::run(Config &config, Parallel::Communicato
                       pattern.count      = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
                     }
 
-                    if((redundancy > 0) && (sigma > 0) && (sigma <= thresholdOutlier))
+                    if(redundancy > 0 && sigma > 0)
                     {
                       const Double p = 1./std::pow(sigma, 2); // weight
                       pattern.ePe(idxL,idxB)        += p * std::pow(value, 2);
