@@ -77,7 +77,13 @@ void addDataVariables(const std::string &prefix, const_MatrixSliceRef data, Vari
     public:
       Func(const_MatrixSliceRef data, Double (*f)(const_MatrixSliceRef)) : data(data), f(f) {}
       virtual ~Func() {}
-      Double operator()() const override {return f(data);}
+      Double operator()() const override
+      {
+        std::vector<Double> data_woNaN = flatten(data);
+        data_woNaN.erase(std::remove_if(data_woNaN.begin(), data_woNaN.end(), [](Double d){return std::isnan(d);}), data_woNaN.end());
+        return f(Vector(data_woNaN));
+
+      }
     };
 
     varList.undefineVariable(prefix);
@@ -125,16 +131,21 @@ void addDataVariables(const std::string &prefix, const_MatrixSliceRef data, cons
     if(!weight.size())
       return;
 
-    Double w     = sum(weight);
-    Double wmean = inner(data, weight)/w;
-    Double wrms  = 0;
+    UInt   count=0;
+    Double w=0, wmean=0, wrms  = 0;
     for(UInt i=0; i<data.rows(); i++)
       for(UInt k=0; k<data.columns(); k++)
-        wrms += weight(i,k)/w * data(i,0) * data(i,k);
+        if(!std::isnan(data(i,k)) && !std::isnan(weight(i,k)))
+        {
+          w     += weight(i,k);
+          wmean += weight(i,k) * data(i,k);
+          wrms  += weight(i,k) * data(i,k) * data(i,k);
+          count++;
+        }
 
-    varList.setVariable(prefix+"wmean", wmean);
-    varList.setVariable(prefix+"wrms",  std::sqrt(wrms));
-    varList.setVariable(prefix+"wstd",  std::sqrt(data.size()/(data.size()-1.)*(wrms-wmean*wmean)));
+    varList.setVariable(prefix+"wmean", wmean/w);
+    varList.setVariable(prefix+"wrms",  std::sqrt(wrms/w));
+    varList.setVariable(prefix+"wstd",  std::sqrt(count/(count-1.)*(wrms/w-std::pow(wmean/w,2))));
   }
   catch(std::exception &e)
   {
@@ -287,19 +298,21 @@ void addDataVariables(const GriddedDataRectangular &grid, VariableList &varList)
       const std::string prefix = "data"+idx%"%i"s;
       addDataVariables(prefix, grid.values.at(idx), varList);
 
-      Double wmean = 0;
-      Double wrms  = 0;
+      UInt   count = 0;
+      Double wmean = 0, wrms  = 0;
       for(UInt i=0; i<rows; i++)
         for(UInt k=0; k<cols; k++)
-        {
-          const Double w = dLambda.at(k)*dPhi.at(i)/totalArea;
-          wmean += w * grid.values.at(idx)(i,k);
-          wrms  += w * grid.values.at(idx)(i,k) * grid.values.at(idx)(i,k);
-        }
+          if(!std::isnan(grid.values.at(idx)(i,k)))
+          {
+            const Double w = dLambda.at(k)*dPhi.at(i)/totalArea;
+            wmean += w * grid.values.at(idx)(i,k);
+            wrms  += w * grid.values.at(idx)(i,k) * grid.values.at(idx)(i,k);
+            count++;
+          }
 
       varList.setVariable(prefix+"wmean", wmean);
       varList.setVariable(prefix+"wrms",  std::sqrt(wrms));
-      varList.setVariable(prefix+"wstd",  std::sqrt(rows*cols/(rows*cols-1.)*(wrms-wmean*wmean)));
+      varList.setVariable(prefix+"wstd",  std::sqrt(count/(count-1.)*(wrms-wmean*wmean)));
     }
   }
   catch(std::exception &e)
