@@ -25,11 +25,12 @@ This is similar to using the ionosphere-free linear combination as observations
 but only one STEC parameter is needed for an arbitrary number of observation types.
 
 The influence on the code and phase observation is modeled as
-\begin{equation}\label{gnssParametrizationType:IonosphereSTEC:STEC}
+\begin{equation}
 \begin{split}
 \text{ionosphere}([C\nu], STEC) &=  \frac{40.3}{f_{\nu}^2}STEC + \frac{7525\M b^T\M k}{f_{\nu}^3}STEC +  \frac{r}{f_{\nu}^4}STEC^2 \\
 \text{ionosphere}([L\nu], STEC) &= -\frac{40.3}{f_{\nu}^2}STEC - \frac{7525\M b^T\M k}{2f_{\nu}^3}STEC - \frac{r}{3f_{\nu}^4}STEC^2 + \text{bending}(E)STEC^2
 \end{split}
+\label{gnssParametrizationType:IonosphereSTEC:STEC}
 \end{equation}
 The second order term depends on the \configClass{magnetosphere}{magnetosphereType} $\M b$
 and the direction of the signal $\M k$.

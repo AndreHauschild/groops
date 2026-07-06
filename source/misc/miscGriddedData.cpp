@@ -27,26 +27,28 @@ void statistics(const std::vector<Double> &values, const std::vector<Double> &we
 {
   try
   {
-    mean = 0.;
-    avg  = 0.;
-    rms  = 0.;
-    vmin = NAN_EXPR;
-    vmax = NAN_EXPR;
+    mean = avg = rms = 0.;
+    vmin = std::numeric_limits<Double>::max();
+    vmax = std::numeric_limits<Double>::min();
     if(!values.size())
       return;
 
-    const Double sumWeight = std::accumulate(weights.begin(), weights.end(), Double(0.));
+    Double sumWeight = 0;
     for(UInt i=0; i<values.size(); i++)
-    {
-      const Double w = (sumWeight) ? (weights.at(i)/sumWeight) : (1./values.size());
-      const Double v = values.at(i);
-      mean += w * v;
-      avg  += w * std::fabs(v);
-      rms  += w * v*v;
-    }
-    rms  = std::sqrt(rms);
-    vmin = *std::min_element(values.begin(), values.end());
-    vmax = *std::max_element(values.begin(), values.end());
+      if(!std::isnan(values.at(i)))
+      {
+        const Double w = (weights.size()) ? weights.at(i) : 1.;
+        const Double v = values.at(i);
+        mean += w * v;
+        avg  += w * std::fabs(v);
+        rms  += w * v*v;
+        vmin  = std::min(vmin, v);
+        vmax  = std::max(vmax, v);
+        sumWeight += w;
+      }
+    mean /= sumWeight;
+    avg  /= sumWeight;
+    rms   = std::sqrt(rms/sumWeight);
   }
   catch(std::exception &e)
   {
@@ -116,7 +118,9 @@ void printStatistics(const GriddedData &grid)
 {
   try
   {
-    const Double totalArea = std::accumulate(grid.areas.begin(), grid.areas.end(), Double(0.));
+    auto areas = grid.areas;
+    std::for_each(areas.begin(), areas.end(), [](Double &a){if((a<0) || std::isnan(a)) a = 0.;});
+    const Double totalArea = std::accumulate(areas.begin(), areas.end(), Double(0.));
 
     logInfo<<"grid statistics"<<Log::endl;
     std::vector<Angle>  lambda, phi;
@@ -141,7 +145,7 @@ void printStatistics(const GriddedData &grid)
     if(grid.values.size() && grid.points.size())
     {
       Vector rms, avg, vmin, vmax, mean;
-      statistics(grid.values, grid.areas, rms, avg, vmin, vmax, mean);
+      statistics(grid.values, areas, rms, avg, vmin, vmax, mean);
       printStatistics(rms, avg, vmin, vmax, mean);
     }
   }
@@ -177,23 +181,24 @@ void printStatistics(const GriddedDataRectangular &grid)
     if(!grid.values.size())
       return;
 
-    Vector mean(grid.values.size());
-    Vector vmin(grid.values.size()), vmax(grid.values.size());
-    Vector avg(grid.values.size()),  rms(grid.values.size());
+    Vector mean(grid.values.size()), avg(grid.values.size()), rms(grid.values.size());
+    Vector vmin(grid.values.size(), std::numeric_limits<Double>::max());
+    Vector vmax(grid.values.size(), std::numeric_limits<Double>::min());
     for(UInt idx=0; idx<grid.values.size(); idx++)
     {
       for(UInt i=0; i<rows; i++)
         for(UInt k=0; k<cols; k++)
-        {
-          const Double w = dLambda[k]*dPhi[i]/totalArea;
-          const Double v = grid.values[idx](i,k);
-          mean(idx) += w * v;
-          avg(idx)  += w * std::fabs(v);
-          rms(idx)  += w * v * v;
-        }
-      vmin(idx) = min(grid.values[idx]);
-      vmax(idx) = max(grid.values[idx]);
-      rms(idx)  = std::sqrt(rms(idx));
+          if(!std::isnan(grid.values[idx](i,k)))
+          {
+            const Double w = dLambda[k]*dPhi[i]/totalArea;
+            const Double v = grid.values[idx](i,k);
+            mean(idx) += w * v;
+            avg(idx)  += w * std::fabs(v);
+            rms(idx)  += w * v * v;
+            vmin(idx)  = std::min(vmin(idx), v);
+            vmax(idx)  = std::max(vmax(idx), v);
+          }
+      rms(idx) = std::sqrt(rms(idx));
     }
 
     printStatistics(rms, avg, vmin, vmax, mean);
