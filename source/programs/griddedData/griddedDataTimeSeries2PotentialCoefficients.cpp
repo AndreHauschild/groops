@@ -32,6 +32,7 @@ See also \program{GriddedData2PotentialCoefficients}.
 #include "programs/program.h"
 #include "parser/dataVariables.h"
 #include "files/fileGriddedDataTimeSeries.h"
+#include "files/fileGriddedData.h"
 #include "files/fileSphericalHarmonics.h"
 #include "classes/timeSeries/timeSeries.h"
 #include "classes/kernel/kernel.h"
@@ -82,49 +83,61 @@ void GriddedDataTimeSeries2PotentialCoefficients::run(Config &config, Parallel::
     readConfig(config, "leastSquares",                     useLeastSquares, Config::DEFAULT,  "0",     "false: quadrature formular, true: least squares adjustment order by order");
     if(isCreateSchema(config)) return;
 
-    logStatus<<"read gridded data time series <"<<fileNameIn<<">"<<Log::endl;
-    InFileGriddedDataTimeSeries file(fileNameIn);
-    GriddedData grid = file.grid();
-    if(!grid.areas.size())
-      grid.computeArea();
-    MiscGriddedData::printStatistics(grid);
-    std::vector<Time> times = file.times();
-    if(timeSeries)
-      times = timeSeries->times();
-
-    // evaluate expressions
-    // --------------------
-    logStatus<<"calculate gridded data"<<Log::endl;
-    VariableList varList;
-    addDataVariables(grid, varList);
-    exprArea ->simplify(varList);
-    std::vector<Double> areas(grid.points.size());
-    for(UInt i=0; i<grid.points.size(); i++)
+    GriddedData       grid;
+    std::vector<Time> times;
+    if(Parallel::isMaster(comm))
     {
-      evaluateDataVariables(grid, i, varList);
-      areas.at(i) = exprArea->evaluate(varList);
-    }
+      logStatus<<"read gridded data time series <"<<fileNameIn<<">"<<Log::endl;
+      InFileGriddedDataTimeSeries file(fileNameIn);
+      grid = file.grid();
+      if(!grid.areas.size())
+        grid.computeArea();
+      MiscGriddedData::printStatistics(grid);
+      times = file.times();
+      if(timeSeries)
+        times = timeSeries->times();
 
-    // evaluate data at each epoch
-    std::vector<std::vector<Double>> values(exprValue.size()*times.size(), std::vector<Double>(grid.points.size()));
-    Single::forEach(times.size(), [&](UInt idEpoch)
-    {
-      Matrix data = file.data(times.at(idEpoch));
-      grid.values.resize(data.columns());
-      for(UInt k=0; k<data.columns(); k++)
-        grid.values.at(k) = Vector(data.column(k));
+      // evaluate expressions
+      // --------------------
+      logStatus<<"calculate gridded data"<<Log::endl;
       VariableList varList;
       addDataVariables(grid, varList);
-      std::for_each(exprValue.begin(), exprValue.end(), [&](auto expr) {expr->simplify(varList);});
+      exprArea ->simplify(varList);
+      std::vector<Double> areas(grid.points.size());
       for(UInt i=0; i<grid.points.size(); i++)
       {
         evaluateDataVariables(grid, i, varList);
-        for(UInt k=0; k<exprValue.size(); k++)
-          values.at(idEpoch*exprValue.size()+k).at(i) = exprValue.at(k)->evaluate(varList);
+        areas.at(i) = exprArea->evaluate(varList);
       }
-    });
-    grid.areas  = std::move(areas);
-    grid.values = std::move(values);
+
+      // evaluate data at each epoch
+      std::vector<std::vector<Double>> values(exprValue.size()*times.size(), std::vector<Double>(grid.points.size()));
+      Single::forEach(times.size(), [&](UInt idEpoch)
+      {
+        Matrix data = file.data(times.at(idEpoch));
+        grid.values.resize(data.columns());
+        for(UInt k=0; k<data.columns(); k++)
+          grid.values.at(k) = Vector(data.column(k));
+        VariableList varList;
+        addDataVariables(grid, varList);
+        std::for_each(exprValue.begin(), exprValue.end(), [&](auto expr) {expr->simplify(varList);});
+        for(UInt i=0; i<grid.points.size(); i++)
+        {
+          evaluateDataVariables(grid, i, varList);
+          for(UInt k=0; k<exprValue.size(); k++)
+            values.at(idEpoch*exprValue.size()+k).at(i) = exprValue.at(k)->evaluate(varList);
+        }
+      });
+      grid.areas  = std::move(areas);
+      grid.values = std::move(values);
+    }
+    Parallel::broadCast(times,          0, comm);
+    Parallel::broadCast(grid.ellipsoid, 0, comm);
+    Parallel::broadCast(grid.points,    0, comm);
+    Parallel::broadCast(grid.areas,     0, comm);
+    grid.values.resize(exprValue.size());
+    for(UInt k=0; k<grid.values.size(); k++)
+      Parallel::broadCast(grid.values.at(k), 0, comm);
 
     // spherical harmonic analysis
     // ---------------------------
