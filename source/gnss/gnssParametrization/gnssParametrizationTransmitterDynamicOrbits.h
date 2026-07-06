@@ -75,6 +75,7 @@ public:
   void   initParameter(GnssNormalEquationInfo &normalEquationInfo) override;
   void   aprioriParameter(const GnssNormalEquationInfo &normalEquationInfo, MatrixSliceRef x0) const override;
   void   designMatrix(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquation &eqn, GnssDesignMatrix &A) const override;
+  void   designMatrixIsl(const GnssNormalEquationInfo &normalEquationInfo, const GnssObservationEquationIsl &eqn, GnssDesignMatrix &A) const override;
   Double updateParameter(const GnssNormalEquationInfo &normalEquationInfo, const_MatrixSliceRef x, const_MatrixSliceRef Wz) override;
   void   writeResults(const GnssNormalEquationInfo &normalEquationInfo, const std::string &suffix) const override;
 };

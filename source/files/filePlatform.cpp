@@ -118,6 +118,7 @@ PlatformEquipmentPtr PlatformEquipment::create(Type type)
       case SLRSTATION:          return std::make_shared<PlatformSlrStation>();
       case LASERRETROREFLECTOR: return std::make_shared<PlatformLaserRetroReflector>();
       case SATELLITEIDENTIFIER: return std::make_shared<PlatformSatelliteIdentifier>();
+      case ISLTERMINAL:         return std::make_shared<PlatformIslTerminal>();
       case UNDEFINED:           break;
     }
 
@@ -197,6 +198,23 @@ void PlatformLaserRetroReflector::load(InArchive &ar)
   ar>>nameValue("platform2reflectorFrame", platform2reflectorFrame);
   ar>>nameValue("dZenit",                  dZenit);
   ar>>nameValue("range",                   range);
+}
+
+/***********************************************/
+/***********************************************/
+
+void PlatformIslTerminal::save(OutArchive &ar) const
+{
+  ar<<nameValue("local2terminalFrame", local2terminalFrame);
+  ar<<nameValue("termialId",           terminalId);
+}
+
+/***********************************************/
+
+void PlatformIslTerminal::load(InArchive &ar)
+{
+  ar>>nameValue("local2terminalFrame", local2terminalFrame);
+  ar>>nameValue("termialId",           terminalId);
 }
 
 /***********************************************/
