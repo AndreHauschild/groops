@@ -123,6 +123,7 @@ inline void GnssProcessingStepForEachReceiverSeparately::process(GnssProcessingS
 
     // synchronize transceivers
     state.gnss->synchronizeTransceivers(state.normalEquationInfo.comm);
+    state.gnss->synchronizeTransceiversIsl(state.normalEquationInfo.comm);
 
     Parallel::barrier(state.normalEquationInfo.comm);
   }
