@@ -974,7 +974,7 @@ Example: Analysis of TerraSAR-X residuals of one month shows that low elevation
 GPS satellites are not tracked by the onboard receiver. An estimation of accuracies
 for these directions is not possible from the residuals and the apriori accuracies
 are left untouched. The other directions show very low phase noise hardly elevation
-and azimuth dependent for L2W. A nearly zero mean indicates the use of adequate antennca
+and azimuth dependent for L2W. A nearly zero mean indicates the use of adequate antenna
 center variations in the processing.
 
 \fig{!hb}{0.8}{gnssResiduals2AccuracyDefinition}{fig:gnssResiduals2AccuracyDefinition}{L2W accuracies of TerraSAR-X determined from residuals of one month}
@@ -994,7 +994,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileStationInfo & \hfuzz=500pt filename & \hfuzz=500pt to assign residuals to antennas\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~isTransmitter & \hfuzz=500pt boolean & \hfuzz=500pt stationInfo is of a transmitter\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~thresholdOutlier & \hfuzz=500pt double & \hfuzz=500pt ignore residuals with sigma/sigma0 greater than threshold\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~minRedundancy & \hfuzz=500pt double & \hfuzz=500pt min number of residuals. to estimate sigma\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~minRedundancy & \hfuzz=500pt double & \hfuzz=500pt min number of residuals to estimate sigma\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~inputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt GNSS receiver residuals\\
 \hline
 \end{tabularx}
@@ -1081,7 +1081,8 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileAntennaRedundancy & \hfuzz=500pt filename & \hfuzz=500pt redundancy of adjustment\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileAccuracyDefinition & \hfuzz=500pt filename & \hfuzz=500pt apriori accuracies\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileTransmitterInfo & \hfuzz=500pt filename & \hfuzz=500pt to assign residuals to antennas\\
-\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~minRedundancy & \hfuzz=500pt double & \hfuzz=500pt min number of residuals. to estimate sigma\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~thresholdOutlier & \hfuzz=500pt double & \hfuzz=500pt ignore residuals with sigma/sigma0 greater than threshold\\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~minRedundancy & \hfuzz=500pt double & \hfuzz=500pt min number of residuals to estimate sigma\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~inputfileResiduals & \hfuzz=500pt filename & \hfuzz=500pt GNSS receiver residuals\\
 \hline
 \end{tabularx}
@@ -1159,6 +1160,7 @@ For each epoch the first data column contains the PRN, the second the satellite 
 followed by a column for each GNSS \configClass{type}{gnssType}.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
 has several lines per observed epoch (epochs with the same time, one for each transmitter).
+If no observation is available for a selected GNSS \configClass{type}{gnssType}, NAN is inserted.
 
 The second data column of the output contains a number representing the system
 \begin{itemize}
@@ -7333,6 +7335,28 @@ Name & Type & Annotation\\
 \hline
 \end{tabularx}
 
+\clearpage
+%==================================
+\subsection{SimulateStarCameraMetopSG}\label{SimulateStarCameraMetopSG}
+This program simulates \file{star camera}{instrument} measurements at each satellite's position.
+The satellite's orientation follows a local orbit frame with the z-axis pointing downwards normal 
+to the Earth's ellipsoid, the y-axis perpendicular to the Earth-fixed velocity and the x-axis 
+oriented in the direction of the Earth-fixed velocity.
+The resulting rotation matrices rotate from satellite frame to inertial frame.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileStarCamera & \hfuzz=500pt filename & \hfuzz=500pt rotation from satellite to inertial frame (x: along Earth-fixed velocity, y: cross, z: normal to Earth ellipsoid)\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileOrbit & \hfuzz=500pt filename & \hfuzz=500pt position and velocity defines the orientation of the satellite at each epoch\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~earthRotation & \hfuzz=500pt \hyperref[earthRotationType]{earthRotation} & \hfuzz=500pt transformation from CRF to TRF\\
+\hline
+\end{tabularx}
+
+This program is \reference{parallelized}{general.parallelization}.
 \clearpage
 %==================================
 \subsection{SimulateStarCameraSentinel1}\label{SimulateStarCameraSentinel1}

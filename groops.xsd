@@ -12221,7 +12221,7 @@
 						</xs:element>
 						<xs:element name="minRedundancy" type="double" minOccurs="0" default="3">
 							<xs:annotation>
-								<xs:documentation>min number of residuals. to estimate sigma</xs:documentation>
+								<xs:documentation>min number of residuals to estimate sigma</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileResiduals" type="filename" maxOccurs="unbounded">
@@ -12297,9 +12297,14 @@
 								<xs:documentation>to assign residuals to antennas</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="thresholdOutlier" type="double" minOccurs="0" default="10">
+							<xs:annotation>
+								<xs:documentation>ignore residuals with sigma/sigma0 greater than threshold</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="minRedundancy" type="double" minOccurs="0" default="3">
 							<xs:annotation>
-								<xs:documentation>min number of residuals. to estimate sigma</xs:documentation>
+								<xs:documentation>min number of residuals to estimate sigma</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileResiduals" type="filename" maxOccurs="unbounded">
