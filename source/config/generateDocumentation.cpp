@@ -55,7 +55,7 @@ static _ClassGnssType _classGnssType;
 class Documentation::Token
 {
 public:
-  enum Type {TEXT, PARAGRAPH, NEWLINE, ESCAPE, BRACKET, COMMAND, EQUATION, EQUATIONINLINE};
+  enum Type {TEXT, PARAGRAPH, NEWLINE, ESCAPE, BRACKET, COMMAND, EQUATION, MATHINLINE, MATHDISPLAY};
   Type        type;
   std::string text;
   std::vector<std::string> options;
@@ -130,12 +130,12 @@ std::vector<Documentation::Token> Documentation::tokenize(const std::string &tex
           pos = posTmp;
         }
       }
-      else if(text.at(pos) == '$') // EQUATIONINLINE
+      else if(text.at(pos) == '$') // MATHINLINE
       {
         auto posTmp = text.find('$', ++pos);
         if(posTmp == std::string::npos)
           throw(Exception("missing '$'"));
-        tokens.push_back(Token(Token::EQUATIONINLINE, text.substr(pos, posTmp-pos)));
+        tokens.push_back(Token(Token::MATHINLINE, text.substr(pos, posTmp-pos)));
         pos = posTmp+1;
       }
       else if(text.at(pos) == '\\')
@@ -143,12 +143,12 @@ std::vector<Documentation::Token> Documentation::tokenize(const std::string &tex
         pos++;
         if(pos >= text.size())
           throw(Exception("text ended unexpectedly after '\\'"));
-        if(text.at(pos) == '[') // EQUATION
+        if(text.at(pos) == '[') // MATHDISPLAY
         {
           auto posTmp = text.find(R"(\])", ++pos);
           if(posTmp == std::string::npos)
             throw(Exception("missing '\\]'"));
-          tokens.push_back(Token(Token::EQUATION, text.substr(pos, posTmp-pos)));
+          tokens.push_back(Token(Token::MATHDISPLAY, text.substr(pos, posTmp-pos)));
           pos = posTmp+2;
         }
         else if(text.at(pos) == '\\')        // NEWLINE
@@ -545,8 +545,9 @@ void DocumentationHtml::writeText(const std::string &text)
       switch(token.at(i).type)
       {
         case Token::TEXT:           html = text; addToSearchTokens(text); break;
-        case Token::EQUATIONINLINE: html = "$"+text+"$"; break;
-        case Token::EQUATION:       html = "\\["+ text +"\\]"; break;
+        case Token::MATHINLINE:     html = "$"+text+"$"; break;
+        case Token::MATHDISPLAY:    html = "\\["+ text +"\\]"; break;
+        case Token::EQUATION:       html = "\\begin{equation}"+ text +"\\end{equation}"; break;
         case Token::ESCAPE:         html = text; break;
         case Token::PARAGRAPH:      html = "</p><p>"; break;
         case Token::NEWLINE:

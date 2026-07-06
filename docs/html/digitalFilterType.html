@@ -5,29 +5,34 @@
     <title>GROOPS - digitalFilterType</title>
 
     <!-- JQuery and Popper -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.min.js" integrity="sha256-8DGpv13HIm+5iDNWw1XqxgFB4mj+yOKFNb+tHBZOowc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
     <!-- Bootstrap -->
     <!-- https://getbootstrap.com/docs/4.1/examples/ -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Mathjax -->
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'] ],
-                                  displayMath: [ ["\\[","\\]"] ],
-                                  processEscapes: true},
-                        TeX:     {Macros: {M: ["{\\mathbf #1}",1]},
-                                  equationNumbers: {autoNumber: "all"}  }});
+    <script>
+    window.MathJax = {tex: {
+                          inlineMath: {'[+]': [['$', '$']]},
+                          displayMath: {'[+]': [['\\[', '\\]']]},
+                          macros: {
+                            M: ["{\\mathbf #1}", 1]
+                          },
+                          tags: 'ams',
+                          processEscapes: true
+                        }
+                      };
     </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.7/MathJax.js?config=TeX-AMS_CHTML" integrity="sha384-e/4/LvThKH1gwzXhdbY2AsjR3rm7LHWyhIG5C0jiRfn8AN2eTN5ILeztWw0H9jmN" crossorigin="anonymous"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
     <!-- lunr -->
-    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.8/lunr.min.js" integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js" integrity="sha256-DFDZACuFeAqEKv/7Vnu1Tt5ALa58bcWZegGGFNgET8g=" crossorigin="anonymous"></script>
 
     <!-- Mustache -->
-    <script src="https://cdn.jsdelivr.net/npm/mustache@4.0.1/mustache.min.js" integrity="sha384-0PLEZVBpOQ+Kqw3anJWSNWvRxpEFt02tSpBvyRsA4WcvX/OTldWdXxGLVLvh954H" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js" integrity="sha256-1/0GA1EkYejtvYFoa+rSq4LfM4m5zKI13Z1bQIhI4Co=" crossorigin="anonymous"></script>
 
     <!-- GROOPS Stylesheet -->
     <link rel="stylesheet" href="static/groops.css"/>
@@ -57,11 +62,15 @@
                   </li>
                 </ul>
               </div>
-                <form class="form-inline my-2 my-lg-0" action="search.html" id="searchTools">
-                  <input class="form-control mr-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
-                  <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                <form class="row row-cols-lg-auto g-2 align-items-center" action="search.html" id="searchTools">
+                  <div class="col-12">
+                    <input class="form-control my-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                  </div>
                 </form>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
                 <span class="navbar-toggler-icon"></span>
               </button>
             </div>
@@ -72,17 +81,17 @@
             
 <h1 id="digitalFilterType">DigitalFilter</h1><p>
 Digital filter implementation for the filtering of equally spaced time series. This class implements the filter equations as
-\[\label{digitalFilterType:arma}
+\begin{equation}\label{digitalFilterType:arma}
   \sum_{l=0}^Q a_l y_{n-l} = \sum_{k=-p_0}^{P-p_0-1} b_k x_{n-k}, \hspace{25pt} a_0 = 1,
-\]where $Q$ is the autoregressive (AR) order and $P$ is the moving average (MA) order. Note that the MA part can also be non-causal.
+\end{equation}where $Q$ is the autoregressive (AR) order and $P$ is the moving average (MA) order. Note that the MA part can also be non-causal.
 The characteristics of a filter cascade can be computed by the programs <a class="groops-program" href="DigitalFilter2FrequencyResponse.html">DigitalFilter2FrequencyResponse</a> and <a class="groops-program" href="DigitalFilter2ImpulseResponse.html">DigitalFilter2ImpulseResponse</a>.
 To apply a filter cascade to a time series (or an instrument file ) use <a class="groops-program" href="InstrumentFilter.html">InstrumentFilter</a>.
 Each filter can be applyed in forward and backward direction by setting <strong class="groops-config-element">backwardDirection</strong>.
 If the same filter is applied in both directions, the combined filter has zero phase and the squared magnitude response.
 Setting <strong class="groops-config-element">inFrequencyDomain</strong> to true applies the transfer function of the filter to the DFT of the input and synthesizes the result, i.e.:
-\[
+\begin{equation}
   y_n = \mathcal{F}^{-1}\{H\cdot\mathcal{F}\{x_n\}\}.
-\]This is equivalent to setting <strong class="groops-config-element">padType</strong> to <strong class="groops-config-element">periodic</strong>.</p><p>To reduce warmup effects, the input time series can be padded by choosing a <strong class="groops-config-element">padType</strong>:
+\end{equation}This is equivalent to setting <strong class="groops-config-element">padType</strong> to <strong class="groops-config-element">periodic</strong>.</p><p>To reduce warmup effects, the input time series can be padded by choosing a <strong class="groops-config-element">padType</strong>:
 <ul>
 
 <li><strong class="groops-config-element">none</strong>: no padding is applied
@@ -131,7 +140,7 @@ The filter length $n$ should be uneven to avoid a phase shift.
 
 <h2>Derivative</h2><p>
 Symmetric MA filter for numerical differentiation using polynomial approximation. The input time series is approximated by a moving polynomial of degree <strong class="groops-config-element">polynomialDegree</strong>, by solving
-\[
+\begin{equation}
   \begin{bmatrix} x(t_k+\tau_0) \\ \vdots \\ x(t_k+\tau_M) \end{bmatrix}
   =
   \begin{bmatrix}
@@ -144,11 +153,11 @@ Symmetric MA filter for numerical differentiation using polynomial approximation
   \end{bmatrix}
   \qquad\text{with}\quad
   \tau_j =  (j-M/2)\cdot \Delta t,
-\]for each time step $t_k$ ($\Delta t$ is the <strong class="groops-config-element">sampling</strong> of the time series).
+\end{equation}for each time step $t_k$ ($\Delta t$ is the <strong class="groops-config-element">sampling</strong> of the time series).
 The filter coefficients for the $k$-th derivative are obtained by taking the appropriate row of the inverse coefficient matrix $\mathbf{W}$:
-\[
+\begin{equation}
   b_n = \prod_{i=0}^{k-1} (k-i) \mathbf{w}_{2,:}.
-\]The <strong class="groops-config-element">polynomialDegree</strong> should be even if no phase shift should be introduced.
+\end{equation}The <strong class="groops-config-element">polynomialDegree</strong> should be even if no phase shift should be introduced.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
@@ -167,7 +176,7 @@ The filter coefficients for the $k$-th derivative are obtained by taking the app
 Numerical integration using polynomial approximation.
 The input time series is approximated by a moving polynomial of degree <strong class="groops-config-element">polynomialDegree</strong>
 by solving
-\[
+\begin{equation}
   \begin{bmatrix} x(t_k+\tau_0) \\ \vdots \\ x(t_k+\tau_M) \end{bmatrix}
   =
   \begin{bmatrix}
@@ -180,7 +189,7 @@ by solving
   \end{bmatrix}
   \qquad\text{with}\quad
   \tau_j =  (j-M/2)\cdot \Delta t,
-\]for each time step $t_k$ ($\Delta t$ is the <strong class="groops-config-element">sampling</strong> of the time series).
+\end{equation}for each time step $t_k$ ($\Delta t$ is the <strong class="groops-config-element">sampling</strong> of the time series).
 The numerical integral for each time step $t_k$ is approximated by the center interval of the estimated polynomial.</p><p><figure><img class="figure" style="width:70%;" src="../figures/DigitalFilter_integral.png" alt="DigitalFilter_integral"><figcaption class="center">Figure: Numerical integration by polynomial approximation.</figcaption></figure></p><p><strong class="groops-config-element">polynomialDegree</strong> should be even to avoid a phase shift.
 </p>
 <table class="table table-hover">
@@ -197,9 +206,9 @@ The numerical integral for each time step $t_k$ is approximated by the center in
 
 <h2>Correlation</h2><p>
 Correlation ($\rho$) of <strong class="groops-config-element">corr</strong> is introduced into the time series:
-\[
+\begin{equation}
   y_n = \rho\cdot y_{n-1} + \sqrt{1-\rho^2}x_n.
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">correlation</div></div></td><td>double</td><td>correlation</td></tr>
