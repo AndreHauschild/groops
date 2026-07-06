@@ -5,29 +5,34 @@
     <title>GROOPS - normalEquationType</title>
 
     <!-- JQuery and Popper -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.min.js" integrity="sha256-8DGpv13HIm+5iDNWw1XqxgFB4mj+yOKFNb+tHBZOowc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
     <!-- Bootstrap -->
     <!-- https://getbootstrap.com/docs/4.1/examples/ -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Mathjax -->
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'] ],
-                                  displayMath: [ ["\\[","\\]"] ],
-                                  processEscapes: true},
-                        TeX:     {Macros: {M: ["{\\mathbf #1}",1]},
-                                  equationNumbers: {autoNumber: "all"}  }});
+    <script>
+    window.MathJax = {tex: {
+                          inlineMath: {'[+]': [['$', '$']]},
+                          displayMath: {'[+]': [['\\[', '\\]']]},
+                          macros: {
+                            M: ["{\\mathbf #1}", 1]
+                          },
+                          tags: 'ams',
+                          processEscapes: true
+                        }
+                      };
     </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.7/MathJax.js?config=TeX-AMS_CHTML" integrity="sha384-e/4/LvThKH1gwzXhdbY2AsjR3rm7LHWyhIG5C0jiRfn8AN2eTN5ILeztWw0H9jmN" crossorigin="anonymous"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
     <!-- lunr -->
-    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.8/lunr.min.js" integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js" integrity="sha256-DFDZACuFeAqEKv/7Vnu1Tt5ALa58bcWZegGGFNgET8g=" crossorigin="anonymous"></script>
 
     <!-- Mustache -->
-    <script src="https://cdn.jsdelivr.net/npm/mustache@4.0.1/mustache.min.js" integrity="sha384-0PLEZVBpOQ+Kqw3anJWSNWvRxpEFt02tSpBvyRsA4WcvX/OTldWdXxGLVLvh954H" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js" integrity="sha256-1/0GA1EkYejtvYFoa+rSq4LfM4m5zKI13Z1bQIhI4Co=" crossorigin="anonymous"></script>
 
     <!-- GROOPS Stylesheet -->
     <link rel="stylesheet" href="static/groops.css"/>
@@ -57,11 +62,15 @@
                   </li>
                 </ul>
               </div>
-                <form class="form-inline my-2 my-lg-0" action="search.html" id="searchTools">
-                  <input class="form-control mr-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
-                  <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                <form class="row row-cols-lg-auto g-2 align-items-center" action="search.html" id="searchTools">
+                  <div class="col-12">
+                    <input class="form-control my-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                  </div>
                 </form>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
                 <span class="navbar-toggler-icon"></span>
               </button>
             </div>
@@ -73,11 +82,11 @@
 <h1 id="normalEquationType">NormalEquation</h1><p>
 This class provides a system of normal equations.
 This total system is the weighted sum of individual normals.
-\[
+\begin{equation}
  \M N_{total} =  \sum_{k=1} \frac{1}{\sigma_k^2}\M N_k
  \qquad\text{and}\qquad
 \M n_{total} = \sum_{k=1} \frac{1}{\sigma_k^2} \M n_k.
-\]The normals do not need to have the same dimension. The dimension
+\end{equation}The normals do not need to have the same dimension. The dimension
 of the total combined system is chosen to cover all individual systems.
 For each normal a <strong class="groops-config-element">startIndex</strong> is required which indicates
 the position of the first unknown of the individual normal within the
@@ -85,15 +94,15 @@ combined parameter vector.</p><p>The $\sigma_k$ of the relative weights are defi
 in a first step. If an apriori solution <a class="groops-class" href="fileFormat_matrix.html">inputfileApproxSolution</a> is
 given or the normals are solved iteratively the weights are determined by means
 of variance compoment estimation (VCE), see <a class="groops-program" href="NormalsSolverVCE.html">NormalsSolverVCE</a>:
-\[
+\begin{equation}
 \sigma_k^2 =
 \frac{\M e_k^T\M P\M e_k}
 {n_k-\frac{1}{\sigma_k^2}\text{trace}\left(\M N_k\M N_{total}^{-1}\right)},
-\]where $n_k$ is the number of observations. The square sum of the residuals
+\end{equation}where $n_k$ is the number of observations. The square sum of the residuals
 is calculated by
-\[
+\begin{equation}
 \M e_k^T\M P\M e_k = \M x^T\M N_k\M x - 2\M n_k^T\M x + \M l_k^T\M P_k\M l_k.
-\]The system of normal equations can be solved with several right hand sides at once. But
+\end{equation}The system of normal equations can be solved with several right hand sides at once. But
 only one right hand side, which can be selected with the index <strong class="groops-config-element">rightHandSide</strong>
 (counting from zero), can be used to compute the variance factors.
 The combined normal $\M N_{total}$ and the solution $\M x$ are taken from the previous
@@ -105,15 +114,15 @@ is a little bit different as described below.
 This class acculumates normal equations from observation equations.
 The class <a class="groops-class" href="observationType.html">observation</a> computes
 the linearized and decorrelated equation system for each arc $i$:
-\[
+\begin{equation}
 \M l_i  = \M A_i \M x + \M B_i \M y_i + \M e_i.
-\]The arc depending parameters $\M y_i$ are eliminated and the system of normal
+\end{equation}The arc depending parameters $\M y_i$ are eliminated and the system of normal
 equations is acculumated according to
-\[
+\begin{equation}
  \M N = \sum_{i=1}^m \M A_i^T  \M A_i
  \qquad\text{and}\qquad
 \M n = \sum_{i=1}^m \M A_i^T \M l_i.
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">observation</div></div></td><td><a href="observationType.html">observation</a></td><td></td></tr>
@@ -126,20 +135,20 @@ equations is acculumated according to
 This class acculumates normal equations from observation equations.
 The class <a class="groops-class" href="observationType.html">observation</a> computes
 the linearized and decorrelated equation system for each arc $i$:
-\[
+\begin{equation}
 \M l_i  = \M A_i \M x + \M B_i \M y_i + \M e_i.
-\]The arc depending parameters $\M y_i$ are eliminated and the system of normal
+\end{equation}The arc depending parameters $\M y_i$ are eliminated and the system of normal
 equations is acculumated according to
-\[
+\begin{equation}
  \M N =  \sum_{i=1} \frac{1}{\sigma_i^2}\M A_i^T  \M A_i
  \qquad\text{and}\qquad
 \M n = \sum_{i=1} \frac{1}{\sigma_i^2} \M A_i^T \M l_i.
-\]The variance $\sigma_i^2$ of each individual arc is determined by
-\[
+\end{equation}The variance $\sigma_i^2$ of each individual arc is determined by
+\begin{equation}
 \sigma_i^2 =
 \frac{(\M l_i-\M A_i\M x)^T(\M l_i-\M A_i\M x)}
 {n_i-\frac{1}{\sigma_i^2}\text{trace}\left(\M A_i^T  \M A_i\M N_{total}^{-1}\right)},
-\]where $n_i$ is the number of observations. If an apriori solution is not given at the first
+\end{equation}where $n_i$ is the number of observations. If an apriori solution is not given at the first
 iteration step a zero vector is assumed.
 </p>
 <table class="table table-hover">
@@ -162,11 +171,11 @@ as generated by e.g. <a class="groops-program" href="NormalsBuild.html">NormalsB
 
 <h2 id="regularization">Regularization</h2><p>
 Set up a system of normal equations
-\[
+\begin{equation}
 \M N = \M R
 \qquad\text{and}\qquad
 \M n = \M R \M b,
-\]where $\M R$ is a diagonal matrix whose elements are given as a vector by
+\end{equation}where $\M R$ is a diagonal matrix whose elements are given as a vector by
 <a class="groops-class" href="fileFormat_matrix.html">inputfileDiagonalMatrix</a> and $\M b$ is the right hand side towards which will
 be regularized. It can be given by <a class="groops-class" href="fileFormat_matrix.html">inputfileBiasVector</a>.
 The diagonal matrix can be generated with <a class="groops-program" href="NormalsRegularizationBorders.html">NormalsRegularizationBorders</a>,
@@ -184,9 +193,9 @@ If $\M b$ is not given a zero vector is assumed.
 </table>
 
 <h2>RegularizationGeneralized</h2><p></p><p>Generalized regularization which is represented by the observation equation
-\[
+\begin{equation}
 \mathbf{x}_0 = \mathbf{I} \mathbf{x} + \mathbf{v}, \mathbf{v} \sim \mathcal{N}(0, \sum_k \sigma^2_k \mathbf{V}_k).
-\]
+\end{equation}
 There are no requirements for partial covariance matrices $\mathbf{V}_k$ except for them being symmetric.
 The accumulated covariance matrix $\sum_k \sigma^2_k \mathbf{V}_k$ must be positive definite however.
 The variance components $\sigma^2_k$ are estimated during the adjustment process and are assumed to be positive.

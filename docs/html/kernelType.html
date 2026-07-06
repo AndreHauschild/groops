@@ -5,29 +5,34 @@
     <title>GROOPS - kernelType</title>
 
     <!-- JQuery and Popper -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.min.js" integrity="sha256-8DGpv13HIm+5iDNWw1XqxgFB4mj+yOKFNb+tHBZOowc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
     <!-- Bootstrap -->
     <!-- https://getbootstrap.com/docs/4.1/examples/ -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Mathjax -->
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'] ],
-                                  displayMath: [ ["\\[","\\]"] ],
-                                  processEscapes: true},
-                        TeX:     {Macros: {M: ["{\\mathbf #1}",1]},
-                                  equationNumbers: {autoNumber: "all"}  }});
+    <script>
+    window.MathJax = {tex: {
+                          inlineMath: {'[+]': [['$', '$']]},
+                          displayMath: {'[+]': [['\\[', '\\]']]},
+                          macros: {
+                            M: ["{\\mathbf #1}", 1]
+                          },
+                          tags: 'ams',
+                          processEscapes: true
+                        }
+                      };
     </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.7/MathJax.js?config=TeX-AMS_CHTML" integrity="sha384-e/4/LvThKH1gwzXhdbY2AsjR3rm7LHWyhIG5C0jiRfn8AN2eTN5ILeztWw0H9jmN" crossorigin="anonymous"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
     <!-- lunr -->
-    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.8/lunr.min.js" integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js" integrity="sha256-DFDZACuFeAqEKv/7Vnu1Tt5ALa58bcWZegGGFNgET8g=" crossorigin="anonymous"></script>
 
     <!-- Mustache -->
-    <script src="https://cdn.jsdelivr.net/npm/mustache@4.0.1/mustache.min.js" integrity="sha384-0PLEZVBpOQ+Kqw3anJWSNWvRxpEFt02tSpBvyRsA4WcvX/OTldWdXxGLVLvh954H" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js" integrity="sha256-1/0GA1EkYejtvYFoa+rSq4LfM4m5zKI13Z1bQIhI4Co=" crossorigin="anonymous"></script>
 
     <!-- GROOPS Stylesheet -->
     <link rel="stylesheet" href="static/groops.css"/>
@@ -57,11 +62,15 @@
                   </li>
                 </ul>
               </div>
-                <form class="form-inline my-2 my-lg-0" action="search.html" id="searchTools">
-                  <input class="form-control mr-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
-                  <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                <form class="row row-cols-lg-auto g-2 align-items-center" action="search.html" id="searchTools">
+                  <div class="col-12">
+                    <input class="form-control my-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                  </div>
                 </form>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
                 <span class="navbar-toggler-icon"></span>
               </button>
             </div>
@@ -72,14 +81,14 @@
             
 <h1 id="kernelType">Kernel</h1><p>
 Kernel defines harmonic isotropic integral kernels $K$.
-\[
+\begin{equation}
 T(P) = \frac{1}{4\pi}\int_\Omega K(P,Q)\cdot f(Q)\,d\Omega(Q),
-\]where $T$ is the (disturbance)potential and $f$ is a functional on the spherical surface $\Omega$.
+\end{equation}where $T$ is the (disturbance)potential and $f$ is a functional on the spherical surface $\Omega$.
 The Kernel can be exapanded into a series of (fully normalized) legendre polynomials
-\[\label{eq.kernel}
+\begin{equation}\label{eq.kernel}
 K(\cos\psi,r,R) = \sum_n \left(\frac{R}{r}\right)^{n+1}
 k_n\sqrt{2n+1}\bar{P}_n(\cos\psi).
-\]On the one hand the kernel defines the type of the functionals $f$ that are measured
+\end{equation}On the one hand the kernel defines the type of the functionals $f$ that are measured
 or have to be computed, e.g. gravity anomalies given by the Stokes-kernel.
 On the other hand the kernel functions can be used as basis functions to represent
 the gravity field, e.g. as spline functions or wavelets.
@@ -87,62 +96,62 @@ the gravity field, e.g. as spline functions or wavelets.
 
 <h2 id="geoidHeight">GeoidHeight</h2><p>
 The geoid height is defined by Bruns formula
-\[
+\begin{equation}
 N = \frac{1}{\gamma}T
-\]with $T$ the disturbance potential and the normal gravity
-\[\label{normalgravity}
+\end{equation}with $T$ the disturbance potential and the normal gravity
+\begin{equation}\label{normalgravity}
 \gamma  = \gamma_0 - 0.30877\cdot 10^{-5}/s^2(1-0.00142\sin^2(B))h
-\]and
-\[
+\end{equation}and
+\begin{equation}
 \gamma_0 = 9.780327\,m/s^2(1+0.0053024\sin^2(B)-0.0000058\sin^2(2B))
-\]where $h$ is the ellipsoidal height in meter and $B$ the longitude.</p><p>The kernel is given by
-\[
+\end{equation}where $h$ is the ellipsoidal height in meter and $B$ the longitude.</p><p>The kernel is given by
+\begin{equation}
 K(\cos\psi,r,R) = \gamma\frac{R(r^2-R^2)}{l^3},
-\]and the coefficients in \eqref{eq.kernel} are
-\[
+\end{equation}and the coefficients in \eqref{eq.kernel} are
+\begin{equation}
 k_n = \gamma.
-\]</p>
+\end{equation}</p>
 
 <h2>Anomalies</h2><p>
 Gravity anomalies in linearized form are defined by
-\[
+\begin{equation}
 \Delta g = -\frac{\partial T}{\partial r}-\frac{2}{r}T.
-\]The Stokes kernel is given by
-\[
+\end{equation}The Stokes kernel is given by
+\begin{equation}
 K(\cos\psi,r,R) = \frac{2R^2}{l}-3\frac{Rl}{r^2}-\frac{R^2}{r^2}\cos\psi
 \left(5+3\ln\frac{l+r-R\cos\psi}{2r}\right),
-\]and the coefficients in \eqref{eq.kernel} are
-\[
+\end{equation}and the coefficients in \eqref{eq.kernel} are
+\begin{equation}
 k_n = \frac{R}{n-1}.
-\]</p>
+\end{equation}</p>
 
 <h2 id="disturbance">Disturbance</h2><p>
 Gravity disturbances in linearized form are defined by
-\[
+\begin{equation}
 \delta g = -\frac{dT}{dr}.
-\]The Hotine kernel is given by
-\[
+\end{equation}The Hotine kernel is given by
+\begin{equation}
 K(\cos\psi,r,R) = \frac{2R^2}{l}-R\ln\frac{l+R-r\cos\psi}{r(1-\cos\psi)},
-\]and the coefficients in \eqref{eq.kernel} are
-\[
+\end{equation}and the coefficients in \eqref{eq.kernel} are
+\begin{equation}
 k_n = \frac{R}{n+1}.
-\]</p>
+\end{equation}</p>
 
 <h2>Potential</h2><p>
 The Abel-Poisson kernel is given by
-\[
+\begin{equation}
 K(\cos\psi,r,R) = \frac{R(r^2-R^2)}{l^3},
-\]and the coefficients in \eqref{eq.kernel} are
-\[
+\end{equation}and the coefficients in \eqref{eq.kernel} are
+\begin{equation}
 k_n = 1.
-\]</p>
+\end{equation}</p>
 
 <h2>Density</h2><p>
 This kernel defines a point mass or mass on a single layer ($1/l$-kernel)
 taking the effect of the loading into account.</p><p>The coefficients of the kernel defined in \eqref{eq.kernel} are
-\[
+\begin{equation}
 k_n = 4\pi G R\frac{1+k_n'}{2n+1},
-\]where $G$ is the gravitational constant and $k_n'$ are the load Love numbers.
+\end{equation}where $G$ is the gravitational constant and $k_n'$ are the load Love numbers.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
@@ -151,9 +160,9 @@ k_n = 4\pi G R\frac{1+k_n'}{2n+1},
 
 <h2 id="waterHeight">WaterHeight</h2><p>
 Height of equivalent water columns taking the effect of the loading into account.</p><p>The coefficients of the kernel defined in \eqref{eq.kernel} are
-\[
+\begin{equation}
 k_n = 4\pi G \rho R\frac{1+k_n'}{2n+1},
-\]where $G$ is the gravitational constant, $\rho$ is the <strong class="groops-config-element">density</strong> of water
+\end{equation}where $G$ is the gravitational constant, $\rho$ is the <strong class="groops-config-element">density</strong> of water
 and $k_n'$ are the load Love numbers.
 </p>
 <table class="table table-hover">
@@ -164,9 +173,9 @@ and $k_n'$ are the load Love numbers.
 
 <h2>BottomPressure</h2><p>
 Ocean bottom pressure caused by water and atmosphere masses columns taking the effect of the loading into account.</p><p>The coefficients of the kernel defined in \eqref{eq.kernel} are
-\[
+\begin{equation}
 k_n = \frac{4\pi G R }{\gamma}\frac{1+k_n'}{2n+1},
-\]where $G$ is the gravitational constant, $\gamma$ is the normal gravity and $k_n'$ are the load Love numbers.
+\end{equation}where $G$ is the gravitational constant, $\gamma$ is the normal gravity and $k_n'$ are the load Love numbers.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
@@ -175,9 +184,9 @@ k_n = \frac{4\pi G R }{\gamma}\frac{1+k_n'}{2n+1},
 
 <h2>Deformation</h2><p>
 Computes the radial deformation caused by loading.</p><p>The coefficients of the kernel defined in \eqref{eq.kernel} are
-\[
+\begin{equation}
 k_n = \gamma\frac{1+k_n'}{h_n'},
-\]where $\gamma$ is the normal gravity defined in \eqref{normalgravity},
+\end{equation}where $\gamma$ is the normal gravity defined in \eqref{normalgravity},
 $h_n'$ and $k_n'$ are the load Love numbers and the load deformation Love numbers.
 </p>
 <table class="table table-hover">
@@ -188,12 +197,12 @@ $h_n'$ and $k_n'$ are the load Love numbers and the load deformation Love number
 
 <h2>RadialGradient</h2><p>
 This kernel defines the second radial derivative of the (disturbance) potential.
-\[
+\begin{equation}
 T_{rr} = \frac{\partial^2 T}{\partial r^2}.
-\]The coefficients of the kernel defined in \eqref{eq.kernel} are
-\[
+\end{equation}The coefficients of the kernel defined in \eqref{eq.kernel} are
+\begin{equation}
 k_n = \frac{r^2}{(n+1)(n+2)}.
-\]</p>
+\end{equation}</p>
 
 <h2 id="coefficients">Coefficients</h2><p>
 The kernel is defined by the coefficients $k_n$ given by file.
@@ -206,15 +215,15 @@ The kernel is defined by the coefficients $k_n$ given by file.
 <h2>FilterGauss</h2><p>
 Another <a class="groops-class" href="kernelType.html">kernel</a> is smoothed by a gauss filter
 which is defined by
-\[
+\begin{equation}
 F(\cos\psi) = \frac{b\cdot e^{-b(1-\cos\psi)}}{1-e^{-2b}}
-\]with $b = \frac{ln(2)}{1-\cos(r/R)}$ where $r$ is the given
+\end{equation}with $b = \frac{ln(2)}{1-\cos(r/R)}$ where $r$ is the given
 smoothing <strong class="groops-config-element">radius</strong> in km and $R=6378.1366$ km is the
 Earth radius.
 The coefficients $k_n$ of the <strong class="groops-config-element">kernel</strong> are multiplicated by
-\[
+\begin{equation}
 f_n = \frac{1}{2n+1} \int_{-1}^1 F(t)\cdot \bar{P}_n(t)\,dt.
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">kernel</div></div></td><td><a href="kernelType.html">kernel</a></td><td></td></tr>
@@ -225,16 +234,16 @@ f_n = \frac{1}{2n+1} \int_{-1}^1 F(t)\cdot \bar{P}_n(t)\,dt.
 Another <a class="groops-class" href="kernelType.html">kernel</a> is smoothed by a Blackman low-pass filter. The filter is
 defined through the beginning and end of the transition from pass-band to stop-band. This
 transition band is specified by <strong class="groops-config-element">startDegreeTransition</strong> ($n_1$) and <strong class="groops-config-element">stopDegreeTransition</strong> ($n_2$).</p><p>The coefficients of this kernel are defined as
-\[
+\begin{equation}
 \begin{cases}
 1 & \text{for } n < n_1 \\
 A_n^2 & \text{for } n_1\leq n \leq n_2 \\
 0 & \text{for } n > n_2 \\
 \end{cases}
-\]with
-\[
+\end{equation}with
+\begin{equation}
 A_n = 0.42 + 0.5\cos(\pi \frac{n-n_1}{n_2-n_1}) + 0.08 \cos(2\pi\frac{n-n_1}{n_2-n_1}).
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">kernel</div></div></td><td><a href="kernelType.html">kernel</a></td><td></td></tr>
@@ -245,13 +254,13 @@ A_n = 0.42 + 0.5\cos(\pi \frac{n-n_1}{n_2-n_1}) + 0.08 \cos(2\pi\frac{n-n_1}{n_2
 <h2>Truncation</h2><p>
 Another <a class="groops-class" href="kernelType.html">kernel</a> is truncated before <strong class="groops-config-element">minDegree</strong> and after <strong class="groops-config-element">maxDegree</strong>.
 The coefficients of this kernel are defined as
-\[
+\begin{equation}
   k_n =
   \begin{cases}
   1 & \text{for } n_{\text{minDegree}} \leq n \leq n_{\text{maxDegree}}\\
   0 & \text{else.} \\
   \end{cases}
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">kernel</div></div></td><td><a href="kernelType.html">kernel</a></td><td></td></tr>
@@ -261,15 +270,15 @@ The coefficients of this kernel are defined as
 
 <h2>SelenoidHeight</h2><p>
 The selenoid height is defined by Bruns formula
-\[
+\begin{equation}
 N = \frac{1}{\gamma}T
-\]with $T$ the disturbance potential and the normal gravity $\gamma=\frac{GM}{R^2}$ of the moon.</p><p>The kernel is given by
-\[
+\end{equation}with $T$ the disturbance potential and the normal gravity $\gamma=\frac{GM}{R^2}$ of the moon.</p><p>The kernel is given by
+\begin{equation}
 K(\cos\psi,r,R) = \gamma\frac{R(r^2-R^2)}{l^3},
-\]and the coefficients in \eqref{eq.kernel} are
-\[
+\end{equation}and the coefficients in \eqref{eq.kernel} are
+\begin{equation}
 k_n = \gamma.
-\]</p>
+\end{equation}</p>
 
         </div>
     </main>
