@@ -5,29 +5,34 @@
     <title>GROOPS - covariancePodType</title>
 
     <!-- JQuery and Popper -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.min.js" integrity="sha256-8DGpv13HIm+5iDNWw1XqxgFB4mj+yOKFNb+tHBZOowc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
     <!-- Bootstrap -->
     <!-- https://getbootstrap.com/docs/4.1/examples/ -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Mathjax -->
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'] ],
-                                  displayMath: [ ["\\[","\\]"] ],
-                                  processEscapes: true},
-                        TeX:     {Macros: {M: ["{\\mathbf #1}",1]},
-                                  equationNumbers: {autoNumber: "all"}  }});
+    <script>
+    window.MathJax = {tex: {
+                          inlineMath: {'[+]': [['$', '$']]},
+                          displayMath: {'[+]': [['\\[', '\\]']]},
+                          macros: {
+                            M: ["{\\mathbf #1}", 1]
+                          },
+                          tags: 'ams',
+                          processEscapes: true
+                        }
+                      };
     </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.7/MathJax.js?config=TeX-AMS_CHTML" integrity="sha384-e/4/LvThKH1gwzXhdbY2AsjR3rm7LHWyhIG5C0jiRfn8AN2eTN5ILeztWw0H9jmN" crossorigin="anonymous"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
     <!-- lunr -->
-    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.8/lunr.min.js" integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js" integrity="sha256-DFDZACuFeAqEKv/7Vnu1Tt5ALa58bcWZegGGFNgET8g=" crossorigin="anonymous"></script>
 
     <!-- Mustache -->
-    <script src="https://cdn.jsdelivr.net/npm/mustache@4.0.1/mustache.min.js" integrity="sha384-0PLEZVBpOQ+Kqw3anJWSNWvRxpEFt02tSpBvyRsA4WcvX/OTldWdXxGLVLvh954H" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js" integrity="sha256-1/0GA1EkYejtvYFoa+rSq4LfM4m5zKI13Z1bQIhI4Co=" crossorigin="anonymous"></script>
 
     <!-- GROOPS Stylesheet -->
     <link rel="stylesheet" href="static/groops.css"/>
@@ -57,11 +62,15 @@
                   </li>
                 </ul>
               </div>
-                <form class="form-inline my-2 my-lg-0" action="search.html" id="searchTools">
-                  <input class="form-control mr-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
-                  <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                <form class="row row-cols-lg-auto g-2 align-items-center" action="search.html" id="searchTools">
+                  <div class="col-12">
+                    <input class="form-control my-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                  </div>
                 </form>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
                 <span class="navbar-toggler-icon"></span>
               </button>
             </div>
@@ -75,34 +84,34 @@ Provides arc-wise covariance matrices for precise orbit data.
 Temporal correlations are modeled in the orbit system (along, cross, radial).
 The <a class="groops-class" href="fileFormat_matrix.html">inputfileCovarianceFunction</a> provides temporal covariance functions for each axis.
 From the diagonal matrix for each time step
-\[
+\begin{equation}
   Cov_{3\times3}(t) = \text{diag}(cov_x(t), cov_y(t), cov_z(t))
-\]the Toeplitz covariance matrix for an arc is constructed
-\[
+\end{equation}the Toeplitz covariance matrix for an arc is constructed
+\begin{equation}
   \M C = \begin{pmatrix}
     Cov(t_0) & Cov(t_1) & \cdots   &          &        &        \\
     Cov(t_1) & Cov(t_0) & Cov(t_1) & \cdots   &        &        \\
     \cdots   & Cov(t_1) & Cov(t_0) & Cov(t_1) & \cdots &        \\
              & \cdots   & \ddots   & \ddots   & \ddots & \cdots \\
   \end{pmatrix}
-\]
+\end{equation}
 The epoch-wise $3\times3$ covariance matrices given by <a class="groops-class" href="fileFormat_instrument.html">inputfileCovariancePodEpoch</a>
 are eigenvalue-decomposed
-\[
+\begin{equation}
   \M C_{3\times3}(t_i) = \M Q \M\Lambda \M Q^T,
-\]where $\M Q$ is an orthogonal matrix and $\M\Lambda$ diagonal.
+\end{equation}where $\M Q$ is an orthogonal matrix and $\M\Lambda$ diagonal.
 This is used to split the covariances matrices
-\[
+\begin{equation}
   \M C_{3\times3}(t_i) = \M D(t_i) \M D(t_i)^T = (\M Q \M\Lambda^{1/2} \M Q^T)(\M Q \M\Lambda^{1/2} \M Q^T)^T,
-\]and to compose a block diagonal matrix for an arc
-\[
+\end{equation}and to compose a block diagonal matrix for an arc
+\begin{equation}
   \M D = \text{diag}(\M D(t_1), \M D(t_2), \ldots, \M D(t_2)).
-\]
+\end{equation}
 The complete covariance matrix of an arc is given by
-\[
+\begin{equation}
   \M C_{arc} = \sigma_0^2 \sigma_{arc}^2 \M D \M C \M D^T +
   \text{diag}(\sigma_1^2\M I_{3\times3}, \sigma_2^2\M I_{3\times3}, \ldots, \sigma_n^2\M I_{3\times3})
-\]where <strong class="groops-config-element">sigma</strong> $\sigma_0$ is an overall factor
+\end{equation}where <strong class="groops-config-element">sigma</strong> $\sigma_0$ is an overall factor
 and the arc specific factors $\sigma_{arc}$ can be provided with <a class="groops-class" href="fileFormat_matrix.html">inputfileSigmasPerArc</a>.
 The last matrix can be used to downweight outliers in single epochs and will be added if
 <a class="groops-class" href="fileFormat_instrument.html">inputfileSigmasPerEpoch</a> is provided.

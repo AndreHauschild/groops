@@ -5,29 +5,34 @@
     <title>GROOPS - gridType</title>
 
     <!-- JQuery and Popper -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.min.js" integrity="sha256-8DGpv13HIm+5iDNWw1XqxgFB4mj+yOKFNb+tHBZOowc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
     <!-- Bootstrap -->
     <!-- https://getbootstrap.com/docs/4.1/examples/ -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Mathjax -->
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'] ],
-                                  displayMath: [ ["\\[","\\]"] ],
-                                  processEscapes: true},
-                        TeX:     {Macros: {M: ["{\\mathbf #1}",1]},
-                                  equationNumbers: {autoNumber: "all"}  }});
+    <script>
+    window.MathJax = {tex: {
+                          inlineMath: {'[+]': [['$', '$']]},
+                          displayMath: {'[+]': [['\\[', '\\]']]},
+                          macros: {
+                            M: ["{\\mathbf #1}", 1]
+                          },
+                          tags: 'ams',
+                          processEscapes: true
+                        }
+                      };
     </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.7/MathJax.js?config=TeX-AMS_CHTML" integrity="sha384-e/4/LvThKH1gwzXhdbY2AsjR3rm7LHWyhIG5C0jiRfn8AN2eTN5ILeztWw0H9jmN" crossorigin="anonymous"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
     <!-- lunr -->
-    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.8/lunr.min.js" integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js" integrity="sha256-DFDZACuFeAqEKv/7Vnu1Tt5ALa58bcWZegGGFNgET8g=" crossorigin="anonymous"></script>
 
     <!-- Mustache -->
-    <script src="https://cdn.jsdelivr.net/npm/mustache@4.0.1/mustache.min.js" integrity="sha384-0PLEZVBpOQ+Kqw3anJWSNWvRxpEFt02tSpBvyRsA4WcvX/OTldWdXxGLVLvh954H" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js" integrity="sha256-1/0GA1EkYejtvYFoa+rSq4LfM4m5zKI13Z1bQIhI4Co=" crossorigin="anonymous"></script>
 
     <!-- GROOPS Stylesheet -->
     <link rel="stylesheet" href="static/groops.css"/>
@@ -57,11 +62,15 @@
                   </li>
                 </ul>
               </div>
-                <form class="form-inline my-2 my-lg-0" action="search.html" id="searchTools">
-                  <input class="form-control mr-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
-                  <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                <form class="row row-cols-lg-auto g-2 align-items-center" action="search.html" id="searchTools">
+                  <div class="col-12">
+                    <input class="form-control my-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                  </div>
                 </form>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
                 <span class="navbar-toggler-icon"></span>
               </button>
             </div>
@@ -88,17 +97,17 @@ located along meridians and along circles of latitude. <strong class="groops-con
 denotes the angular difference between adjacent points along meridians and
 <strong class="groops-config-element">deltaPhi</strong> describes the angular difference between adjacent points
 along circles of latitude. The point setting results as follows:
-\[
+\begin{equation}
 \lambda_i=\frac{\Delta\lambda}{2}+i\cdot\Delta\lambda\qquad\mbox{with}\qquad 0\leq i< \frac{360^\circ}{\Delta\lambda},
-\]\[
+\end{equation}\begin{equation}
 \varphi_j=-90^\circ+\frac{\Delta\varphi}{2}+j\cdot\Delta\varphi\qquad\mbox{with}\qquad 0\leq j<\frac{180^\circ}{\Delta\varphi}.
-\]The number of grid points can be determined by
-\[
+\end{equation}The number of grid points can be determined by
+\begin{equation}
 I=\frac{360^\circ}{\Delta\lambda}\cdot\frac{180^\circ}{\Delta\varphi}.
-\]The weights are calculated according to
-\[
+\end{equation}The weights are calculated according to
+\begin{equation}
 w_i=\int\limits_{\lambda_i-\frac{\Delta\lambda}{2}}^{\lambda_i+\frac{\Delta\lambda}{2}}\int\limits_{\vartheta_i-\frac{\Delta\vartheta}{2}}^{\vartheta_i+\frac{\Delta\vartheta}{2}}=2\cdot\Delta\lambda\sin(\Delta\vartheta)\sin(\vartheta_i).
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">deltaLambda</div></div></td><td>angle</td><td></td></tr>
@@ -123,9 +132,9 @@ for the new node (lower left part of Fig. <a href="fig.html#triangle_grid">fig:t
 side of Fig. <a href="fig.html#triangle_grid">fig:triangle_grid</a> finally shows the densified triangle vertex
 grid for a level of $n=3$. The number of grid points in dependence of the chosen
 level of densification can be calculated by
-\[\label{eq:numberVertex}
+\begin{equation}\label{eq:numberVertex}
 I=10\cdot(n+1)^2+2.
-\]
+\end{equation}
 <figure><img class="figure" style="width:60%;" src="../figures/icogrid.png" alt="icogrid"><figcaption class="center">Figure: TriangleVertex grid.</figcaption></figure>
 </p>
 <table class="table table-hover">
@@ -142,9 +151,9 @@ To achieve a finer grid, each of the triangles is divided into four smaller tria
 connecting the midpoints of the triangle edges. The refined grid points are again located
 at the center of the triangles. Subsequently, the triangles can be further densified up to
 the desired level of densification $n$, which is defined by <strong class="groops-config-element">level</strong>.</p><p>The number of global grid points for a certain level can be determined by
-\[\label{eq:numberCenter}
+\begin{equation}\label{eq:numberCenter}
 I=20\cdot 4^n.
-\]Thus the quantity of grid points depends exponentially on the level $n$, as with
+\end{equation}Thus the quantity of grid points depends exponentially on the level $n$, as with
 every additional level the number of grid points quadruplicates.
 </p>
 <table class="table table-hover">
@@ -158,19 +167,19 @@ every additional level the number of grid points quadruplicates.
 <h2>Gauss</h2><p>
  The grid features equiangular spacing along circles of latitude with
  <strong class="groops-config-element">parallelsCount</strong> defining the number $L$ of the parallels.
-\[
+\begin{equation}
 \Delta\lambda=\frac{\pi}{L}\qquad\Rightarrow\qquad\lambda_i=\frac{\Delta\lambda}{2}+i\cdot\Delta\lambda\qquad\mbox{with}\qquad 0\leq i< 2L.
-\]Along the meridians the points are located at $L$ parallels at
+\end{equation}Along the meridians the points are located at $L$ parallels at
 the $L$ zeros $\vartheta_j$ of the Legendre polynomial of degree $L$,
-\[
+\begin{equation}
 P_L(\cos\vartheta_j)=0.
-\]Consequently, the number of grid points sums up to
-\[
+\end{equation}Consequently, the number of grid points sums up to
+\begin{equation}
 I=2\cdot L^2.
-\]The weights can be calculated according to
-\[
+\end{equation}The weights can be calculated according to
+\begin{equation}
 w_i(L)=\Delta\lambda\frac{2}{(1-t_i^2)(P'_{L}(\cos(\vartheta _i)))^2},\label{weights}
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">parallelsCount</div></div></td><td>uint</td><td></td></tr>
@@ -182,35 +191,35 @@ w_i(L)=\Delta\lambda\frac{2}{(1-t_i^2)(P'_{L}(\cos(\vartheta _i)))^2},\label{wei
 <h2>Reuter</h2><p>
 The Reuter grid features equi-distant spacing along the meridians determined
 by the control parameter $\gamma$ according to
-\[
+\begin{equation}
 \Delta\vartheta=\frac{\pi}{\gamma}\qquad\Rightarrow\vartheta_j=j\Delta\vartheta,\qquad\mbox{with}\qquad 1\leq j\leq \gamma-1.
-\]Thus $\gamma+1$ denotes the number of points per meridian, as the two poles
+\end{equation}Thus $\gamma+1$ denotes the number of points per meridian, as the two poles
 are included in the point distribution as well. Along the circles of latitude,
 the number of grid points decreases with increasing latitude in order to achieve
 an evenly distributed point pattern. This number is chosen, so that the points
 along each circle of latitude have the same spherical distance as two adjacent
 latitudes. The resulting relationship is given by
-\[\label{eq:sphericalDistance}
+\begin{equation}\label{eq:sphericalDistance}
 \Delta\vartheta=\arccos\left( \cos^2\vartheta_j+\sin^2\vartheta_j\cos\Delta\lambda_j\right).
-\]The left hand side of this equation is the spherical distance between adjacent
+\end{equation}The left hand side of this equation is the spherical distance between adjacent
 latitudes, the right hand side stands for the spherical distance between two points
 with the same polar distance $\vartheta_j$ and a longitudinal difference of
 $\Delta\lambda_i$. This longitudinal distance can be adjusted depending on
 $\vartheta_j$ to fulfill Eq. \eqref{eq:sphericalDistance}. The resulting
 formula for $\Delta\lambda_i$ is
-\[\label{eq:deltaLambdai}
+\begin{equation}\label{eq:deltaLambdai}
 \Delta\lambda_j=\arccos\left( \frac{\sin\Delta\vartheta -\cos^2\vartheta_j}{\sin^2\vartheta_j}\right).
-\]The number of points $\gamma_j$ for each circle of latitude can then be determined by
-\[\label{eq:gammai}
+\end{equation}The number of points $\gamma_j$ for each circle of latitude can then be determined by
+\begin{equation}\label{eq:gammai}
 \gamma_j=\left[ \frac{2\pi}{\Delta\lambda_j}\right] .
-\]Here the Gauss bracket $[x]$ specifies the largest integer equal to or less than $x$.
+\end{equation}Here the Gauss bracket $[x]$ specifies the largest integer equal to or less than $x$.
 The longitudes are subsequently determined by
-\[
+\begin{equation}
 \lambda_{ij}=\frac{\Delta\lambda_j}{2}+i\cdot(2\pi/\gamma_j),\qquad\mbox{with}\qquad 0\leq i< \gamma_j.
-\]The number of grid points can be estimated by
-\[\label{eq:numberReuter}
+\end{equation}The number of grid points can be estimated by
+\begin{equation}\label{eq:numberReuter}
 I=\leq 2+\frac{4}{\pi}\gamma^2,
-\]The $\leq$ results from the fact that the $\gamma_j$ are restricted to integer values.
+\end{equation}The $\leq$ results from the fact that the $\gamma_j$ are restricted to integer values.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
@@ -225,9 +234,9 @@ I=\leq 2+\frac{4}{\pi}\gamma^2,
 This kind of grid distributes an arbitrarily chosen number of $I$ points
 (defined by <strong class="groops-config-element">globalPointsCount</strong>) following a recursive, quasi random sequence.
 In longitudinal direction the pattern follows
-\[
+\begin{equation}
 \Delta\lambda=\frac{2\pi}{I}\qquad\Rightarrow\qquad\frac{\Delta\lambda}{2}+\lambda_i=i\cdot\Delta\lambda\qquad\mbox{with}\qquad 1\leq i\leq I.
-\]This implies that every grid point features a unique longitude, with equi-angular
+\end{equation}This implies that every grid point features a unique longitude, with equi-angular
 longitudinal differences.</p><p>The polar distance in the form $t_i=\cos\vartheta_i$ for each point is determined
 by the following recursive sequence:
 <ul>
@@ -245,9 +254,9 @@ Subsequently, the interval is bisected into an upper and lower half,
 $t$ from upper and lower half are alternately sorted into the list of $t_i$.
 </li><li>
 The polar distances are calculated by
-\[
+\begin{equation}
 \vartheta_i=\arccos\, t_i.
-\]</li></ul>
+\end{equation}</li></ul>
 
 </p>
 <table class="table table-hover">
@@ -266,18 +275,18 @@ these angular differences for a given <strong class="groops-config-element">dime
 described for the corresponding geographical grid and Gauss grid. Along the meridians,
 the size of the latitudinal differences is half the size compared to the geographical
 grid. This results in the following point pattern,
-\[
+\begin{equation}
 \begin{split}
 \Delta\lambda=\frac{\pi}{L}\qquad&\Rightarrow\qquad\lambda_i=\frac{\Delta\lambda}{2}+i\cdot\Delta\lambda\qquad&\mbox{with}\qquad 0\leq i< 2L, \\
 \Delta\vartheta=\frac{\pi}{2L}\qquad&\Rightarrow\qquad\vartheta_j=j\cdot\Delta\vartheta\qquad&\mbox{with}\qquad 1\leq j\leq 2L.
 \end{split}
-\]Consequently, the number of grid points is
-\[
+\end{equation}Consequently, the number of grid points is
+\begin{equation}
 I=4\cdot L^2.
-\]The weights are given by
-\[
+\end{equation}The weights are given by
+\begin{equation}
 w_i=\Delta\lambda\frac{4}{2L}\sin(\vartheta_i)\sum_{l=0}^{L-1}\frac{\sin\left[ (2l+1)\;\vartheta_i\right] }{2l+1}.
-\]</p>
+\end{equation}</p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">dimension</div></div></td><td>uint</td><td>number of parallels = 2*dimension</td></tr>
