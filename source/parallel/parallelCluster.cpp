@@ -736,8 +736,8 @@ template<> void send(const UInt &x, UInt process, CommunicatorPtr comm)
 {
   try
   {
-    unsigned int y = static_cast<unsigned int>(x);
-    send(&y, 1, MPI_UNSIGNED, process, comm);
+    unsigned long long y = static_cast<unsigned long long>(x);
+    send(&y, 1, MPI_UNSIGNED_LONG_LONG, process, comm);
   }
   catch(std::exception &e)
   {
@@ -809,7 +809,7 @@ template<> void send(const GnssType &x, UInt process, CommunicatorPtr comm)
 {
   try
   {
-    unsigned int y = static_cast<unsigned int>(x.type);
+    unsigned long long y = static_cast<unsigned long long>(x.type);
     send(&y, 1, MPI_UNSIGNED, process, comm);
   }
   catch(std::exception &e)
@@ -906,8 +906,8 @@ template<> void receive(UInt &x, UInt process, CommunicatorPtr comm)
 {
   try
   {
-    unsigned int y;
-    receive(&y, 1, MPI_UNSIGNED, process, comm);
+    unsigned long long y;
+    receive(&y, 1, MPI_UNSIGNED_LONG_LONG, process, comm);
     x = static_cast<UInt>(y);
   }
   catch(std::exception &e)
@@ -1042,8 +1042,8 @@ template<> void receive(GnssType &x, UInt process, CommunicatorPtr comm)
 {
   try
   {
-    unsigned int y;
-    receive(&y, 1, MPI_UNSIGNED, process, comm);
+    unsigned long long y;
+    receive(&y, 1, MPI_UNSIGNED_LONG_LONG, process, comm);
     x = GnssType(static_cast<UInt>(y));
   }
   catch(std::exception &e)
@@ -1090,8 +1090,8 @@ template<> void broadCast(UInt &x, UInt process, CommunicatorPtr comm)
 {
   try
   {
-    unsigned int y = static_cast<unsigned int>(x);
-    broadCast(&y, 1, MPI_UNSIGNED, process, comm);
+    unsigned long long y = static_cast<unsigned long long>(x);
+    broadCast(&y, 1, MPI_UNSIGNED_LONG_LONG, process, comm);
     x = static_cast<UInt>(y);
   }
   catch(std::exception &e)
@@ -1168,8 +1168,8 @@ template<> void broadCast(GnssType &x, UInt process, CommunicatorPtr comm)
 {
   try
   {
-    unsigned int y = static_cast<unsigned int>(x.type);
-    broadCast(&y, 1, MPI_UNSIGNED, process, comm);
+    unsigned long long y = static_cast<unsigned long long>(x.type);
+    broadCast(&y, 1, MPI_UNSIGNED_LONG_LONG, process, comm);
     x = GnssType(static_cast<UInt>(y));
   }
   catch(std::exception &e)
@@ -1259,15 +1259,15 @@ void reduceSum(UInt &x, UInt process, CommunicatorPtr comm)
   {
     if(myRank(comm) == process)
     {
-      unsigned int tmp = static_cast<unsigned int >(x);
-      unsigned int y = 0;
-      reduce(&tmp, &y, 1, MPI_UNSIGNED, MPI_SUM, process, comm);
+      unsigned long long tmp = static_cast<unsigned long long >(x);
+      unsigned long long y = 0;
+      reduce(&tmp, &y, 1, MPI_UNSIGNED_LONG_LONG, MPI_SUM, process, comm);
       x = static_cast<UInt>(y);
     }
     else
     {
-      unsigned int y = static_cast<unsigned int>(x);
-      reduce(&y, nullptr, 1, MPI_UNSIGNED, MPI_SUM, process, comm);
+      unsigned long long y = static_cast<unsigned long long>(x);
+      reduce(&y, nullptr, 1, MPI_UNSIGNED_LONG_LONG, MPI_SUM, process, comm);
     }
   }
   catch(std::exception &e)
@@ -1290,31 +1290,6 @@ void reduceSum(Double &x, UInt process, CommunicatorPtr comm)
     }
     else
       reduce(&x, nullptr, 1, MPI_DOUBLE, MPI_SUM, process, comm);
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-
-void reduceSum(Bool &x, UInt process, CommunicatorPtr comm)
-{
-  try
-  {
-    if(myRank(comm) == process)
-    {
-      unsigned int tmp = static_cast<unsigned int >(x);
-      unsigned int y = 0;
-      reduce(&tmp, &y, 1, MPI_UNSIGNED, MPI_SUM, process, comm);
-      x = static_cast<Bool>(y);
-    }
-    else
-    {
-      unsigned int y = static_cast<unsigned int>(x);
-      reduce(&y, nullptr, 1, MPI_UNSIGNED, MPI_SUM, process, comm);
-    }
   }
   catch(std::exception &e)
   {
@@ -1382,15 +1357,15 @@ void reduceMin(UInt &x, UInt process, CommunicatorPtr comm)
   {
     if(myRank(comm) == process)
     {
-      unsigned int tmp = static_cast<unsigned int>(x);
-      unsigned int y   = tmp;
-      reduce(&tmp, &y, 1, MPI_UNSIGNED, MPI_MIN, process, comm);
+      unsigned long long tmp = static_cast<unsigned long long>(x);
+      unsigned long long y   = tmp;
+      reduce(&tmp, &y, 1, MPI_UNSIGNED_LONG_LONG, MPI_MIN, process, comm);
       x = static_cast<UInt>(y);
     }
     else
     {
-      unsigned int y = static_cast<unsigned int>(x);
-      reduce(&y, nullptr, 1, MPI_UNSIGNED, MPI_MIN, process, comm);
+      unsigned long long y = static_cast<unsigned long long>(x);
+      reduce(&y, nullptr, 1, MPI_UNSIGNED_LONG_LONG, MPI_MIN, process, comm);
     }
   }
   catch(std::exception &e)
@@ -1427,15 +1402,15 @@ void reduceMax(UInt &x, UInt process, CommunicatorPtr comm)
   {
     if(myRank(comm) == process)
     {
-      unsigned int tmp = static_cast<unsigned int>(x);
-      unsigned int y   = tmp;
-      reduce(&tmp, &y, 1, MPI_UNSIGNED, MPI_MAX, process, comm);
+      unsigned long long tmp = static_cast<unsigned long long>(x);
+      unsigned long long y   = tmp;
+      reduce(&tmp, &y, 1, MPI_UNSIGNED_LONG_LONG, MPI_MAX, process, comm);
       x = static_cast<UInt>(y);
     }
     else
     {
-      unsigned int y = static_cast<unsigned int>(x);
-      reduce(&y, nullptr, 1, MPI_UNSIGNED, MPI_MAX, process, comm);
+      unsigned long long y = static_cast<unsigned long long>(x);
+      reduce(&y, nullptr, 1, MPI_UNSIGNED_LONG_LONG, MPI_MAX, process, comm);
     }
   }
   catch(std::exception &e)
