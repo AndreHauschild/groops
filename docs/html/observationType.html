@@ -5,29 +5,34 @@
     <title>GROOPS - observationType</title>
 
     <!-- JQuery and Popper -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.slim.min.js" integrity="sha256-8DGpv13HIm+5iDNWw1XqxgFB4mj+yOKFNb+tHBZOowc=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 
     <!-- Bootstrap -->
     <!-- https://getbootstrap.com/docs/4.1/examples/ -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Mathjax -->
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [ ['$','$'] ],
-                                  displayMath: [ ["\\[","\\]"] ],
-                                  processEscapes: true},
-                        TeX:     {Macros: {M: ["{\\mathbf #1}",1]},
-                                  equationNumbers: {autoNumber: "all"}  }});
+    <script>
+    window.MathJax = {tex: {
+                          inlineMath: {'[+]': [['$', '$']]},
+                          displayMath: {'[+]': [['\\[', '\\]']]},
+                          macros: {
+                            M: ["{\\mathbf #1}", 1]
+                          },
+                          tags: 'ams',
+                          processEscapes: true
+                        }
+                      };
     </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.7/MathJax.js?config=TeX-AMS_CHTML" integrity="sha384-e/4/LvThKH1gwzXhdbY2AsjR3rm7LHWyhIG5C0jiRfn8AN2eTN5ILeztWw0H9jmN" crossorigin="anonymous"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 
     <!-- lunr -->
-    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.8/lunr.min.js" integrity="sha384-vRQ9bDyE0Wnu+lMfm57BlYLO0/XauFuKpVsZPs7KEDwYKktWi5+Kz3MP8++DFlRY" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js" integrity="sha256-DFDZACuFeAqEKv/7Vnu1Tt5ALa58bcWZegGGFNgET8g=" crossorigin="anonymous"></script>
 
     <!-- Mustache -->
-    <script src="https://cdn.jsdelivr.net/npm/mustache@4.0.1/mustache.min.js" integrity="sha384-0PLEZVBpOQ+Kqw3anJWSNWvRxpEFt02tSpBvyRsA4WcvX/OTldWdXxGLVLvh954H" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mustache@4.2.0/mustache.min.js" integrity="sha256-1/0GA1EkYejtvYFoa+rSq4LfM4m5zKI13Z1bQIhI4Co=" crossorigin="anonymous"></script>
 
     <!-- GROOPS Stylesheet -->
     <link rel="stylesheet" href="static/groops.css"/>
@@ -57,11 +62,15 @@
                   </li>
                 </ul>
               </div>
-                <form class="form-inline my-2 my-lg-0" action="search.html" id="searchTools">
-                  <input class="form-control mr-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
-                  <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                <form class="row row-cols-lg-auto g-2 align-items-center" action="search.html" id="searchTools">
+                  <div class="col-12">
+                    <input class="form-control my-sm-2" placeholder="Search" name="searchTerms" method="GET" value="" type="text" id="searchBox">
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit" id="searchButton">Search</button>
+                  </div>
                 </form>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" style="">
                 <span class="navbar-toggler-icon"></span>
               </button>
             </div>
@@ -72,9 +81,9 @@
             
 <h1 id="observationType">Observation</h1><p>
 This class sets up the observation equations in linearized Gauss-Markov model
-\[\label{gmm}
+\begin{equation}\label{gmm}
 \M l  = \M A \M x + \M e\qquad\text{and}\qquad\mathcal{C}(\M e) = \sigma^2\M P^{-1}.
-\]The observations are divided into short data blocks which can be computed independently
+\end{equation}The observations are divided into short data blocks which can be computed independently
 and so easily can be parallelized. Usually these data blocks are short arcs of a
 satellite's orbit. In most cases the unknown parameter vector contains coefficients
 of a gravity field parametrization given by <a class="groops-class" href="parametrizationGravityType.html">parametrizationGravity</a>.
@@ -82,18 +91,18 @@ Additional parameters like instrument calibration parameters are appended at the
 end of the vector $\M x$.
 It is possible to give several observation vectors in one model.</p><p>The observations within each arc are decorrelated in the following way:
 In a first step a Cholesky decomposition of the covariance matrix is performed
-\[
+\begin{equation}
 \M P^{-1} = \M W^T\M W,
-\]where $\M W$ is an upper regular triangular matrix.
+\end{equation}where $\M W$ is an upper regular triangular matrix.
 In a second step the transformation
-\[\label{dekorrelierung}
+\begin{equation}\label{dekorrelierung}
 \bar{\M A} = \M W^{-T}\M A\qquad\text{and}\qquad \bar{\M l} = \M W^{-T}\M l
-\]gives an estimation from decorrelated observations with equal variance
-\[\label{normal.GMM}
+\end{equation}gives an estimation from decorrelated observations with equal variance
+\begin{equation}\label{normal.GMM}
 \bar{\M l} = \bar{\M A} \M x + \bar{\M e}
 \qquad\text{and}\qquad
 \mathcal{C}(\bar{\M e})= \sigma^2 \M I.
-\]Usually the arc dependent parameters are eliminated in the next step
+\end{equation}Usually the arc dependent parameters are eliminated in the next step
 and not mentioned for the parameter names in the following.
 </p>
 
@@ -106,19 +115,19 @@ equations are interpolated to these times by a moving polynomial of degree <stro
 <a class="groops-class" href="covariancePodType.html">covariancePod</a> and can be estimated with <a class="groops-program" href="PreprocessingPod.html">PreprocessingPod</a>.</p><p><strong class="groops-config-element">accelerateComputation</strong>: In the event that the sampling of the kinematic orbit is much higher than the sampling
 of the variational equations (e.g. 1 second vs. 5 seconds) the accumulation of the observation equations
 can be accelerated by transforming the observation equations
-\[
+\begin{equation}
   \M l = \M J \M A \M x + \M e,
-\]where $\M J$ describes the interpolation of the sampling of the variational design matrix $\M A$
+\end{equation}where $\M J$ describes the interpolation of the sampling of the variational design matrix $\M A$
 to the sampling of the observations $\M l$ with more rows than columns. The QR decomposition
-\[
+\begin{equation}
   \M J = \begin{pmatrix} \M Q_1 & \M Q_2 \end{pmatrix}
          \begin{pmatrix} \M R \\ \M 0 \end{pmatrix}.
-\]can be used to transform the observation equations
-\[
+\end{equation}can be used to transform the observation equations
+\begin{equation}
   \begin{pmatrix} \M Q_1^T \M l \\ \M Q_2^T \M l \end{pmatrix} =
   \begin{pmatrix} \M Q_1^T \M R \\ \M 0 \end{pmatrix} \M A \M x +
   \begin{pmatrix} \M Q_1^T \M e \\ \M Q_2^T \M e \end{pmatrix}.
-\]As the zero lines should not be considered, the computational time for the accumulation is reduced.
+\end{equation}As the zero lines should not be considered, the computational time for the accumulation is reduced.
 This option is not meaningful for evaluating the residuals such as in <a class="groops-program" href="PreprocessingPod.html">PreprocessingPod</a>.</p><p>The following parameters with <a class="groops-file" href="fileFormat_parameterName.html">parameter names</a> are set up:
 <ul>
 
@@ -158,17 +167,17 @@ This option is not meaningful for evaluating the residuals such as in <a class="
 
 <h2 id="podIntegral">PodIntegral</h2><p>
 The observation equations for precise orbit data (POD) of short arcs are given by
-\[
+\begin{equation}
   {\M r}_\epsilon(\tau) = {\M r}_A(1-\tau) + {\M r}_B\tau - T^2\int_0^1 K(\tau,\tau')
   \left(\M f_0(\tau')+\nabla V(\tau')\right)\,d\tau'
-\]with the integral kernel
-\[
+\end{equation}with the integral kernel
+\begin{equation}
   K(\tau,\tau') = \begin{cases} \tau'(1-\tau) & \text{for }\tau'\le\tau \\
   \tau(1-\tau') & \text{for }\tau'>\tau \end{cases},
-\]and the normalized time
-\[
+\end{equation}and the normalized time
+\begin{equation}
   \tau = \frac{t-t_A}{T}\qquad\text{with}\qquad T=t_B-t_A.
-\]The kinematic positions ${\M r}_\epsilon(\tau)$ as pseudo observations are taken from
+\end{equation}The kinematic positions ${\M r}_\epsilon(\tau)$ as pseudo observations are taken from
 <a class="groops-class" href="podRightSideType.html">rightHandSide</a>. From these positions the influence of the reference forces $\M f_0(\tau)$
 is subtracted which are computed with the background models in <a class="groops-class" href="podRightSideType.html">rightHandSide</a>.
 The integral is solved by the integration of a moving interpolation polynomial of degree <strong class="groops-config-element">integrationDegree</strong>.
@@ -229,9 +238,9 @@ and for each arc if <strong class="groops-config-element">keepSatelliteStates</s
 
 <h2 id="podAcceleration">PodAcceleration</h2><p>
 The observation equations for precise orbit data (POD) are given by
-\[
+\begin{equation}
 \ddot{\M r}(t) - \M g_0(t) = \nabla V(\M r, t),
-\]where the accelerations of the satellite $\ddot{\M r}(t)$ are derived from the kinematic positions
+\end{equation}where the accelerations of the satellite $\ddot{\M r}(t)$ are derived from the kinematic positions
 in <a class="groops-class" href="podRightSideType.html">rightHandSide</a>. The orbit differentation is performed by a moving
 polynomial interpolation or approximation with degree <strong class="groops-config-element">interpolationDegree</strong>
 and number of used epochs <strong class="groops-config-element">numberOfEpochs</strong>. The reference forces $\M g_0(t)$ are computed
@@ -267,13 +276,13 @@ in most cases the kinematic orbit provides good results.</p><p>The accuracy or t
 
 <h2 id="podEnergy">PodEnergy</h2><p>
 The observation equations for precise orbit data (POD) are given by
-\[
+\begin{equation}
   \frac{1}{2}\dot{\M r}^2
   -\dot{\M r} \cdot (\M\Omega\times\M r)
   +\int_{t_0}^t(\dot{\M\Omega}\times\M r)\cdot \dot{\M r}\,dt
   - \int_{t_0}^t \M g_0 \cdot\dot{\M r}'\,dt
   = V + E.
-\]where the velocities of the satellite $\dot{\M r}(t)$ are derived from
+\end{equation}where the velocities of the satellite $\dot{\M r}(t)$ are derived from
 the kinematic positions in <a class="groops-class" href="podRightSideType.html">rightHandSide</a> and the Earth's rotation vector $\M\Omega(t)$ is modeled
 within <a class="groops-class" href="earthRotationType.html">earthRotation</a>. The orbit differentiation is
 performed by a polynomial interpolation with degree <strong class="groops-config-element">interpolationDegree</strong>.
@@ -463,12 +472,12 @@ of accelerometer measurements. The covariance matrix of the reduced observations
 the instrument noise only (<a class="groops-class" href="covarianceSstType.html">covarianceSst1/2</a>) but must
 take the cross correlations <a class="groops-class" href="covarianceSstType.html">covarianceAcc</a> into account.
 The covariance matrix of the reduced observations is given by
-\[
+\begin{equation}
   \M\Sigma(\begin{bmatrix} \Delta l_{SST1} \\ \Delta l_{SST2} \end{bmatrix})
   = \begin{bmatrix} \M\Sigma_{SST1} + \M\Sigma_{ACC} & \M\Sigma_{ACC} \\
                    \M\Sigma_{ACC} & \M\Sigma_{SST2} + \M\Sigma_{ACC}
     \end{bmatrix}.
-\]
+\end{equation}
 The following parameters with <a class="groops-file" href="fileFormat_parameterName.html">parameter names</a> are set up:
 <ul>
 
@@ -542,14 +551,14 @@ The following parameters with <a class="groops-file" href="fileFormat_parameterN
 
 <h2 id="gradiometer">Gradiometer</h2><p>
 Observation equations for satellite gravity gradiometry (SGG)
-\[
+\begin{equation}
   \nabla\nabla V(\M r) =
   \begin{pmatrix}
     \frac{\partial^2 V}{\partial x^2}         & \frac{\partial^2 V}{\partial x\partial y} & \frac{\partial^2 V}{\partial x\partial z} \\
     \frac{\partial^2 V}{\partial y\partial x} & \frac{\partial^2 V}{\partial y^2}         & \frac{\partial^2 V}{\partial y\partial z} \\
     \frac{\partial^2 V}{\partial z\partial x} & \frac{\partial^2 V}{\partial z\partial y} & \frac{\partial^2 V}{\partial z^2}
   \end{pmatrix}.
-\]From the <a class="groops-class" href="fileFormat_instrument.html">inputfileGradiometer</a> observations precomputed <a class="groops-class" href="fileFormat_instrument.html">inputfileReferenceGradiometer</a>
+\end{equation}From the <a class="groops-class" href="fileFormat_instrument.html">inputfileGradiometer</a> observations precomputed <a class="groops-class" href="fileFormat_instrument.html">inputfileReferenceGradiometer</a>
 together with other background models are reduced, all given in <a class="groops-class" href="sggRightSideType.html">rightHandSide</a>.</p><p>All instrument data <a class="groops-class" href="fileFormat_instrument.html">inputfileGradiometer</a>, <a class="groops-class" href="fileFormat_instrument.html">inputfileOrbit</a>,
 and <a class="groops-class" href="fileFormat_instrument.html">inputfileStarCamera</a> must be synchronous and be diveded
 into each short arcs (see <a class="groops-program" href="InstrumentSynchronize.html">InstrumentSynchronize</a>).</p><p>Additional to the <a class="groops-class" href="parametrizationGravityType.html">parametrizationGravity</a>
@@ -636,12 +645,12 @@ With <strong class="groops-config-element">blockingSize</strong> set the maximum
 <h2 id="stationLoading">StationLoading</h2><p>
 Observation equations for displacements of a list of stations
 due to the effect of time variable loading masses. The displacement $\M u$ of a station is calculated according to
-\[
+\begin{equation}
 \M u(\M r) = \frac{1}{\gamma}\sum_{n=0}^\infty \left[\frac{h_n}{1+k_n}V_n(\M r)\,\M e_{up}
 + R\frac{l_n}{1+k_n}\left(
  \frac{\partial V_n(\M r)}{\partial \M e_{north}}\M e_{north}
 +\frac{\partial V_n(\M r)}{\partial \M e_{east}} \M e_{east}\right)\right],
-\]where $\gamma$ is the normal gravity, the load Love and Shida numbers $h_n,l_n$ are given by
+\end{equation}where $\gamma$ is the normal gravity, the load Love and Shida numbers $h_n,l_n$ are given by
 <a class="groops-class" href="fileFormat_matrix.html">inputfileDeformationLoadLoveNumber</a> and the load Love numbers $k_n$ are given by
 <a class="groops-class" href="fileFormat_matrix.html">inputfilePotentialLoadLoveNumber</a>.
 The $V_n$ are the spherical harmonics expansion of degree $n$ of the full time variable

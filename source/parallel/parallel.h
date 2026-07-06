@@ -145,7 +145,6 @@ namespace Parallel
   ///@{
   void reduceSum(UInt                &x, UInt process, CommunicatorPtr comm);
   void reduceSum(Double              &x, UInt process, CommunicatorPtr comm);
-  void reduceSum(Bool                &x, UInt process, CommunicatorPtr comm);
   void reduceSum(Matrix              &x, UInt process, CommunicatorPtr comm);
   void reduceSum(std::vector<Double> &x, UInt process, CommunicatorPtr comm);
   ///@}
@@ -219,7 +218,8 @@ inline void Parallel::send(const T &x, UInt process, CommunicatorPtr comm)
 {
   if(size(comm)<=1)
     return;
-  std::stringstream stream; //(std::ios::binary);
+  std::stringstream stream(std::ios_base::out | std::ios::binary);
+  stream.exceptions(std::iostream::failbit);
   OutArchiveBinary oa(stream, "", MAX_UINT);
   oa<<nameValue("xxx", x);
   std::string str = stream.str();
@@ -239,7 +239,8 @@ inline void Parallel::receive(T &x, UInt process, CommunicatorPtr comm)
   receive(size, process, comm);
   Byte *str = new Byte[size+1];
   receive(str, size, process, comm);
-  std::stringstream stream(std::string(str, size)); //, std::ios::binary);
+  std::stringstream stream(std::string(str, size), std::ios_base::in | std::ios::binary);
+  stream.exceptions(std::iostream::failbit);
   InArchiveBinary ia(stream);
   ia>>nameValue("xxx", x);
   delete[] str;
@@ -252,23 +253,38 @@ inline void Parallel::broadCast(T &x, UInt process, CommunicatorPtr comm)
 {
   if(size(comm)<=1)
     return;
+  constexpr UInt BLOCKSIZE = 200*1024*1024/sizeof(Byte); // 200 Mb
   if(Parallel::myRank(comm) == process)
   {
     std::stringstream stream(std::ios_base::out | std::ios::binary);
+    stream.exceptions(std::iostream::failbit);
     OutArchiveBinary oa(stream, "", MAX_UINT);
     oa<<nameValue("xxx", x);
     std::string str = stream.str();
     UInt size = str.size();
     broadCast(size, process, comm);
-    broadCast(const_cast<Byte*>(str.data()), size, process, comm);
+    UInt index = 0;
+    while(index < size)
+    {
+      const UInt count = std::min(size-index, BLOCKSIZE);
+      broadCast(const_cast<Byte*>(str.data())+index, count, process, comm);
+      index += count;
+    }
   }
   else
   {
     UInt size;
     broadCast(size, process, comm);
     Byte *str = new Byte[size+1];
-    broadCast(str, size, process, comm);
+    UInt index = 0;
+    while(index < size)
+    {
+      const UInt count = std::min(size-index, BLOCKSIZE);
+      broadCast(str+index, count, process, comm);
+      index += count;
+    }
     std::stringstream stream(std::string(str, size), std::ios_base::in | std::ios::binary);
+    stream.exceptions(std::iostream::failbit);
     InArchiveBinary ia(stream);
     ia>>nameValue("xxx", x);
     delete[] str;
