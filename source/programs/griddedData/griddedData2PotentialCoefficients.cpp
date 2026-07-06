@@ -94,28 +94,38 @@ void GriddedData2PotentialCoefficients::run(Config &config, Parallel::Communicat
     if(fileNameOut.size() != exprValue.size())
       throw(Exception("number of outputfilePotentialCoefficients must agree with number of value expressions"));
 
-    // reading grids
-    // -------------
-    logStatus<<"read grid from file <"<<fileNameGrid<<">"<<Log::endl;
     GriddedData grid;
-    readFileGriddedData(fileNameGrid, grid);
-    MiscGriddedData::printStatistics(grid);
-
-    // evaluate expressions
-    // --------------------
-    VariableList varList;
-    addDataVariables(grid, varList);
-    std::for_each(exprValue.begin(), exprValue.end(), [&](auto expr) {expr->simplify(varList);});
-    exprArea ->simplify(varList);
-    std::vector<std::vector<Double>> values(exprValue.size(), std::vector<Double>(grid.points.size()));
-    for(UInt i=0; i<grid.points.size(); i++)
+    if(Parallel::isMaster(comm))
     {
-      evaluateDataVariables(grid, i, varList);
-      for(UInt k=0; k<exprValue.size(); k++)
-        values.at(k).at(i) = exprValue.at(k)->evaluate(varList);
-      grid.areas.at(i) = exprArea->evaluate(varList);
+      // reading grids
+      // -------------
+      logStatus<<"read grid from file <"<<fileNameGrid<<">"<<Log::endl;
+      readFileGriddedData(fileNameGrid, grid);
+      MiscGriddedData::printStatistics(grid);
+
+      // evaluate expressions
+      // --------------------
+      logStatus<<"evaluate expressions"<<Log::endl;
+      VariableList varList;
+      addDataVariables(grid, varList);
+      std::for_each(exprValue.begin(), exprValue.end(), [&](auto expr) {expr->simplify(varList);});
+      exprArea ->simplify(varList);
+      std::vector<std::vector<Double>> values(exprValue.size(), std::vector<Double>(grid.points.size()));
+      Single::forEach(grid.points.size(), [&](UInt i)
+      {
+        evaluateDataVariables(grid, i, varList);
+        for(UInt k=0; k<exprValue.size(); k++)
+          values.at(k).at(i) = exprValue.at(k)->evaluate(varList);
+        grid.areas.at(i) = exprArea->evaluate(varList);
+      });
+      grid.values = std::move(values);
     }
-    grid.values = values;
+    Parallel::broadCast(grid.ellipsoid, 0, comm);
+    Parallel::broadCast(grid.points,    0, comm);
+    Parallel::broadCast(grid.areas,     0, comm);
+    grid.values.resize(exprValue.size());
+    for(UInt k=0; k<grid.values.size(); k++)
+      Parallel::broadCast(grid.values.at(k), 0, comm);
 
     // spherical harmonic analysis
     // ---------------------------
