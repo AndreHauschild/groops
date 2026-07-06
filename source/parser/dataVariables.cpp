@@ -159,17 +159,9 @@ void addDataVariables(const_MatrixSliceRef data, VariableList &varList)
 {
   try
   {
-    // lambda function
-    auto removeNan = [](const_MatrixSliceRef A)
-    {
-      std::vector<Double> data = flatten(A);
-      data.erase(std::remove_if(data.begin(), data.end(), [](Double d) {return std::isnan(d);}), data.end());
-      return Vector(data);
-    };
-
     varList.undefineVariable("index");
     for(UInt i=0; i<data.columns(); i++)
-      addDataVariables("data"+i%"%i"s, removeNan(data.column(i)), varList);
+      addDataVariables("data"+i%"%i"s, data.column(i), varList);
   }
   catch(std::exception &e)
   {
