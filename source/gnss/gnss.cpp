@@ -5,7 +5,6 @@
 * @brief global navigation satellite system.
 *
 * @author Torsten Mayer-Guerr
-* @author Andre Hauschild
 * @date 2010-08-03
 *
 */
@@ -311,7 +310,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
     }
 
     // adjust ISL biases to available terminals in the ISL observations
-    // NOTE: if no observations are found, a-priori biases are removed!
+    // NOTE: if no observations are found, a priori biases are removed!
     // ----------------------------------------------------------------
     for(auto trans : transmitters)
     {
@@ -322,35 +321,33 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
             terminals.push_back(terminal);
       std::sort(terminals.begin(), terminals.end());
 
+      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // a priori ISL bias
+      trans->islBiasSend.terminals = terminals;
 #if DEBUG_SYNC_ISL > 0
       if(Parallel::isMaster(comm) && terminals.size()>0)
         logWarning<<"synchronizeTransceiversIsl() send ISL terminal "<<trans->name()<<" "
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
 #endif
-      // NOTE: a-priori ISL biases are NOT retained!
-      trans->islBiasSend.biases    = trans->islBiasSend.compute(terminals); // a-priori ISL bias
-      trans->islBiasSend.terminals = terminals;
     }
 
-    for(auto recv : transmitters)
+    for(auto trans : transmitters)
     {
       std::vector<UInt> terminals;
-      for(auto &termRecv : islTerminalRecv.at(recv->idTrans()))
+      for(auto &termRecv : islTerminalRecv.at(trans->idTrans()))
         for(UInt idTerm=0; idTerm<termRecv.size(); idTerm++)
           if(!isInList(terminals, termRecv.at(idTerm)))
             terminals.push_back(termRecv.at(idTerm));
       std::sort(terminals.begin(), terminals.end());
 
+      trans->islBiasRecv.biases    = trans->islBiasRecv.compute(terminals); // a priori ISL bias
+      trans->islBiasRecv.terminals = terminals;
 #if DEBUG_SYNC_ISL > 0
       if(Parallel::isMaster(comm) && terminals.size()>0)
-        logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<recv->name()<<" "
+        logWarning<<"synchronizeTransceiversIsl() recv ISL terminal "<<trans->name()<<" "
                   <<terminals.size()%"# terminals %i"s
                   <<Log::endl;
 #endif
-      // NOTE: a-priori ISL biases are NOT retained!
-      recv->islBiasRecv.biases    = recv->islBiasRecv.compute(terminals); // a-priori ISL bias
-      recv->islBiasRecv.terminals = terminals;
      }
 
 #if DEBUG_SYNC_ISL > 0
@@ -361,6 +358,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
           logWarning<<"synchronizeTransceiversIsl() send ISL terminal bias "<<transmitter->name()<<" "
                     <<transmitter->islBiasSend.terminals.at(i)%"%i"s<< " : "
                     <<transmitter->islBiasSend.biases.at(i)%" %6.2f"s
+                    <<transmitter->islBiasSend.index(transmitter->islBiasSend.terminals.at(i))%" (idx %i)"s
                     <<Log::endl;
 
       for(auto transmitter : transmitters)
@@ -368,6 +366,7 @@ void Gnss::synchronizeTransceiversIsl(Parallel::CommunicatorPtr comm)
           logWarning<<"synchronizeTransceiversIsl() recv ISL terminal bias "<<transmitter->name()<<" "
                     <<transmitter->islBiasRecv.terminals.at(i)%"%i"s<< " : "
                     <<transmitter->islBiasRecv.biases.at(i)%" %6.2f"s
+                    <<transmitter->islBiasRecv.index(transmitter->islBiasRecv.terminals.at(i))%" (idx %i)"s
                     <<Log::endl;
     }
 #endif
@@ -494,13 +493,15 @@ void Gnss::initParameter(GnssNormalEquationInfo &normalEquationInfo)
           logWarningOnce<<"no receiver/satellite found as reference at "<<times.at(idEpoch).dateTimeStr()<<Log::endl;
 
         if(reference!=NULLINDEX)
+        {
           for(UInt i=0; i<links.size(); i++)
             for(UInt j : links.at(i))
             {
               graph[i].push_back(j);
               graph[j].push_back(i);
             }
-        Q = bfs(reference, graph);
+          Q = bfs(reference, graph);
+        }
 
       } // if(Parallel::isMaster(normalEquationInfo.comm))
 
@@ -859,27 +860,6 @@ std::vector<GnssType> Gnss::types(const GnssType mask) const
              types.push_back(type & mask);
     std::sort(types.begin(), types.end());
     return types;
-  }
-  catch(std::exception &e)
-  {
-    GROOPS_RETHROW(e)
-  }
-}
-
-/***********************************************/
-// TODO: check, this is actually only used to check if ISL observations exist.
-UInt Gnss::terminalsIsl() const
-{
-  try
-  {
-    UInt terminals=0;
-    for(UInt idRecv=0; idRecv<transmitters.size(); idRecv++)
-      for(UInt idTrans=0; idTrans<transmitters.size(); idTrans++)
-      {
-        terminals+=islTerminalRecv.at(idRecv).at(idTrans).size();
-        terminals+=islTerminalTrans.at(idRecv).at(idTrans).size();
-      }
-    return terminals;
   }
   catch(std::exception &e)
   {

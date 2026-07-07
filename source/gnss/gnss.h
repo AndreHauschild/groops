@@ -87,9 +87,6 @@ public:
   /** @brief sorted list of used types. */
   std::vector<GnssType> types(const GnssType mask=GnssType::ALL) const;
 
-  /** @brief list of used terminals. */
-  UInt                  terminalsIsl() const;
-
   std::vector<Byte> selectTransmitters(PlatformSelectorPtr selector);
   std::vector<Byte> selectReceivers(PlatformSelectorPtr selector);
 

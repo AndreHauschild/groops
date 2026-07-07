@@ -38,7 +38,7 @@ class GnssTransmitter : public GnssTransceiver
   GnssType                 type; // system + PRN
   Polynomial               polynomial;
   std::vector<Double>      clk, scale;
-  std::vector<Vector3d>    offset;      // between CoM and ARF in SRF
+  std::vector<Vector3d>    offset;   // between CoM and ARF in SRF
   std::vector<Transform3d> crf2srf, srf2arf;
 
   std::vector<std::vector<UInt>>        terminals; // list of ISL terminals

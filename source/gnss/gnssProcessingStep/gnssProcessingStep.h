@@ -95,7 +95,7 @@ public:
     Vector                          lPl;      // at master (after solve)
     UInt                            obsCount; // at master (after solve)
     std::vector<ReceiverNoiseModel> receiverNoiseModels;
-    std::vector<IslNoiseModel>     	islNoiseModels; // for each transmitter
+    std::vector<IslNoiseModel>      islNoiseModels; // for each transmitter
 
     /** @brief Constructor. */
     State(GnssPtr gnss, Parallel::CommunicatorPtr comm);

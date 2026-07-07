@@ -12,9 +12,9 @@
 // Latex documentation
 #define DOCSTRING docstring
 static const char *docstring = R"(
-Create a \file{Platform file}{platform} from scratch by defining attributes such as
-\config{markerName}, \config{markerNumber}, \config{comment}, \config{approxPosition},
-\config{equipment}.
+Create a \file{Platform file}{platform} from scratch or based on \config{inputfilePlatform}
+by defining attributes such as \config{markerName}, \config{markerNumber}, \config{comment}, 
+\config{approxPosition}, \config{equipment}.
 
 See also \program{GnssAntex2AntennaDefinition} and \program{GnssStationLog2Platform}.
 

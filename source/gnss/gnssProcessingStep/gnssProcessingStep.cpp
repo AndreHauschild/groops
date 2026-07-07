@@ -27,9 +27,11 @@
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteNormalEquations.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteAprioriSolution.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteResiduals.h"
+#include "gnss/gnssProcessingStep/gnssProcessingStepWriteResidualsIsl.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteUsedStationList.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepWriteUsedTransmitterList.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepPrintResidualStatistics.h"
+#include "gnss/gnssProcessingStep/gnssProcessingStepPrintResidualStatisticsIsl.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepSelectParametrizations.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepSelectEpochs.h"
 #include "gnss/gnssProcessingStep/gnssProcessingStepSelectNormalsBlockStructure.h"
@@ -48,9 +50,11 @@ GROOPS_REGISTER_CLASS(GnssProcessingStep, "gnssProcessingStepType",
                       GnssProcessingStepWriteNormalEquations,
                       GnssProcessingStepWriteAprioriSolution,
                       GnssProcessingStepWriteResiduals,
+                      GnssProcessingStepWriteResidualsIsl,
                       GnssProcessingStepWriteUsedStationList,
                       GnssProcessingStepWriteUsedTransmitterList,
                       GnssProcessingStepPrintResidualStatistics,
+                      GnssProcessingStepPrintResidualStatisticsIsl,
                       GnssProcessingStepSelectParametrizations,
                       GnssProcessingStepSelectEpochs,
                       GnssProcessingStepSelectNormalsBlockStructure,
@@ -80,16 +84,20 @@ GnssProcessingStep::GnssProcessingStep(Config &config, const std::string &name)
         bases.push_back(new GnssProcessingStepWriteResults(config));
       if(readConfigChoiceElement(config, "writeNormalEquations",           type, "write unconstrained and constraint normal equations"))
         bases.push_back(new GnssProcessingStepWriteNormalEquations(config));
-      if(readConfigChoiceElement(config, "writeAprioriSolution",           type, "write apriori solution vector"))
+      if(readConfigChoiceElement(config, "writeAprioriSolution",           type, "write a priori solution vector"))
         bases.push_back(new GnssProcessingStepWriteAprioriSolution(config));
       if(readConfigChoiceElement(config, "writeResiduals",                 type, "write observation residuals"))
         bases.push_back(new GnssProcessingStepWriteResiduals(config));
+      if(readConfigChoiceElement(config, "writeResidualsIsl",              type, "write ISL observation residuals"))
+        bases.push_back(new GnssProcessingStepWriteResidualsIsl(config));
       if(readConfigChoiceElement(config, "writeUsedStationList",           type, "write used stations"))
         bases.push_back(new GnssProcessingStepWriteUsedStationList(config));
       if(readConfigChoiceElement(config, "writeUsedTransmitterList",       type, "write used transmitters"))
         bases.push_back(new GnssProcessingStepWriteUsedTransmitterList(config));
       if(readConfigChoiceElement(config, "printResidualStatistics",        type, "print residual statistics"))
         bases.push_back(new GnssProcessingStepPrintResidualStatistics(config));
+      if(readConfigChoiceElement(config, "printResidualStatisticsIsl",     type, "print residual statistics for ISL observations"))
+        bases.push_back(new GnssProcessingStepPrintResidualStatisticsIsl(config));
       if(readConfigChoiceElement(config, "selectParametrizations",         type, "select parametrizations for all subsequent processing steps"))
         bases.push_back(new GnssProcessingStepSelectParametrizations(config));
       if(readConfigChoiceElement(config, "selectEpochs",                   type, "select epochs to be used in all subsequent processing steps"))
@@ -424,7 +432,7 @@ void GnssProcessingStep::State::buildNormals(Bool constraintsOnly, Bool solveEpo
               {
                 Vector l(1);
                 A.init(eqn.l.rows());
-                gnss->designMatrixIsl(normalEquationInfo, eqn, A); // TODO: check if this needs to be adapted!
+                gnss->designMatrixIsl(normalEquationInfo, eqn, A);
                 GnssDesignMatrix::accumulateNormals(A, eqn.l, normals, n, lPl(0), obsCount);
               }
             }
@@ -703,7 +711,6 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
     Gnss::InfoParameterChange infoTec("tec");
     std::vector<GnssType>     typesResiduals = gnss->types(~(GnssType::PRN + GnssType::FREQ_NO));
     std::vector<Gnss::InfoParameterChange> infosResiduals(typesResiduals.size(), Gnss::InfoParameterChange("mm"));
-    Gnss::InfoParameterChange infosResidualsIsl("mm");
 
     Double minSTEC   =  std::numeric_limits<Double>::infinity();
     Double maxSTEC   = -std::numeric_limits<Double>::infinity();
@@ -913,62 +920,63 @@ Double GnssProcessingStep::State::estimateSolution(const std::function<Vector(co
 
     // Residual tracking (inter satellite links)
     // -----------------------------------------
+    Gnss::InfoParameterChange infosResidualsIsl("mm");
+    Parallel::barrier(normalEquationInfo.comm);
 
-    if(gnss->terminalsIsl()>0)
+    UInt countISL = 0;
+
+    for(UInt idEpoch : normalEquationInfo.idEpochs)
     {
-      Parallel::barrier(normalEquationInfo.comm);
-      //logStatus<<"Compute residuals (inter satellite links)"<<Log::endl;
-      UInt idLoop = 0;
-      //Log::Timer timer(normalEquationInfo.idEpochs.size());
-      for(UInt idEpoch : normalEquationInfo.idEpochs)
-      {
-        //timer.loopStep(idLoop++);
+      GnssObservationEquationIsl eqn;
+      for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
+        if(gnss->transmitters.at(idRecv)->isMyRank())
+          for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
+            if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
+            {
+              // setup observation equations
+              A.init(eqn.l.rows());
+              gnss->designMatrixIsl(normalEquationInfo, eqn, A);
+              Vector We  = eqn.l - A.mult(x); // homogenized residuals
+              Matrix AWz = A.mult(Wz);        // redundancies
 
-        GnssObservationEquationIsl eqn;
-        for(UInt idRecv=0; idRecv<gnss->transmitters.size(); idRecv++)
-        {
-          if(gnss->transmitters.at(idRecv)->isMyRank())
-            for(UInt idTrans=0; idTrans<gnss->transmitters.at(idRecv)->idTransmitterSize(idEpoch); idTrans++)
-              if(gnss->basicObservationEquationsIsl(normalEquationInfo, idRecv, idTrans, idEpoch, eqn))
-              {
-                // setup observation equations
-                A.init(eqn.l.rows());
-                gnss->designMatrixIsl(normalEquationInfo, eqn, A);
-                Vector We  = eqn.l - A.mult(x); // homogenized residuals
-                Matrix AWz = A.mult(Wz);        // redundancies
+              countISL++;
 
-                // redundancies
-                // ------------
-                Vector r(We.rows());
-                for(UInt i=0; i<We.rows(); i++)
-                  r(i) = 1. - quadsum(AWz.row(i));
+              // redundancies
+              // ------------
+              Vector r(We.rows());
+              for(UInt i=0; i<We.rows(); i++)
+                r(i) = 1. - quadsum(AWz.row(i));
 
-                // find max. residual (for statistics)
-                // -----------------------------------
-                if(norm(eqn.sigma-eqn.sigma0) < 1e-8) // without outlier
-                  if(infosResidualsIsl.update(1e3*(We(0)*eqn.sigma(0) - gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->residual)))
-                    infosResidualsIsl.info = "ISL"+ eqn.transmitter->name()+", ("+eqn.receiver->name()+" , "+gnss->times.at(idEpoch).dateTimeStr()+")";
-                gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->setHomogenizedResiduals(We(0), r(0));
-              }
-        } // for(idRecv)
-      } // for(idEpoch)
-      Parallel::barrier(normalEquationInfo.comm);
-      //timer.loopEnd();
+              // find max. residual (for statistics)
+              // -----------------------------------
+              if(norm(eqn.sigma-eqn.sigma0) < 1e-8) // without outlier
+                if(infosResidualsIsl.update(1e3*(We(0)*eqn.sigma(0) - gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->residual)))
+                  infosResidualsIsl.info = "ISL"+ eqn.transmitter->name()+", ("+eqn.receiver->name()+" , "+gnss->times.at(idEpoch).dateTimeStr()+")";
 
+              gnss->transmitters.at(idRecv)->observationIsl(idTrans, idEpoch)->setHomogenizedResiduals(We(0), r(0));
+            }
+    } // for(idEpoch)
+    Parallel::barrier(normalEquationInfo.comm);
+
+    Parallel::reduceSum(countISL, 0, normalEquationInfo.comm);
+    Parallel::broadCast(countISL, 0, normalEquationInfo.comm);
+
+    if(countISL)
+    {
       // new weights
       // -----------
       if(computeWeights || adjustSigma0)
       {
+        // TODO: new weights and adjusted sigmas should also be computed here for ISL observations
         if(computeWeights) logStatus<<"Downweight outliers"<<Log::endl;
         if(adjustSigma0)   logStatus<<"Estimate variance factors"<<Log::endl;
-        // TODO: new weights and adjusted sigmas should also be computed here for ISL observations
         logError<<"Not yet implemented!"<<Log::endl;
       }
 
       // ISL residual analysis
       // ---------------------
-      Double   ePe, redundancy;
-      UInt     obsCount, outlierCount;
+      Double   ePe=0, redundancy=0;
+      UInt     obsCount=0, outlierCount=0;
       residualsStatisticsIsl(NULLINDEX/*idRecv*/, ePe, redundancy, obsCount, outlierCount);
       if(Parallel::isMaster(normalEquationInfo.comm))
         if(obsCount)
