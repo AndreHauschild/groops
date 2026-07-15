@@ -52,12 +52,14 @@ void GnssReceiver2RinexObservation::run(Config &config, Parallel::CommunicatorPt
     std::vector<std::string> comments;
     std::vector<GnssType> useType, ignoreType;
 
+    renameDeprecatedConfig(config, "angency", "agency", date2time(2026, 7, 6));
+
     readConfig(config, "outputfileRinexObservation", fileNameOut,      Config::MUSTSET,  "",    "RINEX observation file");
     readConfig(config, "inputfileGnssReceiver",      fileNameObs,      Config::MUSTSET,  "",    "GNSS instrument file");
     readConfig(config, "inputfileStationInfo",       fileNamePlatform, Config::MUSTSET,  "",    "antenna and receiver info");
     readConfig(config, "comment",                    comments,         Config::OPTIONAL, "",    "write comments at begin of header");
     readConfig(config, "observer",                   observer,         Config::OPTIONAL, "TUG", "header information");
-    readConfig(config, "angency",                    angency,          Config::OPTIONAL, "TUG", "header information");
+    readConfig(config, "agency",                     angency,          Config::OPTIONAL, "TUG", "header information");
     readConfig(config, "useType",                    useType,          Config::OPTIONAL, "",    "only use observations that match any of these patterns");
     readConfig(config, "ignoreType",                 ignoreType,       Config::OPTIONAL, "",    "ignore observations that match any of these patterns");
     if(isCreateSchema(config)) return;

@@ -92,12 +92,15 @@ inline MiscAccelerationsRadiationPressure::MiscAccelerationsRadiationPressure(Co
   {
     FileName fileNameInAlbedo, fileNameInFlux;
 
+    renameDeprecatedConfig(config, "factorSolarRadation", "factorSolarRadiation", date2time(2026, 7, 6));
+    renameDeprecatedConfig(config, "factorEarthRadation", "factorEarthRadiation", date2time(2026, 7, 6));
+
     readConfig(config, "solarflux",                       solarflux,        Config::DEFAULT,  "1367", "solar flux constant in 1 AU [W/m^2]");
     readConfig(config, "eclipse",                         eclipse,          Config::MUSTSET,  "",     "");
     readConfig(config, "inputfileAlbedoTimeSeries",       fileNameInAlbedo, Config::OPTIONAL, "{groopsDataDir}/earthRadiationPressure/CERES_SYN1deg_albedo_climatology.dat",       "GriddedDataTimeSeries of albedo values (unitless)");
     readConfig(config, "inputfileLongwaveFluxTimeSeries", fileNameInFlux,   Config::OPTIONAL, "{groopsDataDir}/earthRadiationPressure/CERES_SYN1deg_longwaveFlux_climatology.dat", "GriddedDataTimeSeries of longwave flux values [W/m^2]");
-    readConfig(config, "factorSolarRadation",             factorSun,        Config::DEFAULT,  "1.0",  "Solar radiation pressure is multiplied by this factor");
-    readConfig(config, "factorEarthRadation",             factorEarth,      Config::DEFAULT,  "1.0",  "Earth radiation preussure is multiplied by this factor");
+    readConfig(config, "factorSolarRadiation",            factorSun,        Config::DEFAULT,  "1.0",  "Solar radiation pressure is multiplied by this factor");
+    readConfig(config, "factorEarthRadiation",            factorEarth,      Config::DEFAULT,  "1.0",  "Earth radiation preussure is multiplied by this factor");
     readConfig(config, "factorThermalRadiation",          factorThermal,    Config::DEFAULT,  "1.0",  "Thermal (re-)radiation is multiplied by this factor");
     if(isCreateSchema(config)) return;
 
