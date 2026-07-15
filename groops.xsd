@@ -5281,6 +5281,8 @@
 			<xs:element name="radiationPressure">
 				<xs:annotation>
 					<xs:documentation>Solar and Earh radiation pressure model</xs:documentation>
+					<xs:appinfo>rename: factorSolarRadation = factorSolarRadiation</xs:appinfo>
+					<xs:appinfo>rename: factorEarthRadation = factorEarthRadiation</xs:appinfo>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -5300,12 +5302,12 @@
 								<xs:documentation>GriddedDataTimeSeries of longwave flux values [W/m^2]</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="factorSolarRadation" type="double" minOccurs="0" default="1.0">
+						<xs:element name="factorSolarRadiation" type="double" minOccurs="0" default="1.0">
 							<xs:annotation>
 								<xs:documentation>Solar radiation pressure is multiplied by this factor</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="factorEarthRadation" type="double" minOccurs="0" default="1.0">
+						<xs:element name="factorEarthRadiation" type="double" minOccurs="0" default="1.0">
 							<xs:annotation>
 								<xs:documentation>Earth radiation preussure is multiplied by this factor</xs:documentation>
 							</xs:annotation>
@@ -16696,6 +16698,7 @@
 			<xs:element name="Kernel2Coefficients">
 				<xs:annotation>
 					<xs:documentation>compute kernel coefficients</xs:documentation>
+					<xs:appinfo>rename: maxDegre = maxDegree</xs:appinfo>
 					<xs:appinfo>tag: Misc</xs:appinfo>
 				</xs:annotation>
 				<xs:complexType>
@@ -16711,7 +16714,7 @@
 								<xs:documentation>minimum degree of returned coefficients</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="maxDegre" type="uint">
+						<xs:element name="maxDegree" type="uint">
 							<xs:annotation>
 								<xs:documentation>compute coefficients up to maxDegree</xs:documentation>
 							</xs:annotation>
@@ -17375,6 +17378,10 @@
 									<xs:element name="mass" type="double"/>
 									<xs:element name="coefficientDrag" type="double"/>
 									<xs:element name="surfaces">
+										<xs:annotation>
+											<xs:appinfo>rename: reflexionInfrared = reflectionInfrared</xs:appinfo>
+											<xs:appinfo>rename: reflexionVisible = reflectionVisible</xs:appinfo>
+										</xs:annotation>
 										<xs:complexType>
 											<xs:sequence>
 												<xs:element name="inputfile" type="filename">
@@ -17395,10 +17402,10 @@
 												<xs:element name="normalX" type="expression" default="data1"/>
 												<xs:element name="normalY" type="expression" default="data2"/>
 												<xs:element name="normalZ" type="expression" default="data3"/>
-												<xs:element name="reflexionVisible" type="expression" default="data4"/>
+												<xs:element name="reflectionVisible" type="expression" default="data4"/>
 												<xs:element name="diffusionVisible" type="expression" default="data5"/>
 												<xs:element name="absorptionVisible" type="expression" default="data6"/>
-												<xs:element name="reflexionInfrared" type="expression" default="data7"/>
+												<xs:element name="reflectionInfrared" type="expression" default="data7"/>
 												<xs:element name="diffusionInfrared" type="expression" default="data8"/>
 												<xs:element name="absorptionInfrared" type="expression" default="data9"/>
 												<xs:element name="specificHeatCapacity" type="expression" default="data10">
@@ -21737,6 +21744,7 @@
 			<xs:element name="DoodsonHarmonics2IersPotential">
 				<xs:annotation>
 					<xs:documentation>convert doodson harmonics file to IERS</xs:documentation>
+					<xs:appinfo>rename: inputfileDoodsonHarmoncis = inputfileDoodsonHarmonics</xs:appinfo>
 					<xs:appinfo>tag: Conversion</xs:appinfo>
 					<xs:appinfo>tag: DoodsonHarmonics</xs:appinfo>
 				</xs:annotation>
@@ -21747,7 +21755,7 @@
 								<xs:documentation>according to IERS2010, chapter 6.3.2, footnote 7</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="inputfileDoodsonHarmoncis" type="filename"/>
+						<xs:element name="inputfileDoodsonHarmonics" type="filename"/>
 						<xs:element name="header" type="string" default="[&quot;Coefficients to compute variations in normalized Stokes coefficients (unit = 10^-11)&quot;, &quot;Ocean tide model: FES2014b up to (100,100) in cm&quot;]" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>info for output header</xs:documentation>
@@ -21762,6 +21770,7 @@
 			<xs:element name="DoodsonHarmonics2IersWaterHeight">
 				<xs:annotation>
 					<xs:documentation>convert doodson harmonics file to IERS</xs:documentation>
+					<xs:appinfo>rename: inputfileDoodsonHarmoncis = inputfileDoodsonHarmonics</xs:appinfo>
 					<xs:appinfo>tag: Conversion</xs:appinfo>
 					<xs:appinfo>tag: DoodsonHarmonics</xs:appinfo>
 				</xs:annotation>
@@ -21772,7 +21781,7 @@
 								<xs:documentation>according to IERS2010, chapter 6.3.2, footnote 7</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="inputfileDoodsonHarmoncis" type="filename"/>
+						<xs:element name="inputfileDoodsonHarmonics" type="filename"/>
 						<xs:element name="inputfileTideGeneratingPotential" type="filename" default="{groopsDataDir}/tides/generatingTide_HW95.txt">
 							<xs:annotation>
 								<xs:documentation>to compute Xi phase correction</xs:documentation>
@@ -22380,6 +22389,7 @@
 			<xs:element name="GnssReceiver2RinexObservation">
 				<xs:annotation>
 					<xs:documentation>Converts GnssReceiver Instrument file to RINEX.</xs:documentation>
+					<xs:appinfo>rename: angency = agency</xs:appinfo>
 					<xs:appinfo>tag: Conversion</xs:appinfo>
 					<xs:appinfo>tag: Gnss</xs:appinfo>
 					<xs:appinfo>tag: Instrument</xs:appinfo>
@@ -22411,7 +22421,7 @@
 								<xs:documentation>header information</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="angency" type="string" minOccurs="0" default="TUG">
+						<xs:element name="agency" type="string" minOccurs="0" default="TUG">
 							<xs:annotation>
 								<xs:documentation>header information</xs:documentation>
 							</xs:annotation>
@@ -24196,12 +24206,13 @@
 			<xs:element name="IersPotential2DoodsonHarmonics">
 				<xs:annotation>
 					<xs:documentation>Read ocean tide file in IERS format</xs:documentation>
+					<xs:appinfo>rename: outputfileDoodsonHarmoncis = outputfileDoodsonHarmonics</xs:appinfo>
 					<xs:appinfo>tag: Conversion</xs:appinfo>
 					<xs:appinfo>tag: DoodsonHarmonics</xs:appinfo>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="outputfileDoodsonHarmoncis" type="filename"/>
+						<xs:element name="outputfileDoodsonHarmonics" type="filename"/>
 						<xs:element name="inputfile" type="filename"/>
 						<xs:element name="headerLines" type="uint" default="4">
 							<xs:annotation>
@@ -24252,12 +24263,13 @@
 			<xs:element name="IersWaterHeight2DoodsonHarmonics">
 				<xs:annotation>
 					<xs:documentation>Read ocean tide file in IERS format</xs:documentation>
+					<xs:appinfo>rename: outputfileDoodsonHarmoncis = outputfileDoodsonHarmonics</xs:appinfo>
 					<xs:appinfo>tag: Conversion</xs:appinfo>
 					<xs:appinfo>tag: DoodsonHarmonics</xs:appinfo>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="outputfileDoodsonHarmoncis" type="filename"/>
+						<xs:element name="outputfileDoodsonHarmonics" type="filename"/>
 						<xs:element name="inputfile" type="filename"/>
 						<xs:element name="headerLines" type="uint" default="3">
 							<xs:annotation>

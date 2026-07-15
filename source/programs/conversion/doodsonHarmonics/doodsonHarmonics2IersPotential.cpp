@@ -50,12 +50,14 @@ void DoodsonHarmonics2IersPotential::run(Config &config, Parallel::CommunicatorP
     UInt        minDegree, maxDegree = INFINITYDEGREE;
     std::vector<std::string> headers;
 
-    readConfig(config, "outputfile",                       fileNameOut, Config::MUSTSET,  "","according to IERS2010, chapter 6.3.2, footnote 7");
-    readConfig(config, "inputfileDoodsonHarmoncis",        fileNameIn,  Config::MUSTSET,  "", "");
-    readConfig(config, "header",                           headers,     Config::MUSTSET,  R"|(["Coefficients to compute variations in normalized Stokes coefficients (unit = 10^-11)", "Ocean tide model: FES2014b up to (100,100) in cm"])|", "info for output header");
-    readConfig(config, "factor",                           factor,      Config::DEFAULT,  "1e11", "");
-    readConfig(config, "minDegree",                        minDegree,   Config::DEFAULT,  "1",    "");
-    readConfig(config, "maxDegree",                        maxDegree,   Config::OPTIONAL, "",     "");
+    renameDeprecatedConfig(config, "inputfileDoodsonHarmoncis", "inputfileDoodsonHarmonics", date2time(2026, 7, 6));
+
+    readConfig(config, "outputfile",                fileNameOut, Config::MUSTSET,  "","according to IERS2010, chapter 6.3.2, footnote 7");
+    readConfig(config, "inputfileDoodsonHarmonics", fileNameIn,  Config::MUSTSET,  "", "");
+    readConfig(config, "header",                    headers,     Config::MUSTSET,  R"|(["Coefficients to compute variations in normalized Stokes coefficients (unit = 10^-11)", "Ocean tide model: FES2014b up to (100,100) in cm"])|", "info for output header");
+    readConfig(config, "factor",                    factor,      Config::DEFAULT,  "1e11", "");
+    readConfig(config, "minDegree",                 minDegree,   Config::DEFAULT,  "1",    "");
+    readConfig(config, "maxDegree",                 maxDegree,   Config::OPTIONAL, "",     "");
     if(isCreateSchema(config)) return;
 
     // ==============================
