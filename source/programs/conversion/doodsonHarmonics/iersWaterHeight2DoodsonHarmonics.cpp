@@ -50,7 +50,9 @@ void IersWaterHeight2DoodsonHarmonics::run(Config &config, Parallel::Communicato
     Double    GM, R;
     UInt      minDegree, maxDegree = INFINITYDEGREE;
 
-    readConfig(config, "outputfileDoodsonHarmoncis",       fileNameOut, Config::MUSTSET, "",  "");
+    renameDeprecatedConfig(config, "outputfileDoodsonHarmoncis", "outputfileDoodsonHarmonics", date2time(2026, 7, 6));
+
+    readConfig(config, "outputfileDoodsonHarmonics",       fileNameOut, Config::MUSTSET, "",  "");
     readConfig(config, "inputfile",                        fileNameIn,  Config::MUSTSET, "",  "");
     readConfig(config, "headerLines",                      countHeader, Config::MUSTSET, "3", "skip number of header lines");
     readConfig(config, "inputfileTideGeneratingPotential", fileNameTGP, Config::MUSTSET, "{groopsDataDir}/tides/generatingTide_HW95.txt", "to compute Xi phase correction");
