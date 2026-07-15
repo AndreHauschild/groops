@@ -48,10 +48,12 @@ void Kernel2Coefficients::run(Config &config, Parallel::CommunicatorPtr /*comm*/
     Double    R, H;
     UInt      minDegree, maxDegree;
 
+    renameDeprecatedConfig(config, "maxDegre", "maxDegree", date2time(2026, 7, 6));
+
     readConfig(config, "outputfileMatrix", fileNameOut,  Config::MUSTSET, "",  "matrix with columns degree, coefficients and inverse coefficients");
     readConfig(config, "kernel",           kernel,       Config::MUSTSET, "",  "");
     readConfig(config, "minDegree",        minDegree,    Config::DEFAULT, "0", "minimum degree of returned coefficients");
-    readConfig(config, "maxDegre",         maxDegree,    Config::MUSTSET, "",  "compute coefficients up to maxDegree");
+    readConfig(config, "maxDegree",        maxDegree,    Config::MUSTSET, "",  "compute coefficients up to maxDegree");
     readConfig(config, "height",           H,            Config::DEFAULT, "0", "evaluate kernel at R+height [m]");
     readConfig(config, "R",                R,            Config::DEFAULT, STRING_DEFAULT_R,  "reference radius");
     if(isCreateSchema(config)) return;
