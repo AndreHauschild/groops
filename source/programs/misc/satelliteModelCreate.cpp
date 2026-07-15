@@ -140,6 +140,9 @@ template<> Bool readConfig(Config &config, const std::string &name, std::vector<
     if(!readConfigSequence(config, name, mustSet, defaultValue, annotation))
       return FALSE;
 
+    renameDeprecatedConfig(config, "reflexionInfrared", "reflectionInfrared", date2time(2026, 7, 6));
+    renameDeprecatedConfig(config, "reflexionVisible",  "reflectionVisible",  date2time(2026, 7, 6));
+
     FileName fileNameIn;
     ExpressionVariablePtr typeExpr, areaExpr;
     ExpressionVariablePtr normalXExpr, normalYExpr, normalZExpr;
@@ -153,10 +156,10 @@ template<> Bool readConfig(Config &config, const std::string &name, std::vector<
     readConfig(config, "normalX",              normalXExpr,              Config::MUSTSET, "data1",  "");
     readConfig(config, "normalY",              normalYExpr,              Config::MUSTSET, "data2",  "");
     readConfig(config, "normalZ",              normalZExpr,              Config::MUSTSET, "data3",  "");
-    readConfig(config, "reflexionVisible",     reflexionVisibleExpr,     Config::MUSTSET, "data4",  "");
+    readConfig(config, "reflectionVisible",    reflexionVisibleExpr,     Config::MUSTSET, "data4",  "");
     readConfig(config, "diffusionVisible",     diffusionVisibleExpr,     Config::MUSTSET, "data5",  "");
     readConfig(config, "absorptionVisible",    absorptionVisibleExpr,    Config::MUSTSET, "data6",  "");
-    readConfig(config, "reflexionInfrared",    reflexionInfraredExpr,    Config::MUSTSET, "data7",  "");
+    readConfig(config, "reflectionInfrared",   reflexionInfraredExpr,    Config::MUSTSET, "data7",  "");
     readConfig(config, "diffusionInfrared",    diffusionInfraredExpr,    Config::MUSTSET, "data8",  "");
     readConfig(config, "absorptionInfrared",   absorptionInfraredExpr,   Config::MUSTSET, "data9",  "");
     readConfig(config, "specificHeatCapacity", specificHeatCapacityExpr, Config::MUSTSET, "data10", "0: no thermal radiation, -1: direct reemission [Ws/K/m^2]");
