@@ -52,8 +52,10 @@ void DoodsonHarmonics2IersWaterHeight::run(Config &config, Parallel::Communicato
     UInt        minDegree, maxDegree = INFINITYDEGREE;
     std::vector<std::string> headers;
 
+    renameDeprecatedConfig(config, "inputfileDoodsonHarmoncis", "inputfileDoodsonHarmonics", date2time(2026, 7, 6));
+
     readConfig(config, "outputfile",                       fileNameOut, Config::MUSTSET,  "","according to IERS2010, chapter 6.3.2, footnote 7");
-    readConfig(config, "inputfileDoodsonHarmoncis",        fileNameIn,  Config::MUSTSET,  "", "");
+    readConfig(config, "inputfileDoodsonHarmonics",        fileNameIn,  Config::MUSTSET,  "", "");
     readConfig(config, "inputfileTideGeneratingPotential", fileNameTGP, Config::MUSTSET,  "{groopsDataDir}/tides/generatingTide_HW95.txt", "to compute Xi phase correction");
     readConfig(config, "header",                           headers,     Config::MUSTSET,  "Ocean tide model: FES2014b up to (100,100) in cm", "info for output header");
     readConfig(config, "kernel",                           kernel,      Config::MUSTSET,  "waterHeight", "data type of output values");
