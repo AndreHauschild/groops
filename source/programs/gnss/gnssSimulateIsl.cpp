@@ -23,6 +23,17 @@ Parameter settings and output files are ignored.
 The option \config{noiseObservation} specifies the sigma of the noise which is applied to the simulated observations.
 
 The option \config{sigmaObservation} sets the expected sigma of the observations used as weights in the parameter estimation.
+
+The output is written as a \file{GNSS receiver file}{instrument} file with the following GnssTypes:
+
+\begin{itemize}
+\item \verb|C1C|: Inter-satellite link pseudorange
+\item \verb|X1A|: Transmitting terminal ID
+\item \verb|X1B|: Receiving terminal ID
+\item \verb|S1C|: Standard-deviation of inter-satellite link pseudorange
+\end{itemize}
+
+
 )";
 
 /***********************************************/
