@@ -24846,7 +24846,7 @@
 						</xs:element>
 						<xs:element name="comment" type="string" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
-								<xs:documentation>comment in header</xs:documentation>
+								<xs:documentation>comment in header, {variables} are replaced.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileComment" type="filename" minOccurs="0">

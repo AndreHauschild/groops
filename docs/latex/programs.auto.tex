@@ -9634,6 +9634,9 @@ Write spherical harmonics in ICGEM format.
 GROOPS uses this format as default but this program enables
 the possibility to include comments and set the modelname.
 
+The \config{inputfileComment} may contain \verb|{variables}|,
+see \reference{text parser}{general.parser:text}.
+
 
 \keepXColumns
 \begin{tabularx}{\textwidth}{N T A}
@@ -9647,7 +9650,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~inputfileCosPotentialCoefficients & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~inputfileSinPotentialCoefficients & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~period & \hfuzz=500pt string & \hfuzz=500pt period of oscillation [year]\\
-\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt comment in header\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt comment in header, \{variables\} are replaced.\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileComment & \hfuzz=500pt filename & \hfuzz=500pt file containing comments for header\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~modelname & \hfuzz=500pt string & \hfuzz=500pt name of the model\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~tideSystem & \hfuzz=500pt choice & \hfuzz=500pt tide system of model\\

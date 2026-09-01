@@ -25,6 +25,7 @@
 - Other:            GnssParametrizationAmbiguities: Consider more resolved ambiguities in the next processing steps.
 - Other:            GriddedData(TimeSeries)2PotentialCoefficients: Reduced memory consumption in parallel mode.
 - Other:            dataVariables/statistics: ignore NaN entries.
+- Other:            PotentialCoefficients2Icgem: {variables} in inputfileComment.
 
 # Release 2025-11-15
 - New program:      StarCamera2Orbex (replaces GnssAttitude2Orbex).
