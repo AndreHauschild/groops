@@ -5,6 +5,7 @@
 - New program:      StarCamera2GraceL1b.
 - New class:        ParameterSelector: group.
 - New option:       conditionStringContains/MatchPattern: supports wildcards.
+- New option:       DoodsonHarmonicsCalculateAdmittance: added "useOnlyDoodsonForInterpolation".
 - Bugfix:           ConditionFileExist: fixed bug with wildcards.
 - Bugfix:           GUI: fixed MatchCaseSensitive for schema selction.
 - Bugfix:           GUI: fixed bug when moving elements to same position.
