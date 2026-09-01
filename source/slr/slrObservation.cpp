@@ -188,7 +188,7 @@ void SlrObservationEquation::compute(const SlrObservation &observation, const Sl
       const Double r1  = posStat.at(i).r();
       const Double r2  = posSat.at(i).r();
       const Double r12 = (posStat.at(i) - posSat.at(i)).r();
-      l(i) += 2*DEFAULT_GM/std::pow(LIGHT_VELOCITY,2)*log((r1+r2+r12)/(r1+r2-r12));
+      l(i) -= 2*DEFAULT_GM/std::pow(LIGHT_VELOCITY,2)*log((r1+r2+r12)/(r1+r2-r12));
 
       // geometry of roundtrip
       // ---------------------
