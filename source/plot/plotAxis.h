@@ -19,6 +19,9 @@
 static const char *docstringPlotAxis = R"(
 \section{PlotAxis}\label{plotAxisType}
 Defines the style of the axes of \program{PlotGraph}.
+
+For annotation labels or other text, GMT provides several escape sequences, see
+\url{https://docs.generic-mapping-tools.org/latest/reference/features.html#char-esc-seq}.
 )";
 #endif
 
