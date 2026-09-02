@@ -314,6 +314,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~threshold & \hfuzz=500pt double & \hfuzz=500pt [m\textasciicircum{}2/s\textasciicircum{}2] only interpolate tides with TGP greater than threshold\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~degreeInterpolation & \hfuzz=500pt uint & \hfuzz=500pt polynomial degree for interpolation\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~degreeExtrapolation & \hfuzz=500pt uint & \hfuzz=500pt polynomial degree for extrapolation\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~useOnlyDoodsonForInterpolation & \hfuzz=500pt \hyperref[doodson]{doodson} & \hfuzz=500pt major tides only used for interpolation\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~excludeDoodsonForInterpolation & \hfuzz=500pt \hyperref[doodson]{doodson} & \hfuzz=500pt major tides not used for interpolation\\
 \hline
 \end{tabularx}
@@ -6093,6 +6094,9 @@ With setting \config{options:removeFiles}=false the last step is skipped and it 
 to specific publication needs. Individual GMT settings are adjusted with \config{options:options}="\verb|FORMAT=value|",
 see \url{https://docs.generic-mapping-tools.org/latest/gmt.conf.html}.
 
+For annotation labels or other text, GMT provides several escape sequences, see
+\url{https://docs.generic-mapping-tools.org/latest/reference/features.html#char-esc-seq}.
+
 See also: \program{PlotDegreeAmplitudes}, \program{PlotMap}, \program{PlotMatrix}, \program{PlotSphericalHarmonicsTriangle}.
 
 
@@ -6136,6 +6140,9 @@ generates a batch/shell script with the GMT commands, execute it, and remove the
 With setting \config{options:removeFiles}=false the last step is skipped and it is possible to adjust the plot manually
 to specific publication needs. Individual GMT settings are adjusted with \config{options:options}="\verb|FORMAT=value|",
 see \url{https://docs.generic-mapping-tools.org/latest/gmt.conf.html}.
+
+For annotation labels or other text, GMT provides several escape sequences, see
+\url{https://docs.generic-mapping-tools.org/latest/reference/features.html#char-esc-seq}.
 
 See also: \program{PlotDegreeAmplitudes}, \program{PlotGraph}, \program{PlotMatrix}, \program{PlotSphericalHarmonicsTriangle}.
 
@@ -6187,6 +6194,9 @@ generates a batch/shell script with the GMT commands, execute it, and remove the
 With setting \config{options:removeFiles}=false the last step is skipped and it is possible to adjust the plot manually
 to specific publication needs. Individual GMT settings are adjusted with \config{options:options}="\verb|FORMAT=value|",
 see \url{https://docs.generic-mapping-tools.org/latest/gmt.conf.html}.
+
+For annotation labels or other text, GMT provides several escape sequences, see
+\url{https://docs.generic-mapping-tools.org/latest/reference/features.html#char-esc-seq}.
 
 \fig{!hb}{0.6}{plotMatrix}{fig:plotMatrix}{Upper left part of the DDK filter matrix.}
 
@@ -6241,6 +6251,9 @@ generates a batch/shell script with the GMT commands, execute it, and remove the
 With setting \config{options:removeFiles}=false the last step is skipped and it is possible to adjust the plot manually
 to specific publication needs. Individual GMT settings are adjusted with \config{options:options}="\verb|FORMAT=value|",
 see \url{https://docs.generic-mapping-tools.org/latest/gmt.conf.html}.
+
+For annotation labels or other text, GMT provides several escape sequences, see
+\url{https://docs.generic-mapping-tools.org/latest/reference/features.html#char-esc-seq}.
 
 \fig{!hb}{0.8}{plotSphericalHarmonicsTriangle}{fig:plotSphericalHarmonicsTriangle}{Formal errors of GOCO06s.}
 
@@ -9657,6 +9670,9 @@ Write spherical harmonics in ICGEM format.
 GROOPS uses this format as default but this program enables
 the possibility to include comments and set the modelname.
 
+The \config{inputfileComment} may contain \verb|{variables}|,
+see \reference{text parser}{general.parser:text}.
+
 
 \keepXColumns
 \begin{tabularx}{\textwidth}{N T A}
@@ -9670,7 +9686,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~inputfileCosPotentialCoefficients & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~inputfileSinPotentialCoefficients & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~period & \hfuzz=500pt string & \hfuzz=500pt period of oscillation [year]\\
-\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt comment in header\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt comment in header, \{variables\} are replaced.\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~inputfileComment & \hfuzz=500pt filename & \hfuzz=500pt file containing comments for header\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~modelname & \hfuzz=500pt string & \hfuzz=500pt name of the model\\
 \hfuzz=500pt\includegraphics[width=1em]{element.pdf}~tideSystem & \hfuzz=500pt choice & \hfuzz=500pt tide system of model\\
