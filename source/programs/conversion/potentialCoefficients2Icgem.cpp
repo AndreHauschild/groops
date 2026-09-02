@@ -17,11 +17,15 @@ static const char *docstring = R"(
 Write spherical harmonics in ICGEM format.
 GROOPS uses this format as default but this program enables
 the possibility to include comments and set the modelname.
+
+The \config{inputfileComment} may contain \verb|{variables}|,
+see \reference{text parser}{general.parser:text}.
 )";
 
 /***********************************************/
 
 #include "programs/program.h"
+#include "parser/stringParser.h"
 #include "inputOutput/file.h"
 #include "files/fileSphericalHarmonics.h"
 
@@ -87,7 +91,7 @@ void PotentialCoefficients2Icgem::run(Config &config, Parallel::CommunicatorPtr 
     readConfig(config, "inputfilePotentialCoefficients", fileNameStatic,   Config::MUSTSET,  "", "");
     readConfig(config, "inputfileTrend",                 fileNameTrend,    Config::OPTIONAL, "", "");
     readConfig(config, "oscillation",                    oscillation,      Config::OPTIONAL, "", "");
-    readConfig(config, "comment",                        comment,          Config::OPTIONAL, "", "comment in header");
+    readConfig(config, "comment",                        comment,          Config::OPTIONAL, "", "comment in header, {variables} are replaced.");
     readConfig(config, "inputfileComment",               fileNameComments, Config::OPTIONAL, "", "file containing comments for header");
     readConfig(config, "modelname",                      modelname,        Config::MUSTSET,  "", "name of the model");
     if(readConfigChoice(config, "tideSystem", choice,  Config::OPTIONAL, "", "tide system of model"))
@@ -153,7 +157,7 @@ void PotentialCoefficients2Icgem::run(Config &config, Parallel::CommunicatorPtr 
       InFile commentFile(fileNameComments);
       std::string line;
       while(std::getline(commentFile, line))
-        file<<line<<std::endl;
+        file<<StringParser::parse(line, config.getVarList())<<std::endl;
     }
     if(comment.size() || !fileNameComments.empty())
       file<<std::endl;
