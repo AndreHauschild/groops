@@ -51,7 +51,7 @@ void DoodsonHarmonicsCalculateAdmittance::run(Config &config, Parallel::Communic
     FileName fileNameAdmit, fileNameDoodson, fileNameTGP;
     Double   threshold;
     UInt     degreeInterpolation, degreeExtrapolation = MAX_UINT;
-    std::vector<Doodson> doodsonExclude;
+    std::vector<Doodson> doodsonInclude, doodsonExclude;
 
     readConfig(config, "outputfileAdmittance",             fileNameAdmit,       Config::MUSTSET,  "",     "");
     readConfig(config, "inputfileDoodsonHarmonics",        fileNameDoodson,     Config::MUSTSET,  "",     "");
@@ -59,6 +59,7 @@ void DoodsonHarmonicsCalculateAdmittance::run(Config &config, Parallel::Communic
     readConfig(config, "threshold",                        threshold,           Config::DEFAULT,  "1e-4", "[m^2/s^2] only interpolate tides with TGP greater than threshold");
     readConfig(config, "degreeInterpolation",              degreeInterpolation, Config::DEFAULT,  "1",    "polynomial degree for interpolation");
     readConfig(config, "degreeExtrapolation",              degreeExtrapolation, Config::OPTIONAL, "1",    "polynomial degree for extrapolation");
+    readConfig(config, "useOnlyDoodsonForInterpolation",   doodsonInclude,      Config::OPTIONAL, "",     "major tides only used for interpolation");
     readConfig(config, "excludeDoodsonForInterpolation",   doodsonExclude,      Config::OPTIONAL, R"(["164.554", "164.555", "164.556", "164.566"])", "major tides not used for interpolation");
     if(isCreateSchema(config)) return;
 
@@ -94,6 +95,12 @@ void DoodsonHarmonicsCalculateAdmittance::run(Config &config, Parallel::Communic
       if((iter == tgp.end()) || (dynamic_cast<const Doodson&>(*iter) != dood))
         tgp.insert(iter, TideGeneratingConstituent(dood, 0, 0., 0.));
     }
+
+    // set tgp to zero for tides not included
+    if(doodsonInclude.size())
+      for(auto &t : tgp)
+        if(!isInList(doodsonInclude, t) && isInList(d.doodson, t))
+          t.c = t.s = 0.;
 
     // set tgp to zero for exluding doodson
     for(auto &t : tgp)
