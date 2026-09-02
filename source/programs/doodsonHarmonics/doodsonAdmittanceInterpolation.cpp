@@ -71,15 +71,14 @@ void DoodsonAdmittanceInterpolation::run(Config &config, Parallel::CommunicatorP
       TideGeneratingPotential tgp;
       readFileTideGeneratingPotential(tgpName, tgp);
 
-      for(UInt i=0; i<tgp.size(); i++)
-      {
-        for(UInt k=0; k<admit.doodsonMajor.size(); k++)
+      for(UInt k=0; k<admit.doodsonMajor.size(); k++)
+          for(UInt i=0; i<tgp.size(); i++)
           if(dynamic_cast<Doodson&>(tgp.at(i)) == admit.doodsonMajor.at(k))
-            majorAmpl.at(k) = tgp.at(i).admit();
-        for(UInt k=0; k<admit.doodsonMinor.size(); k++)
+            {majorAmpl.at(k) = tgp.at(i).admit(); break;}
+      for(UInt k=0; k<admit.doodsonMinor.size(); k++)
+        for(UInt i=0; i<tgp.size(); i++)
           if(dynamic_cast<Doodson&>(tgp.at(i)) == admit.doodsonMinor.at(k))
-            ampl.at(k) = tgp.at(i).admit();
-      }
+            {ampl.at(k) = tgp.at(i).admit(); break;}
     }
 
     // Computing

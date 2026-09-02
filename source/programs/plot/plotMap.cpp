@@ -28,6 +28,9 @@ With setting \config{options:removeFiles}=false the last step is skipped and it 
 to specific publication needs. Individual GMT settings are adjusted with \config{options:options}="\verb|FORMAT=value|",
 see \url{https://docs.generic-mapping-tools.org/latest/gmt.conf.html}.
 
+For annotation labels or other text, GMT provides several escape sequences, see
+\url{https://docs.generic-mapping-tools.org/latest/reference/features.html#char-esc-seq}.
+
 See also: \program{PlotDegreeAmplitudes}, \program{PlotGraph}, \program{PlotMatrix}, \program{PlotSphericalHarmonicsTriangle}.
 
 \fig{!hb}{0.8}{plotMap}{fig:plotMap}{A Robinson projection with griddedData (geoid), coast, polygon (amazon), and points (IGS stations) layer.}
