@@ -21,6 +21,18 @@ Writes the \file{observation residuals}{instrument} for all
 \configClass{selectReceivers}{platformSelectorType}.
 For each station a file is written. The file name is interpreted as
 a template with the variable \verb|{station}| being replaced by the station name.
+
+A \file{GNSS residual file}{instrument} includes additional information
+besides the residuals
+\begin{itemize}
+\item \verb|A1*|, \verb|E1*|: azimuth and elevation at receiver
+\item \verb|A2*|, \verb|E2*|: azimuth and elevation at transmitter
+\item \verb|I**|: Estimated slant total electron content (STEC)
+\end{itemize}
+
+Furthermore these files include for each residual information about
+the redundancy and the estimated accuracy $\sigma$ from the least squares adjustment.
+The 3 values (residuals, redundancy, $\sigma$) are coded with the same type.
 )";
 #endif
 
@@ -123,13 +135,13 @@ inline void GnssProcessingStepWriteResiduals::process(GnssProcessingStep::State 
 
                 for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType+=3)
                 {
-                  epoch.observation.insert(epoch.observation.end(), {0., 0., 1.});
+                  epoch.observation.insert(epoch.observation.end(), {NAN_EXPR, NAN_EXPR, NAN_EXPR});
                   for(UInt i=0; i<obs.size(); i++)
                     if(obs.at(i).type == epoch.obsType.at(idType))
                     {
                       epoch.observation.at(epoch.observation.size()-3) = obs.at(i).residuals;
                       epoch.observation.at(epoch.observation.size()-2) = obs.at(i).redundancy;
-                      epoch.observation.at(epoch.observation.size()-1) = obs.at(i).sigma/obs.at(i).sigma0;
+                      epoch.observation.at(epoch.observation.size()-1) = obs.at(i).sigma;
                       break;
                     }
                 }

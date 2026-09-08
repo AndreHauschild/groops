@@ -11318,6 +11318,11 @@
 								<xs:documentation>polynomial degree for extrapolation</xs:documentation>
 							</xs:annotation>
 						</xs:element>
+						<xs:element name="useOnlyDoodsonForInterpolation" type="doodson" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>major tides only used for interpolation</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="excludeDoodsonForInterpolation" type="doodson" minOccurs="0" default="[&quot;164.554&quot;, &quot;164.555&quot;, &quot;164.556&quot;, &quot;164.566&quot;]" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>major tides not used for interpolation</xs:documentation>
@@ -12152,14 +12157,19 @@
 								<xs:documentation>stationInfo is of a transmitter</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="thresholdOutlier" type="double" minOccurs="0" default="10">
-							<xs:annotation>
-								<xs:documentation>ignore residuals with sigma/sigma0 greater than threshold</xs:documentation>
-							</xs:annotation>
-						</xs:element>
 						<xs:element name="minRedundancy" type="double" minOccurs="0" default="3">
 							<xs:annotation>
-								<xs:documentation>min number of residuals. to estimate sigma</xs:documentation>
+								<xs:documentation>min. redundancy of residuals to estimate sigma</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="huber" type="double" minOccurs="0" default="2.5">
+							<xs:annotation>
+								<xs:documentation>residuals &gt; huber*sigma0 have been downweighted</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="huberPower" type="double" minOccurs="0" default="1.5">
+							<xs:annotation>
+								<xs:documentation>residuals &gt; huber: sigma=(e/huber)^huberPower*sigma0</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileResiduals" type="filename" maxOccurs="unbounded">
@@ -12230,14 +12240,24 @@
 								<xs:documentation>apriori accuracies</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element name="inputfileTransmitterInfo" type="filename">
+						<xs:element name="inputfileTransmitterInfo" type="filename" default="{groopsDataDir}/gnss/transmitter/transmitterInfo/igs/igs20/transmitterInfo_igs20.{prn}.xml">
 							<xs:annotation>
-								<xs:documentation>to assign residuals to antennas</xs:documentation>
+								<xs:documentation>variable {prn} available, to assign residuals to antennas</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="minRedundancy" type="double" minOccurs="0" default="3">
 							<xs:annotation>
-								<xs:documentation>min number of residuals. to estimate sigma</xs:documentation>
+								<xs:documentation>min. redundancy of residuals to estimate sigma</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="huber" type="double" minOccurs="0" default="2.5">
+							<xs:annotation>
+								<xs:documentation>residuals &gt; huber*sigma0 have been downweighted</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="huberPower" type="double" minOccurs="0" default="1.5">
+							<xs:annotation>
+								<xs:documentation>residuals &gt; huber: sigma=(e/huber)^huberPower*sigma0</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileResiduals" type="filename" maxOccurs="unbounded">
@@ -24850,7 +24870,7 @@
 						</xs:element>
 						<xs:element name="comment" type="string" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
-								<xs:documentation>comment in header</xs:documentation>
+								<xs:documentation>comment in header, {variables} are replaced.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="inputfileComment" type="filename" minOccurs="0">
