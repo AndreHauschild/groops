@@ -27,15 +27,15 @@ The following names are defined:
 \item \verb|056.555|: \verb|sa|   \item \verb|057.555|: \verb|ssa|     \item \verb|058.554|: \verb|sta|
 \item \verb|063.655|: \verb|msm|  \item \verb|065.455|: \verb|mm|      \item \verb|073.555|: \verb|msf|
 \item \verb|075.555|: \verb|mf|   \item \verb|083.655|: \verb|mstm|    \item \verb|085.455|: \verb|mtm|
-\item \verb|093.555|: \verb|msq|  \item \verb|093.555|: \verb|msqm|    \item \verb|125.755|: \verb|2q1|
-\item \verb|127.555|: \verb|sig1| \item \verb|127.555|: \verb|sigma1|  \item \verb|135.655|: \verb|q1|
-\item \verb|137.455|: \verb|ro1|  \item \verb|137.455|: \verb|rho1|    \item \verb|145.555|: \verb|o1|
+\item \verb|093.555|: \verb|msq|  \item \verb|093.555|: \verb|msqm|    \item \verb|125.555|: \verb|2ok1|
+\item \verb|125.755|: \verb|2q1|  \item \verb|127.555|: \verb|sig1|    \item \verb|127.555|: \verb|sigma1|
+\item \verb|135.655|: \verb|q1|   \item \verb|137.455|: \verb|ro1|     \item \verb|137.455|: \verb|rho1| \item \verb|145.555|: \verb|o1|
 \item \verb|147.555|: \verb|tau1| \item \verb|155.655|: \verb|m1|      \item \verb|157.455|: \verb|chi1|
 \item \verb|162.556|: \verb|pi1|  \item \verb|163.555|: \verb|p1|      \item \verb|164.555|: \verb|s1|
 \item \verb|165.555|: \verb|k1|   \item \verb|166.554|: \verb|psi1|    \item \verb|167.555|: \verb|fi1|
 \item \verb|167.555|: \verb|phi1| \item \verb|173.655|: \verb|the1|    \item \verb|173.655|: \verb|theta1|
 \item \verb|175.455|: \verb|j1|   \item \verb|183.555|: \verb|so1|     \item \verb|185.555|: \verb|oo1|
-\item \verb|195.455|: \verb|v1|   \item \verb|225.855|: \verb|3n2|     \item \verb|227.655|: \verb|eps2|
+\item \verb|195.455|: \verb|v1|   \item \verb|225.855|: \verb|3n2|     \item \verb|227.655|: \verb|eps2| \item \verb|235.555|: \verb|o2|
 \item \verb|235.755|: \verb|2n2|  \item \verb|237.555|: \verb|mu2|     \item \verb|237.555|: \verb|mi2|
 \item \verb|245.655|: \verb|n2|   \item \verb|247.455|: \verb|nu2|     \item \verb|247.455|: \verb|ni2|
 \item \verb|253.755|: \verb|gam2| \item \verb|254.556|: \verb|alf2|    \item \verb|255.555|: \verb|m2|
@@ -43,10 +43,13 @@ The following names are defined:
 \item \verb|263.655|: \verb|lmb2| \item \verb|263.655|: \verb|lambda2| \item \verb|265.455|: \verb|l2|
 \item \verb|271.557|: \verb|2t2|  \item \verb|272.556|: \verb|t2|      \item \verb|273.555|: \verb|s2|
 \item \verb|274.554|: \verb|r2|   \item \verb|275.555|: \verb|k2|      \item \verb|283.655|: \verb|ksi2|
-\item \verb|285.455|: \verb|eta2| \item \verb|355.555|: \verb|m3|      \item \verb|381.555|: \verb|t3|
+\item \verb|285.455|: \verb|eta2| \item \verb|291.555|: \verb|2sm2|    \item \verb|345.555|: \verb|2mk3|
+\item \verb|363.555|: \verb|so3|  \item \verb|355.555|: \verb|m3|      \item \verb|365.555|: \verb|2mo3| \item \verb|381.555|: \verb|t3|
 \item \verb|382.555|: \verb|s3|   \item \verb|383.555|: \verb|r3|      \item \verb|435.755|: \verb|n4|
 \item \verb|445.655|: \verb|mn4|  \item \verb|455.555|: \verb|m4|      \item \verb|473.555|: \verb|ms4|
-\item \verb|491.555|: \verb|s4|   \item \verb|655.555|: \verb|m6|      \item \verb|855.555|: \verb|m8|
+\item \verb|475.555|: \verb|2km4| \item \verb|491.555|: \verb|s4|      \item \verb|545.555|: \verb|2mo5|
+\item \verb|565.555|: \verb|2mk5| \item \verb|583.555|: \verb|msk5|    \item \verb|655.555|: \verb|m6|
+\item \verb|673.555|: \verb|2ms6| \item \verb|691.555|: \verb|2sm6|    \item \verb|855.555|: \verb|m8|
 \end{itemize}
 )";
 #endif

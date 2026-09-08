@@ -5,6 +5,7 @@
 - New program:      StarCamera2GraceL1b.
 - New class:        ParameterSelector: group.
 - New option:       conditionStringContains/MatchPattern: supports wildcards.
+- New option:       DoodsonHarmonicsCalculateAdmittance: added "useOnlyDoodsonForInterpolation".
 - Bugfix:           ConditionFileExist: fixed bug with wildcards.
 - Bugfix:           GUI: fixed MatchCaseSensitive for schema selction.
 - Bugfix:           GUI: fixed bug when moving elements to same position.
@@ -14,6 +15,7 @@
 - Bugfix:           Tle2Orbit: Fixed bug when first record in file is used.
 - Bugfix:           GnssParametrizationLeoDynamicOrbits: Fixed bug in parallel processing.
 - Bugfix:           Parallel: changed MPI_UNSIGNED to MPI_UNSIGNED_LONG_LONG.
+- Bugfix:           SLR: corrected sign for curved space-time correction.
 - Other:            NetCDF: enable to read multidimensional variables to store in muliple columns.
 - Other:            Changed ftp.tugraz.at/outgoing/ITSG to ftp.tugraz.at/pub/ITSG.
 - Other:            ModelEquilibriumTide: Taking into account spatially varying density.
@@ -21,8 +23,11 @@
 - Other:            GnssAntex2AntennaDefinition: Handling of changing antennas of a SVN.
 - Other:            GnssSinexBias2SignalBias: Transform combined X signals to actually transmitted signals.
 - Other:            GnssParametrizationAmbiguities: Consider more resolved ambiguities in the next processing steps.
+- Other:            Gnss Observations/Residuals (InstrumentGnssReceiver): Use NaN instead of 0 for empty observations.
 - Other:            GriddedData(TimeSeries)2PotentialCoefficients: Reduced memory consumption in parallel mode.
 - Other:            dataVariables/statistics: ignore NaN entries.
+- Other:            PotentialCoefficients2Icgem: {variables} in inputfileComment.
+- Other:            GnssResiduals2(Transmitter)AccuracyDefinition: Uses now a robust, unbiaesd estimation of accuracies.
 
 # Release 2025-11-15
 - New program:      StarCamera2Orbex (replaces GnssAttitude2Orbex).

@@ -395,13 +395,13 @@ void GnssReceiverGeneratorStationNetwork::preprocessing(Gnss *gnss, Parallel::Co
           recv->pos = std::move(posApriori); // restore apriori positions
 
           recv->disableEpochsWithGrossCodeObservationOutliers(eqn, codeMaxPosDiff, 0.5);
-          recv->createTracks(gnss->transmitters, minObsCountPerTrack, {GnssType::L5_G});
-          recv->writeTracks(fileNameTrackBefore, eqn, {GnssType::L5_G});
-          recv->cycleSlipsDetection(eqn, minObsCountPerTrack, denoisingLambda, tecWindowSize, tecSigmaFactor, {GnssType::L5_G});
+          recv->createTracks(gnss->transmitters, minObsCountPerTrack);
+          recv->writeTracks(fileNameTrackBefore, eqn);
+          recv->cycleSlipsDetection(eqn, minObsCountPerTrack, denoisingLambda, tecWindowSize, tecSigmaFactor);
           recv->removeLowElevationTracks(eqn, elevationTrackMinimum);
-          recv->trackOutlierDetection(eqn, {GnssType::L5_G}, huber, huberPower);
+          recv->trackOutlierDetection(eqn, huber, huberPower);
           recv->cycleSlipsRepairAtSameFrequency(eqn);
-          recv->writeTracks(fileNameTrackAfter, eqn, {GnssType::L5_G});
+          recv->writeTracks(fileNameTrackAfter, eqn);
 
           // count epochs with observations
           UInt countEpochs = 0;

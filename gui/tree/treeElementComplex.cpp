@@ -583,11 +583,22 @@ TreeElement *TreeElementComplex::addChild(TreeElement *targetElement, const QStr
     {
       newElement = new TreeElementComment(tree, this, xmlNode ? xmlNode->getText() : QString());
     }
-    else if(!label.isEmpty())
+    else if(!label.isEmpty()) // add variable
     {
+      // check label
+      QString newLabel = label;
+      QRegularExpression regex("^[a-zA-Z]([a-zA-Z0-9])*$");
+      if(!regex.match(newLabel).hasMatch())
+      {
+        if(xmlNode)
+          newLabel = xmlNode->getName(); // default name
+        if(!tree->getValidLabelDialog(tr("Add variable - GROOPS"), newLabel))
+          return nullptr;
+      }
+
       newElement = TreeElement::newTreeElement(tree, this, tree->xsdElement(type), "", xmlNode, !xmlNode/*fillWithDefaults*/);
       newElement->_name  = newElement->_schemaName;
-      newElement->_label = label;
+      newElement->_label = newLabel;
     }
     else
     {

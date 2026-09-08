@@ -320,31 +320,25 @@ void GnssReceiver::readObservations(const FileName &fileName, const std::vector<
     std::map<GnssType, UInt> removedTypes;
 
     UInt idEpoch = 0;
-    for(UInt arcEpoch=0; arcEpoch<arc.size(); arcEpoch++)
+    for(const auto &epoch : arc)
     {
       // search time slot
-      while((idEpoch < times.size()) && (times.at(idEpoch)+timeMargin < arc.at(arcEpoch).time))
+      while((idEpoch < times.size()) && (times.at(idEpoch)+timeMargin < epoch.time))
         disable(idEpoch++, "missing epochs in file");
       if(idEpoch >= times.size())
         break;
-      if((arc.at(arcEpoch).time+timeMargin < times.at(idEpoch)) || !useable(idEpoch))
+      if((epoch.time+timeMargin < times.at(idEpoch)) || !useable(idEpoch))
         continue;
-      times.at(idEpoch) = arc.at(arcEpoch).time;
-//    clk.at(idEpoch)   = arc.at(arcEpoch).clockError;
-      observationTimes.push_back(arc.at(arcEpoch).time);
+      times.at(idEpoch) = epoch.time;
+//    clk.at(idEpoch)   = epoch.clockError;
+      observationTimes.push_back(epoch.time);
 
       const std::vector<GnssType> receiverTypes = definedTypes(times.at(idEpoch));
 
       // create observation class for each satellite
       UInt idObs  = 0;
-      for(UInt k=0; k<arc.at(arcEpoch).satellite.size(); k++)
+      for(GnssType satType : epoch.satellite)
       {
-        // find list of observation types for this satellite
-        GnssType satType = arc.at(arcEpoch).satellite.at(k);
-        UInt idType = 0;
-        while(arc.at(arcEpoch).obsType.at(idType) != satType)
-          idType++;
-
         // search transmitter index for satellite number (PRN)
         const UInt idTrans = std::distance(transmitters.begin(), std::find_if(transmitters.begin(), transmitters.end(),
                                                                               [&](auto t) {return t->PRN() == satType;}));
@@ -357,10 +351,11 @@ void GnssReceiver::readObservations(const FileName &fileName, const std::vector<
           satType.setFrequencyNumber(transmitterTypes.front().frequencyNumber());
 
         GnssObservation *obs = new GnssObservation();
-        for(; (idType<arc.at(arcEpoch).obsType.size()) && (arc.at(arcEpoch).obsType.at(idType)==satType); idType++, idObs++)
-          if((idTrans < transmitters.size()) && arc.at(arcEpoch).observation.at(idObs)  && !std::isnan(arc.at(arcEpoch).observation.at(idObs)))
+        UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), satType));
+        for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType)==satType); idType++, idObs++)
+          if((idTrans < transmitters.size()) && epoch.observation.at(idObs)  && !std::isnan(epoch.observation.at(idObs)))
           {
-            GnssType type = arc.at(arcEpoch).obsType.at(idType) + satType;
+            GnssType type = epoch.obsType.at(idType) + satType;
             // remove GLONASS frequency number
             if((type == GnssType::GLONASS) && !((type == GnssType::G1) || (type == GnssType::G2)))
               type.setFrequencyNumber(9999);
@@ -404,7 +399,7 @@ void GnssReceiver::readObservations(const FileName &fileName, const std::vector<
                 }
 
             if(use)
-              obs->push_back(GnssSingleObservation(type, arc.at(arcEpoch).observation.at(idObs)));
+              obs->push_back(GnssSingleObservation(type, epoch.observation.at(idObs)));
           }
 
         std::vector<GnssType> types;
@@ -609,7 +604,7 @@ void GnssReceiver::simulateObservations(NoiseGeneratorPtr noiseClock, NoiseGener
     generator.seed(randomDevice());
     auto ambiguityRandom = std::uniform_int_distribution<Int>(-10000, 10000);
 
-    createTracks(transmitters, minObsCountPerTrack, {});
+    createTracks(transmitters, minObsCountPerTrack);
     for(auto &track : tracks)
     {
       Vector value(track->types.size());
@@ -864,7 +859,7 @@ void GnssReceiver::disableEpochsWithGrossCodeObservationOutliers(ObservationEqua
 
 /***********************************************/
 
-void GnssReceiver::createTracks(const std::vector<GnssTransmitterPtr> &transmitters, UInt minObsCountPerTrack, const std::vector<GnssType> &extraTypes)
+void GnssReceiver::createTracks(const std::vector<GnssTransmitterPtr> &transmitters, UInt minObsCountPerTrack)
 {
   try
   {
@@ -915,10 +910,10 @@ void GnssReceiver::createTracks(const std::vector<GnssTransmitterPtr> &transmitt
           }
         } // for(idEpoch)
 
-        // need phases at two frequencies (additional to extraTypes)
+        // need phases at two frequencies
         std::vector<GnssType> typeFrequencies;
         for(GnssType type : types)
-          if((type == GnssType::PHASE) && !type.isInList(extraTypes) && !type.isInList(typeFrequencies))
+          if((type == GnssType::PHASE) && !type.isInList(typeFrequencies))
             typeFrequencies.push_back(type & GnssType::FREQUENCY);
 
         // define track
@@ -1052,6 +1047,33 @@ GnssTrackPtr GnssReceiver::splitTrack(ObservationEquationList &eqnList, GnssTrac
 
 /***********************************************/
 
+// List of phase types that require special handling.
+std::vector<GnssType> GnssReceiver::getExtraTypes(const ObservationEquationList &eqnList, GnssTrackPtr track) const
+{
+  try
+  {
+    std::vector<GnssType> extraTypes;
+
+    // L5 of BLOCK IIF has temporal changing bias.
+    if((track->types.size() > 2) && GnssType::L5_G.isInList(track->types))
+    {
+      const UInt idTrans      = track->transmitter->idTrans();
+      const UInt idEpochStart = track->idEpochStart;
+      auto antenna = track->transmitter->platform.findEquipment<PlatformGnssAntenna>(eqnList(idTrans, idEpochStart)->timeTrans);
+      if(antenna && (antenna->name == "BLOCK IIF"))
+        extraTypes.push_back(GnssType::L5_G);
+    }
+
+    return extraTypes;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 // determine Melbourne-Wuebbena-like linear combinations
 void GnssReceiver::linearCombinations(ObservationEquationList &eqnList, GnssTrackPtr track, const std::vector<GnssType> &extraTypes,
                                       std::vector<GnssType> &typesPhase, std::vector<UInt> &idEpochs, Matrix &combinations, Double &cycles2tecu) const
@@ -1169,7 +1191,7 @@ static Double computeBias(const Vector &data, Double maxRange)
 
 /***********************************************/
 
-void GnssReceiver::writeTracks(const FileName &fileName, ObservationEquationList &eqnList, const std::vector<GnssType> &extraTypes) const
+void GnssReceiver::writeTracks(const FileName &fileName, ObservationEquationList &eqnList) const
 {
   try
   {
@@ -1179,6 +1201,8 @@ void GnssReceiver::writeTracks(const FileName &fileName, ObservationEquationList
     for(const auto &track : tracks)
       if(track->countObservations())
       {
+        std::vector<GnssType> extraTypes = getExtraTypes(eqnList, track);
+
         std::vector<GnssType> typesPhase;
         std::vector<UInt>     idEpochs;
         Matrix                combinations;
@@ -1218,14 +1242,14 @@ void GnssReceiver::writeTracks(const FileName &fileName, ObservationEquationList
 
 /***********************************************/
 
-void GnssReceiver::cycleSlipsDetection(ObservationEquationList &eqnList, UInt minObsCountPerTrack, Double lambda, UInt windowSize, Double tecSigmaFactor, const std::vector<GnssType> &extraTypes)
+void GnssReceiver::cycleSlipsDetection(ObservationEquationList &eqnList, UInt minObsCountPerTrack, Double lambda, UInt windowSize, Double tecSigmaFactor)
 {
   try
   {
     for(UInt idTrack=0; idTrack<tracks.size(); idTrack++)
     {
       if(tracks.at(idTrack)->countObservations() >= std::max(minObsCountPerTrack, windowSize))
-        cycleSlipsDetection(eqnList, tracks.at(idTrack), lambda, windowSize, tecSigmaFactor, extraTypes);
+        cycleSlipsDetection(eqnList, tracks.at(idTrack), lambda, windowSize, tecSigmaFactor);
       if(tracks.at(idTrack)->countObservations() < minObsCountPerTrack)
         deleteTrack(idTrack--);
     }
@@ -1240,10 +1264,12 @@ void GnssReceiver::cycleSlipsDetection(ObservationEquationList &eqnList, UInt mi
 
 /***********************************************/
 
-void GnssReceiver::cycleSlipsDetection(ObservationEquationList &eqnList, GnssTrackPtr track, Double lambda, UInt windowSize, Double tecSigmaFactor, const std::vector<GnssType> &extraTypes)
+void GnssReceiver::cycleSlipsDetection(ObservationEquationList &eqnList, GnssTrackPtr track, Double lambda, UInt windowSize, Double tecSigmaFactor)
 {
   try
   {
+    std::vector<GnssType> extraTypes = getExtraTypes(eqnList, track);
+
     // determine Melbourne-Wuebbena-like linear combinations
     // -----------------------------------------------------
     std::vector<GnssType> typesPhase;
@@ -1280,6 +1306,7 @@ void GnssReceiver::cycleSlipsDetection(ObservationEquationList &eqnList, GnssTra
       // Code mostly from books such as TimeSeriesAnalysis by James Hamilton,
       // Introduction to TimeSeries and Forecasting by brockwell and Davis,
       // and statsmodels implementaiton which seems to be the easiest way todo imo by using burg->lev
+      // Burg recursion adapted from statsmodels' pacf_burg implementation.
 
       // Compute first diff and convert to cycles
       // First diff is used to get rid of any additional issues within the tec
@@ -1513,7 +1540,7 @@ void GnssReceiver::cycleSlipsRepairAtSameFrequency(ObservationEquationList &eqnL
 
 /***********************************************/
 
-void GnssReceiver::trackOutlierDetection(const ObservationEquationList &eqnList, const std::vector<GnssType> &ignoreTypes, Double huber, Double huberPower)
+void GnssReceiver::trackOutlierDetection(const ObservationEquationList &eqnList, Double huber, Double huberPower)
 {
   try
   {
@@ -1577,6 +1604,7 @@ void GnssReceiver::trackOutlierDetection(const ObservationEquationList &eqnList,
           }
 
           // downweight ignored types
+          std::vector<GnssType> ignoreTypes = getExtraTypes(eqnList, track);
           for(UInt idType=0; idType<eqn.types.size(); idType++)
             if(eqn.types.at(idType).isInList(ignoreTypes))
             {

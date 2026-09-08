@@ -548,14 +548,16 @@ void RinexObservation2GnssReceiver::readObservationData(InFile &file)
           satNumber.at(idSat) = GnssType("***"+line.substr(0,3));
 
         const UInt obsCount = getSystemObsTypes(satNumber.at(idSat), time).size();
-        obs.at(idSat) = Vector(obsCount);
+        obs.at(idSat) = Vector(obsCount, NAN_EXPR);
         if(rinexVersion >= 3)
           line.resize(3+16*obsCount, ' ');
         for(UInt idType = 0; idType < obsCount; idType++)
         {
           if(idType > 0 && idType%maxObsCountPerLine == 0) // with possible continuation lines
             getLine(file, line, label);
-          obs.at(idSat)(idType) = String::toDouble(line.substr((rinexVersion >= 3 ? 3 : 0)+16*(idType%maxObsCountPerLine), 14));
+          const std::string str = line.substr((rinexVersion >= 3 ? 3 : 0)+16*(idType%maxObsCountPerLine), 14);
+          if(!std::all_of(str.begin(), str.end(), ::isspace)) // not empty string?
+            obs.at(idSat)(idType) = String::toDouble(str);
 
           // TODO: LLI and signal strength
         }
