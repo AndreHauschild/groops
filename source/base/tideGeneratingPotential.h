@@ -84,16 +84,16 @@ inline Double TideGeneratingConstituent::xi() const
     Double phase = std::atan2(s, c);
     if(degree == 2)
     {
-      if(d[0] == 0) return std::fmod(phase + PI, 2*PI); // c
-      if(d[0] == 1) return std::fmod(phase + PI, 2*PI); // s
-      if(d[0] == 2) return phase;                       // c
+      if(d[0] == 0) return std::remainder(phase + PI, 2*PI); // c
+      if(d[0] == 1) return std::remainder(phase + PI, 2*PI); // s
+      if(d[0] == 2) return phase;                            // c
     }
     if(degree == 3)
     {
-      if(d[0] == 0) return phase;                        // s
-      if(d[0] == 1) return std::fmod(phase + PI, 2*PI);  // c
-      if(d[0] == 2) return std::fmod(phase + PI, 2*PI);  // s
-      if(d[0] == 3) return phase;                        // c
+      if(d[0] == 0) return phase;                             // s
+      if(d[0] == 1) return std::remainder(phase + PI, 2*PI);  // c
+      if(d[0] == 2) return std::remainder(phase + PI, 2*PI);  // s
+      if(d[0] == 3) return phase;                             // c
     }
     throw(Exception("xi not (yet) defined for "+code()));
   }
@@ -109,14 +109,15 @@ inline Double TideGeneratingPotential::xi(const Doodson &doodson) const
 {
   try
   {
-    if(doodson == Doodson(std::vector<Int>{0, 0, 1, 0, 0, 0})) // special case: SA
-      return 0;
-    if(doodson == Doodson(std::vector<Int>{1, 1,-1, 0, 0, 0})) // special case: S1
-      return PI;
-    if(doodson == Doodson(std::vector<Int>{3, 3,-4, 0, 0, 0})) // non-linear T3
-      return 0;
-    if(doodson == Doodson(std::vector<Int>{3, 3,-2, 0, 0, 0})) // non-linear R3
-      return 0;
+    if(doodson == Doodson(std::vector<Int>{0, 0, 1, 0, 0, 0})) return 0;  // 056.555 sa    special case
+    if(doodson == Doodson(std::vector<Int>{1, 1,-1, 0, 0, 0})) return PI; // 164.555 s1    special case
+    if(doodson == Doodson(std::vector<Int>{1,-3, 0, 0, 0, 0})) return 0;  // 125.555 2ok1  non-linear
+    if(doodson == Doodson(std::vector<Int>{2,-2, 0, 0, 0, 0})) return 0;  // 235.555 o2    non-linear
+    if(doodson == Doodson(std::vector<Int>{3,-1, 0, 0, 0, 0})) return 0;  // 345.555 2mk3  non-linear
+    if(doodson == Doodson(std::vector<Int>{3, 1,-2, 0, 0, 0})) return 0;  // 363.555 so3   non-linear
+    if(doodson == Doodson(std::vector<Int>{3, 1, 0, 0, 0, 0})) return 0;  // 365.555 2mo3  non-linear
+    if(doodson == Doodson(std::vector<Int>{3, 3,-4, 0, 0, 0})) return 0;  // 381.555 t3    non-linear
+    if(doodson == Doodson(std::vector<Int>{3, 3,-2, 0, 0, 0})) return 0;  // 383.555 r3    non-linear
     if(doodson.d[0] > 3)  // non-linear tides
       return 0;
     for(UInt i=0; i<size(); i++)

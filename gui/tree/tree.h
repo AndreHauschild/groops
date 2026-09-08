@@ -121,6 +121,11 @@ public:
   * @return success? */
   bool fileOpen(QString fileName);
 
+  /** @brief Open a QInputDialog to get a label name.
+  * On input @a newLabel is the displayed label.
+  * @return ok? */
+  bool getValidLabelDialog(const QString &title, QString &newLabel);
+
 signals:
   /** @brief This signal is emitted when the file or status is changed.
   * @param caption fileName without path or something like 'newX'.

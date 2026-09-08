@@ -438,9 +438,9 @@ SphericalHarmonics ParametrizationGravitySphericalHarmonics::sphericalHarmonics(
       if(idxC[n][0]!=NULLINDEX) sigma2cnm(n,0) = sigma2x(idxC[n][0]);
       for(UInt m=1; m<=n; m++)
       {
-        if(idxC[n][0]!=NULLINDEX) cnm(n,m)       = x(idxC[n][m]);
+        if(idxC[n][m]!=NULLINDEX) cnm(n,m)       = x(idxC[n][m]);
         if(idxS[n][m]!=NULLINDEX) snm(n,m)       = x(idxS[n][m]);
-        if(idxC[n][0]!=NULLINDEX) sigma2cnm(n,m) = sigma2x(idxC[n][m]);
+        if(idxC[n][m]!=NULLINDEX) sigma2cnm(n,m) = sigma2x(idxC[n][m]);
         if(idxS[n][m]!=NULLINDEX) sigma2snm(n,m) = sigma2x(idxS[n][m]);
       }
     }

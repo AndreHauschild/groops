@@ -71,6 +71,8 @@ template<> Bool readConfig(Config &config, const std::string &name, PlotColorPtr
 static const char *docstringPlotLine = R"(
 \section{PlotLine}\label{plotLineType}
 Defines the line style to be plotted.
+Used in \program{PlotDegreeAmplitudes}, \program{PlotGraph}, \program{PlotMap},
+\program{PlotMatrix}, \program{PlotSphericalHarmonicsTriangle}.
 )";
 #endif
 
