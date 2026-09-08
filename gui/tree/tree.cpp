@@ -495,6 +495,27 @@ bool Tree::fileOpen(QString fileName)
 
 /***********************************************/
 
+bool Tree::getValidLabelDialog(const QString &title, QString &newLabel)
+{
+  try
+  {
+    bool ok = true;
+    newLabel = QInputDialog::getText(this, title, tr("Name of variable:"), QLineEdit::Normal, newLabel, &ok);
+
+    // check if its a valid label
+    QRegularExpression regex("^[a-zA-Z]([a-zA-Z0-9])*$");
+    while(ok && !regex.match(newLabel).hasMatch())
+      newLabel = QInputDialog::getText(this, title, tr("Name is invalid (only letters and digits allowed)!\nChoose another name:"), QLineEdit::Normal, newLabel, &ok);
+    return ok;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e);
+  }
+}
+
+/***********************************************/
+
 const std::vector<XsdElementPtr> &Tree::xsdElements() const
 {
   return _xsdGlobal->elements;
@@ -1126,19 +1147,8 @@ void Tree::editRename()
     if(!selectedElement() || !selectedElement()->canRename())
       return;
 
-    bool ok = true;
-    QString label = QInputDialog::getText(this, tr("Rename variable - GROOPS"), tr("Name of variable:"), QLineEdit::Normal, selectedElement()->label(), &ok);
-
-    // check if its a valid label
-    QStringList existingNames;
-    if(dynamic_cast<TreeElementGlobal*>(selectedElement()->parentElement))
-      for(auto child : selectedElement()->parentElement->children())
-        if(!child->label().isEmpty())
-          existingNames.push_back(child->label());
-    QRegularExpression regex("^[a-zA-Z]([a-zA-Z0-9])*$");
-    while(ok && (label != selectedElement()->label()) && (label.isEmpty() || existingNames.contains(label) || !regex.match(label).hasMatch()))
-      label = QInputDialog::getText(this, tr("Rename variable - GROOPS"), tr("Name already exists or is invalid (only letters and digits allowed)!\nChoose another name:"), QLineEdit::Normal, label, &ok);
-    if(!ok)
+    QString label = selectedElement()->label();
+    if(!getValidLabelDialog(tr("Rename variable - GROOPS"), label))
       return;
 
     selectedElement()->rename(label);

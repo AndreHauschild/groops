@@ -2365,6 +2365,18 @@ Writes the \file{observation residuals}{instrument} for all
 For each station a file is written. The file name is interpreted as
 a template with the variable \verb|{station}| being replaced by the station name.
 
+A \file{GNSS residual file}{instrument} includes additional information
+besides the residuals
+\begin{itemize}
+\item \verb|A1*|, \verb|E1*|: azimuth and elevation at receiver
+\item \verb|A2*|, \verb|E2*|: azimuth and elevation at transmitter
+\item \verb|I**|: Estimated slant total electron content (STEC)
+\end{itemize}
+
+Furthermore these files include for each residual information about
+the redundancy and the estimated accuracy $\sigma$ from the least squares adjustment.
+The 3 values (residuals, redundancy, $\sigma$) are coded with the same type.
+
 
 \keepXColumns
 \begin{tabularx}{\textwidth}{N T A}

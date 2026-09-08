@@ -23,9 +23,11 @@
 - Other:            GnssAntex2AntennaDefinition: Handling of changing antennas of a SVN.
 - Other:            GnssSinexBias2SignalBias: Transform combined X signals to actually transmitted signals.
 - Other:            GnssParametrizationAmbiguities: Consider more resolved ambiguities in the next processing steps.
+- Other:            Gnss Observations/Residuals (InstrumentGnssReceiver): Use NaN instead of 0 for empty observations.
 - Other:            GriddedData(TimeSeries)2PotentialCoefficients: Reduced memory consumption in parallel mode.
 - Other:            dataVariables/statistics: ignore NaN entries.
 - Other:            PotentialCoefficients2Icgem: {variables} in inputfileComment.
+- Other:            GnssResiduals2(Transmitter)AccuracyDefinition: Uses now a robust, unbiaesd estimation of accuracies.
 
 # Release 2025-11-15
 - New program:      StarCamera2Orbex (replaces GnssAttitude2Orbex).
