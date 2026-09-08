@@ -25,13 +25,16 @@ N = \frac{1}{\gamma}T
 \end{equation}
 with $T$ the disturbance potential and the normal gravity
 \begin{equation}\label{normalgravity}
-\gamma  = \gamma_0 - 0.30877\cdot 10^{-5}/s^2(1-0.00142\sin^2(B))h
+  \gamma  = \gamma_0 - 0.30877\cdot 10^{-5}/s^2(1-0.00142\sin^2(B))h + 0.72\cdot 10^{-12}/(m\,s^2)h^2
 \end{equation}
 and
 \begin{equation}
-\gamma_0 = 9.780327\,m/s^2(1+0.0053024\sin^2(B)-0.0000058\sin^2(2B))
+  \gamma_0 = \frac{a\gamma_a\cos^2(B)+b\gamma_b\sin^2(B)}{\sqrt{a^2\cos^2(B)+b^2\sin^2(B)}}
 \end{equation}
-where $h$ is the ellipsoidal height in meter and $B$ the longitude.
+where $h$ is the ellipsoidal height in meter, $B$ the ellipsoidal latitude,
+$a$, $b$ the semi-axes of the GRS80 ellipsoid and $\gamma_a=9.7803267715\,m/s^2$,
+$\gamma_b=9.8321863685\,m/s^2$ the normal gravity at the equator and at the
+pole, as given in GRS80 (Moritz 1980).
 
 The kernel is given by
 \begin{equation}

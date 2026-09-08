@@ -109,9 +109,8 @@ void Troposphere::computeEmpiricalCoefficients(const Time &time) const
 {
   try
   {
-    if(timeRef.mjdInt() == time.mjdInt())
+    if(std::fabs((time-timeRef).mjd()) < 1.+1./86400)
       return; // computing empirical coefficients once per day is sufficient, since they only have annual and semiannual variations
-
     timeRef = time;
 
     const Double t = (time.mjd()-J2000)/365.25;

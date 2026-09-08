@@ -13,30 +13,14 @@
 #define DOCSTRING docstring
 static const char *docstring = R"(
 Compute antenna accuracies from observation \configFile{inputfileResiduals}{instrument}.
-The \configFile{inputfileTransmitterInfo}{platform} is needed to assign
-the residuals to the equipped antenna at observation times.
+for each observed GNSS satellite. The \configFile{inputfileTransmitterInfo}{platform}
+is needed to assign the residuals to the equipped antenna at observation times.
+The file name is interpreted as a template with the variable \verb|{prn}|
+being replaced for each observed PRN.
+The \configFile{inputfileAccuracyDefinition}{gnssAntennaDefinition} must contain
+accuracy information of all GNSS satellites.
 
-The \configFile{outputfileAccuracyDefinition}{gnssAntennaDefinition} contains
-at first step the same accuracy information for all antennas as the input file.
-Only the azimuth~$A$ and elevation~$E$ dependent grid points of the patterns
-where enough residuals are available ($>$ \config{minRedundancy})
-are replaced by estimated accuracy
-\begin{equation}
- \sigma(A,E) = \sqrt{\frac{\sum_i e_i^2(A,E)}{\sum_i r_i(A,E)}},
-\end{equation}
-where $e_i$ are the azimuth and elevation dependent residuals and $r_i$ the
-corresponding redundancies (number of observations minus the contribution to
-the estimated parameters).
-
-The \configFile{inputfileAccuracyDefinition}{gnssAntennaDefinition} can be modified
-to the demands before with \program{GnssAntennaDefinitionCreate}
-(e.g. with \config{antenna:resample}).
-
-To verify the results the \configFile{outputfileAntennaMean}{gnssAntennaDefinition}
-and the accumulated \configFile{outputfileAntennaRedundancy}{gnssAntennaDefinition}
-of the computed pattern grid points can be written.
-
-See also \program{GnssResiduals2AccuracyDefinition}.
+For a more detailed description, see \program{GnssResiduals2AccuracyDefinition}.
 )";
 
 /***********************************************/
@@ -45,6 +29,7 @@ See also \program{GnssResiduals2AccuracyDefinition}.
 #include "files/fileInstrument.h"
 #include "files/filePlatform.h"
 #include "inputOutput/system.h"
+#include "misc/varianceComponentEstimation.h"
 
 /***** CLASS ***********************************/
 
@@ -68,13 +53,16 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
     FileName              fileNameTransmitterInfo, fileNameAntenna;
     std::vector<FileName> fileNameResiduals;
     Double                minRedundancy;
+    Double                huber, huberPower;
 
     readConfig(config, "outputfileAccuracyDefinition", fileNameAntennaAccuracy,   Config::OPTIONAL, "",   "elevation and azimuth dependent accuracy");
     readConfig(config, "outputfileAntennaMean",        fileNameAntennaMean,       Config::OPTIONAL, "",   "weighted mean of the residuals");
     readConfig(config, "outputfileAntennaRedundancy",  fileNameAntennaRedundancy, Config::OPTIONAL, "",   "redundancy of adjustment");
     readConfig(config, "inputfileAccuracyDefinition",  fileNameAntenna,           Config::MUSTSET,  "",   "apriori accuracies");
-    readConfig(config, "inputfileTransmitterInfo",     fileNameTransmitterInfo,   Config::MUSTSET,  "",   "to assign residuals to antennas");
-    readConfig(config, "minRedundancy",                minRedundancy,             Config::DEFAULT,  "3",  "min number of residuals. to estimate sigma");
+    readConfig(config, "inputfileTransmitterInfo",     fileNameTransmitterInfo,   Config::MUSTSET,  "{groopsDataDir}/gnss/transmitter/transmitterInfo/igs/igs20/transmitterInfo_igs20.{prn}.xml", "variable {prn} available, to assign residuals to antennas");
+    readConfig(config, "minRedundancy",                minRedundancy,             Config::DEFAULT,  "3",   "min. redundancy of residuals to estimate sigma");
+    readConfig(config, "huber",                        huber,                     Config::DEFAULT,  "2.5", "residuals > huber*sigma0 have been downweighted");
+    readConfig(config, "huberPower",                   huberPower,                Config::DEFAULT,  "1.5", "residuals > huber: sigma=(e/huber)^huberPower*sigma0");
     readConfig(config, "inputfileResiduals",           fileNameResiduals,         Config::MUSTSET,  "",   "GNSS receiver residuals");
     if(isCreateSchema(config)) return;
 
@@ -91,103 +79,88 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
         continue;
       }
 
-      InstrumentFile fileReceiver(fileName);
-      for(UInt arcNo=0; arcNo<fileReceiver.arcCount(); arcNo++)
+      for(auto &epoch : GnssReceiverArc(InstrumentFile::read(fileName)))
       {
-        GnssReceiverArc arc = fileReceiver.readArc(arcNo);
-        for(auto &epoch : arc)
+        UInt idObs = 0;
+        for(GnssType satType : epoch.satellite)
         {
-          UInt idObs = 0;
-          for(GnssType satType : epoch.satellite)
+          if(platforms.find(satType) == platforms.end())
           {
-            if(platforms.find(satType) == platforms.end())
+            VariableList fileNameVariableList;
+            fileNameVariableList.setVariable("prn", satType.prnStr());
+            readFilePlatform(fileNameTransmitterInfo(fileNameVariableList), platforms[satType]);
+            platforms[satType].fillGnssAntennaDefinition(antennaList);
+          }
+          // find antenna for epoch
+          auto ant = platforms[satType].findEquipment<PlatformGnssAntenna>(epoch.time);
+          if(!ant)
+            continue;
+          GnssAntennaDefinitionPtr antenna = ant->antennaDef;
+          if(!antenna)
+            continue;
+
+          Double azimuth=NAN_EXPR, elevation=NAN_EXPR;
+
+          // find type for the satellite system, loop over all obs for this satellite
+          UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), satType));
+          while((idType<epoch.obsType.size()) && (idObs<epoch.observation.size()) && (epoch.obsType.at(idType) == satType))
+          {
+            GnssType type  = epoch.obsType.at(idType++) + satType;
+            Double   value = epoch.observation.at(idObs++);
+
+            if(type == (GnssType::AZIMUT    + GnssType::L2)) {azimuth   = value; continue;}
+            if(type == (GnssType::ELEVATION + GnssType::L2)) {elevation = value; continue;}
+
+            Double redundancy=NAN_EXPR, sigma=NAN_EXPR;
+            if((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // next redundancy?
             {
-              VariableList fileNameVariableList;
-              fileNameVariableList.setVariable("prn", satType.prnStr());
-              readFilePlatform(fileNameTransmitterInfo(fileNameVariableList), platforms[satType]);
-              platforms[satType].fillGnssAntennaDefinition(antennaList);
+              type       = epoch.obsType.at(idType++);
+              redundancy = epoch.observation.at(idObs++);
             }
-            // find antenna for epoch
-            auto ant = platforms[satType].findEquipment<PlatformGnssAntenna>(epoch.time);
-            if(!ant)
-              continue;
-            GnssAntennaDefinitionPtr antenna = ant->antennaDef;
-            if(!antenna)
-              continue;
-              // throw(Exception(epoch.time.dateTimeStr()+": antenna not found: "+ant->str()));
-
-            // find type for the satellite system
-            UInt idType = 0;
-            while(epoch.obsType.at(idType) != satType)
-              idType++;
-
-            // azimuth and elevation
-            if((epoch.obsType.at(idType+0) != (GnssType::AZIMUT    + GnssType::L1)) ||
-               (epoch.obsType.at(idType+1) != (GnssType::ELEVATION + GnssType::L1)) ||
-               (epoch.obsType.at(idType+2) != (GnssType::AZIMUT    + GnssType::L2)) ||
-               (epoch.obsType.at(idType+3) != (GnssType::ELEVATION + GnssType::L2)))
-              throw(Exception("azimuth and elevation expected"));
-
-            const Double azimuth   = epoch.observation.at(idObs+2); // transmitter
-            const Double elevation = epoch.observation.at(idObs+3); // transmitter
-
-            idObs  += 4;  // skip azimuth and elevation
-            idType += 4;
-
-            // resiudals, redundancy, sigma/sigma0
-            while((idType<epoch.obsType.size()) && (idObs<epoch.observation.size()) && (epoch.obsType.at(idType) == satType))
+            if((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // next sigma?
             {
-              GnssType type  = epoch.obsType.at(idType++);
-              Double   value = epoch.observation.at(idObs++);
+              type  = epoch.obsType.at(idType++);
+              sigma = epoch.observation.at(idObs++);
+            }
+            while((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // other additional information?
+              idObs++, idType++;
 
-              Double redundancy=0, sigma=0;
-              if((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // next redundancy?
+            if(!value || std::isnan(value))
+              continue;
+
+            for(GnssAntennaPattern &pattern : antenna->patterns)
+              if(type+satType == pattern.type)
               {
-                type       = epoch.obsType.at(idType++);
-                redundancy = epoch.observation.at(idObs++);
-              }
-              if((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // next sigma?
-              {
-                type  = epoch.obsType.at(idType++);
-                sigma = epoch.observation.at(idObs++);
-              }
-              while((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // other additional information?
-                idObs++, idType++;
+                if(std::isnan(azimuth) || std::isnan(elevation))
+                  throw(Exception("file must contain azimuth and elevation."));
+                const UInt idxL = static_cast<UInt>(std::round((Double(azimuth)+2*PI)/(2*PI)*pattern.pattern.rows()))%pattern.pattern.rows();
+                const UInt idxB = static_cast<UInt>(std::round((PI/2-Double(elevation))/Double(pattern.dZenit)));
+                if(idxB >= pattern.pattern.columns())
+                  break;
 
-              if(!value)
-                continue;
-
-
-              for(GnssAntennaPattern &pattern : antenna->patterns)
-                if(type+satType == pattern.type)
+                if(!pattern.count.size())
                 {
-                  const UInt idxL = static_cast<UInt>(std::round((Double(azimuth)+2*PI)/(2*PI)*pattern.pattern.rows()))%pattern.pattern.rows();
-                  const UInt idxB = static_cast<UInt>(std::round((PI/2-Double(elevation))/Double(pattern.dZenit)));
-                  if(idxB >= pattern.pattern.columns())
-                    break;
-
-                  if(!pattern.count.size())
-                  {
-                    pattern.sum        = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
-                    pattern.ePe        = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
-                    pattern.redundancy = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
-                    pattern.count      = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
-                  }
-
-                  // residuals?
-                  if((redundancy > 0) && (sigma > 0))
-                  {
-                    const Double p = 1./std::pow(sigma, 2); // weight
-                    pattern.ePe(idxL,idxB)        += p * std::pow(value, 2);
-                    pattern.redundancy(idxL,idxB) += redundancy;
-                    pattern.sum(idxL,idxB)        += p * value;
-                    pattern.count(idxL,idxB)      += p;
-                  }
+                  pattern.ePe        = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
+                  pattern.redundancy = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
+                  pattern.sum        = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
+                  pattern.weight     = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
+                  pattern.count      = Matrix(pattern.pattern.rows(), pattern.pattern.columns());
                 }
-            } // while()
-          } // for(satType)
-        } // for(epoch)
-      } // for(arcNo)
+
+                // residuals?
+                if((redundancy > 0) && (sigma > 0))
+                {
+                  const Double p = 1./std::pow(sigma, 2); // weight
+                  pattern.ePe(idxL,idxB)        += p * std::pow(value, 2);
+                  pattern.redundancy(idxL,idxB) += redundancy;
+                  pattern.sum(idxL,idxB)        += p * value;
+                  pattern.weight(idxL,idxB)     += p;
+                  pattern.count(idxL,idxB)      += 1;
+                }
+              }
+          } // while()
+        } // for(satType)
+      } // for(epoch)
     } // for(idFile)
 
     // ============================
@@ -201,43 +174,54 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
           copy(Vector(pattern.pattern.rows(), sum(pattern.ePe       .column(0))), pattern.ePe       .column(0));
           copy(Vector(pattern.pattern.rows(), sum(pattern.redundancy.column(0))), pattern.redundancy.column(0));
           copy(Vector(pattern.pattern.rows(), sum(pattern.count     .column(0))), pattern.count     .column(0));
+          copy(Vector(pattern.pattern.rows(), sum(pattern.weight    .column(0))), pattern.weight    .column(0));
         }
 
     // ============================
 
+    for(auto &antenna : antennaList)
+      for(auto &pattern : antenna->patterns)
+        pattern.offset = Vector3d();
 
     if(!fileNameAntennaAccuracy.empty())
     {
+      // unbiased estimation of sigmas needs to consider huber downweighting
+      // -------------------------------------------------------------------
+      // numerical integration of normal distribution
+      constexpr Double dx = 1e-4;
+      Double x      = dx/2;
+      Double factor = 0;
+      for(; x<std::min(huber, 10.); x+=dx)
+        factor += std::exp(-0.5*x*x) * dx;
+      // variance of downweighted normal distribution
+      for(; x<10.; x+=dx)
+        factor += std::pow(x/huber, -2*huberPower) * std::exp(-0.5*x*x) * dx;
+      factor *= 2./std::sqrt(2*PI);
+
       logStatus<<"write accuracy definition <"<<fileNameAntennaAccuracy<<">"<<Log::endl;
       for(auto &antenna : antennaList)
         for(auto &pattern : antenna->patterns)
           if(pattern.count.size())
-          {
-            pattern.offset = Vector3d();
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
                 if(pattern.redundancy(i, k) >= minRedundancy)
-                  pattern.pattern(i, k) = std::sqrt(pattern.ePe(i, k)/pattern.redundancy(i, k)/pattern.count(i, k));
-          }
+                  pattern.pattern(i, k) = std::sqrt(factor*pattern.count(i, k)/pattern.weight(i, k))
+                                        * Vce::standardDeviation(pattern.ePe(i, k), pattern.redundancy(i, k), huber, huberPower);
       writeFileGnssAntennaDefinition(fileNameAntennaAccuracy, antennaList);
     }
-
-    for(auto &antenna : antennaList)
-      for(auto &pattern : antenna->patterns)
-      {
-        pattern.offset   = Vector3d();
-        pattern.pattern *= NAN_EXPR;
-      }
 
     if(!fileNameAntennaMean.empty())
     {
       logStatus<<"write antenna definition <"<<fileNameAntennaMean<<">"<<Log::endl;
       for(auto &antenna : antennaList)
         for(auto &pattern : antenna->patterns)
+        {
+          pattern.pattern *= NAN_EXPR;
           if(pattern.count.size())
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
-                pattern.pattern(i, k) = pattern.sum(i, k)/pattern.count(i, k);
+                pattern.pattern(i, k) = pattern.sum(i, k)/pattern.weight(i, k);
+        }
       writeFileGnssAntennaDefinition(fileNameAntennaMean, antennaList);
     }
 
@@ -246,11 +230,14 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
       logStatus<<"write redundancy <"<<fileNameAntennaRedundancy<<">"<<Log::endl;
       for(auto &antenna : antennaList)
         for(auto &pattern : antenna->patterns)
+        {
+          pattern.pattern *= NAN_EXPR;
           if(pattern.count.size())
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
                 if(pattern.redundancy(i, k) >= minRedundancy)
                   pattern.pattern(i, k) = pattern.redundancy(i, k);
+        }
       writeFileGnssAntennaDefinition(fileNameAntennaRedundancy, antennaList);
     }
   }

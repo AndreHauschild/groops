@@ -183,7 +183,7 @@ public:
   /** @brief Create tracks with continuously identical phase observations.
   * Tracks may contain gaps but must contain observations in at least @p minObsCountPerTrack epochs.
   * Extra types are included (e.g. L5*G), but tracks must have at least two others phases at different frequencies.*/
-  void createTracks(const std::vector<GnssTransmitterPtr> &transmitters, UInt minObsCountPerTrack, const std::vector<GnssType> &extraTypes={});
+  void createTracks(const std::vector<GnssTransmitterPtr> &transmitters, UInt minObsCountPerTrack);
 
   /** @brief delete track and all related observations. */
   void deleteTrack(UInt idTrack);
@@ -195,13 +195,17 @@ public:
   * Shortens the old track and returns the new track. Updates observation and observation equation @p eqn track assignments. */
   GnssTrackPtr splitTrack(ObservationEquationList &eqn, GnssTrackPtr track, UInt idEpochSplit);
 
+  /** @brief List of phase types that require special handling.
+  * L5 of BLOCK IIF has temporal changing bias. */
+  std::vector<GnssType> getExtraTypes(const ObservationEquationList &eqn, GnssTrackPtr track) const;
+
   void linearCombinations(ObservationEquationList &eqnList, GnssTrackPtr track, const std::vector<GnssType> &extraTypes,
                           std::vector<GnssType> &typesPhase, std::vector<UInt> &idEpochs, Matrix &combinations, Double &cycles2tecu) const;
 
   void rangeAndTec(ObservationEquationList &eqnList, UInt idTrans, const std::vector<UInt> &idEpochs,
                    const std::vector<GnssType> &typesPhase, Vector &range, Vector &tec) const;
 
-  void writeTracks(const FileName &fileName, ObservationEquationList &eqnList, const std::vector<GnssType> &extraTypes) const;
+  void writeTracks(const FileName &fileName, ObservationEquationList &eqnList) const;
 
   /** @brief Splits tracks at detected cycle slips.
   * Based on all Melbourne-Wuebbena like combinations.
@@ -213,8 +217,8 @@ public:
   * @param windowSize Size of the moving window used for the TEC smoothness evaluation. If 0, TEC is not analyzed.
   * @param tecSigmaFactor Factor applied to moving standard deviation of AR model residuals to determine threshold for peak/outlier detection.
   * @param extraTypes GPS L5 observations are handled separately due to temporal changing bias.*/
-  void cycleSlipsDetection(ObservationEquationList &eqnList, UInt minObsCountPerTrack, Double lambda, UInt windowSize, Double tecSigmaFactor, const std::vector<GnssType> &extraTypes={});
-  void cycleSlipsDetection(ObservationEquationList &eqnList, GnssTrackPtr track, Double lambda, UInt windowSize, Double tecSigmaFactor, const std::vector<GnssType> &extraTypes);
+  void cycleSlipsDetection(ObservationEquationList &eqnList, UInt minObsCountPerTrack, Double lambda, UInt windowSize, Double tecSigmaFactor);
+  void cycleSlipsDetection(ObservationEquationList &eqnList, GnssTrackPtr track, Double lambda, UInt windowSize, Double tecSigmaFactor);
 
   /** @brief repair cycle slip differences at same frequencies (e.g. between L1CG and L1WG).
   * Allows to reduce the number of integer ambiguities.
@@ -223,7 +227,7 @@ public:
 
   /** @brief Track outlier detection based on robust least squares estimation.
   * Downweights outliers and prereduces observations by estimated integer ambiguities. */
-  void trackOutlierDetection(const ObservationEquationList &eqn, const std::vector<GnssType> &ignoreTypes, Double huber, Double huberPower);
+  void trackOutlierDetection(const ObservationEquationList &eqn, Double huber, Double huberPower);
 
   /** @brief Total variation denoising.
   * Solves the total variation regularized least-squares problem.

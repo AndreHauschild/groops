@@ -86,12 +86,15 @@ the residuals to the equipped antenna at observation times.</p><p>The <a class="
 at first step the same accuracy information for all antennas as the input file.
 Only the azimuth $A$ and elevation $E$ dependent grid points of the patterns
 where enough residuals are available ($>$ <strong class="groops-config-element">minRedundancy</strong>)
-are replaced by estimated accuracy
+are replaced by the estimated robust weighted accuracy
 \begin{equation}
- \sigma(A,E) = \sqrt{\frac{\sum_i e_i^2(A,E)}{\sum_i r_i(A,E)}},
+  \sigma(A,E) = \sqrt{\alpha\frac{\sum_i e_i^2 p_i}{\sum_i r_i \bar{p}}},
 \end{equation}where $e_i$ are the azimuth and elevation dependent residuals and $r_i$ the
 corresponding redundancies (number of observations minus the contribution to
-the estimated parameters).</p><p>The <a class="groops-class" href="fileFormat_gnssAntennaDefinition.html">inputfileAccuracyDefinition</a> can be modified
+the estimated parameters). The weights $p_i=1/\sigma_i^2$ are computed from the
+estimated accuracies in the least squares adjustment. Since large outliers are downweighted
+using <strong class="groops-config-element">huber</strong> and <strong class="groops-config-element">huberPower</strong>, a correction factor $\alpha$ must be applied to
+obtain an unbiased estimate of $\sigma$.</p><p>The <a class="groops-class" href="fileFormat_gnssAntennaDefinition.html">inputfileAccuracyDefinition</a> can be modified
 to the demands before with <a class="groops-program" href="GnssAntennaDefinitionCreate.html">GnssAntennaDefinitionCreate</a>
 (e.g. with <strong class="groops-config-element">antenna:resample</strong>).</p><p>To verify the results the <a class="groops-class" href="fileFormat_gnssAntennaDefinition.html">outputfileAntennaMean</a>
 and the accumulated <a class="groops-class" href="fileFormat_gnssAntennaDefinition.html">outputfileAntennaRedundancy</a>
@@ -99,7 +102,7 @@ of the computed pattern grid points can be written.</p><p>Example: Analysis of T
 GPS satellites are not tracked by the onboard receiver. An estimation of accuracies
 for these directions is not possible from the residuals and the apriori accuracies
 are left untouched. The other directions show very low phase noise hardly elevation
-and azimuth dependent for L2W. A nearly zero mean indicates the use of adequate antennca
+and azimuth dependent for L2W. A nearly zero mean indicates the use of adequate antenna
 center variations in the processing.</p><p><figure><img class="figure" style="width:80%;" src="../figures/gnssResiduals2AccuracyDefinition.png" alt="gnssResiduals2AccuracyDefinition"><figcaption class="center">Figure: L2W accuracies of TerraSAR-X determined from residuals of one month</figcaption></figure></p><p>See also <a class="groops-program" href="GnssResiduals2TransmitterAccuracyDefinition.html">GnssResiduals2TransmitterAccuracyDefinition</a>.
 </p>
 <table class="table table-hover">
@@ -110,9 +113,10 @@ center variations in the processing.</p><p><figure><img class="figure" style="wi
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">inputfileAccuracyDefinition</div></div></td><td>filename</td><td>apriori accuracies</td></tr>
 <tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset">inputfileStationInfo</div></div></td><td>filename</td><td>to assign residuals to antennas</td></tr>
 <tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">isTransmitter</div></div></td><td>boolean</td><td>stationInfo is of a transmitter</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">thresholdOutlier</div></div></td><td>double</td><td>ignore residuals with sigma/sigma0 greater than threshold</td></tr>
-<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">minRedundancy</div></div></td><td>double</td><td>min number of residuals. to estimate sigma</td></tr>
-<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">inputfileResiduals</div></div></td><td>filename</td><td>GNSS receiver residuals</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">minRedundancy</div></div></td><td>double</td><td>min. redundancy of residuals to estimate sigma</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">huber</div></div></td><td>double</td><td>residuals > huber*sigma0 have been downweighted</td></tr>
+<tr class="table-light"><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config optional">huberPower</div></div></td><td>double</td><td>residuals > huber: sigma=(e/huber)^huberPower*sigma0</td></tr>
+<tr class=""><td class="m-0"><div class="h-100 config-tree depth-0"><div class="h-100 config mustset-unbounded">inputfileResiduals</div></div></td><td>filename</td><td>GNSS receiver residuals</td></tr>
 </table>
 
         </div>
