@@ -577,6 +577,7 @@ void DocumentationHtml::writeText(const std::string &text)
           else if(cmd == "config")      {checkBrackets();  html = R"(<strong class="groops-config-element">)" + token.at(i).text + R"(</strong>)"; addToSearchTokens(token.at(i).text); }
           else if(cmd == "configClass") {checkBrackets(2); html = R"(<a class="groops-class" href=")" + reference(token.at(i).text) + R"(">)" + token.at(i-1).text + R"(</a>)"; addToSearchTokens(token.at(i-i).text);}
           else if(cmd == "configFile")  {checkBrackets(2); html = R"(<a class="groops-class" href=")" + reference("fileFormat_"+token.at(i).text) + R"(">)" + token.at(i-1).text + R"(</a>)"; addToSearchTokens(token.at(i-i).text);}
+          else if(cmd == "configVar")   {checkBrackets();  html = R"(<strong class="groops-config-variable">)" + token.at(i).text + R"(</strong>)"; addToSearchTokens(token.at(i).text); }
           else if(cmd == "file")        {checkBrackets(2); html = R"(<a class="groops-file" href=")" + reference("fileFormat_"+token.at(i).text) + R"(">)" + token.at(i-1).text + R"(</a>)"; addToSearchTokens(token.at(i-1).text); }
           else if(cmd == "reference")   {checkBrackets(2); html = R"(<a class="groops-ref" href=")" + reference(token.at(i).text) + R"(">)" + token.at(i-1).text + R"(</a>)"; addToSearchTokens(token.at(i-1).text); }
           else if(cmd == "ref")         {checkBrackets();  html = R"(<a href=")" + reference(token.at(i).text) + R"(">)" + token.at(i).text + R"(</a>)";}

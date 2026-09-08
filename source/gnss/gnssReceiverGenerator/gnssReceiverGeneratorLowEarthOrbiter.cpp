@@ -204,7 +204,7 @@ void GnssReceiverGeneratorLowEarthOrbiter::preprocessing(Gnss *gnss, Parallel::C
     {
       try
       {
-        recv->createTracks(gnss->transmitters, minObsCountPerTrack, {GnssType::L5_G});
+        recv->createTracks(gnss->transmitters, minObsCountPerTrack);
         std::vector<Vector3d> posApriori = recv->pos;
         recv->pos = recv->estimateInitialClockErrorFromCodeObservations(gnss->transmitters, gnss->funcRotationCrf2Trf, gnss->funcReduceModels, huber, huberPower, TRUE/*estimateKinematicPosition*/);
         // observation equations based on positions from code observations
@@ -212,11 +212,11 @@ void GnssReceiverGeneratorLowEarthOrbiter::preprocessing(Gnss *gnss, Parallel::C
         recv->pos = std::move(posApriori); // restore apriori positions
 
         recv->disableEpochsWithGrossCodeObservationOutliers(eqn, codeMaxPosDiff, 0.5);
-        recv->writeTracks(fileNameTrackBefore, eqn, {GnssType::L5_G});
-        recv->cycleSlipsDetection(eqn, minObsCountPerTrack, denoisingLambda, tecWindowSize, tecSigmaFactor, {GnssType::L5_G});
-        recv->trackOutlierDetection(eqn, {GnssType::L5_G}, huber, huberPower);
+        recv->writeTracks(fileNameTrackBefore, eqn);
+        recv->cycleSlipsDetection(eqn, minObsCountPerTrack, denoisingLambda, tecWindowSize, tecSigmaFactor);
+        recv->trackOutlierDetection(eqn, huber, huberPower);
         recv->cycleSlipsRepairAtSameFrequency(eqn);
-        recv->writeTracks(fileNameTrackAfter, eqn, {GnssType::L5_G});
+        recv->writeTracks(fileNameTrackAfter, eqn);
 
         // apply factors for accuracies from expressions
         if(exprSigmaPhase || exprSigmaCode)

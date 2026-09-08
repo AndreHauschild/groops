@@ -126,6 +126,16 @@ td {
    font-weight: bold;
 }
 
+.groops-config-variable
+{
+  background-image: url("link.svg");
+  background-repeat: no-repeat;
+  background-position: center left;
+  background-size: 1.0em;
+  padding-left: 1.2em;
+  font-weight: bold;
+}
+
 .groops-file
 {
    background-image: url("file.svg");
