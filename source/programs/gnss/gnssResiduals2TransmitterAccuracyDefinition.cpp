@@ -111,6 +111,9 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
             if(type == (GnssType::AZIMUT    + GnssType::L2)) {azimuth   = value; continue;}
             if(type == (GnssType::ELEVATION + GnssType::L2)) {elevation = value; continue;}
 
+            if(type == GnssType::IONODELAY)
+              continue;
+
             Double redundancy=NAN_EXPR, sigma=NAN_EXPR;
             if((idType < epoch.obsType.size()) && (type == epoch.obsType.at(idType))) // next redundancy?
             {
@@ -225,6 +228,13 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
       writeFileGnssAntennaDefinition(fileNameAntennaMean, antennaList);
     }
 
+    for(auto &antenna : antennaList)
+      for(auto &pattern : antenna->patterns)
+      {
+        pattern.offset   = Vector3d();
+        pattern.pattern *= NAN_EXPR;
+      }
+
     if(!fileNameAntennaRedundancy.empty())
     {
       logStatus<<"write redundancy <"<<fileNameAntennaRedundancy<<">"<<Log::endl;
@@ -235,7 +245,7 @@ void GnssResiduals2TransmitterAccuracyDefinition::run(Config &config, Parallel::
           if(pattern.count.size())
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
-                if(pattern.redundancy(i, k) >= minRedundancy)
+                if(pattern.count(i, k) >= minRedundancy)
                   pattern.pattern(i, k) = pattern.redundancy(i, k);
         }
       writeFileGnssAntennaDefinition(fileNameAntennaRedundancy, antennaList);

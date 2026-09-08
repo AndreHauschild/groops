@@ -268,6 +268,16 @@ void GnssAntex2AntennaDefinition::run(Config &config, Parallel::CommunicatorPtr 
           }
           getLine(file, line, label);
         }
+
+        // skip comments (are actually disallowed in antenna block)
+        while(testLabel(label, "COMMENT", TRUE))
+        {
+          if(!antennaInfo.comment.empty())
+            antennaInfo.comment += "\n";
+          antennaInfo.comment += String::trim(line.substr(0,60));
+          getLine(file, line, label);
+        }
+
       }
       testLabel(label, "END OF ANTENNA");
 

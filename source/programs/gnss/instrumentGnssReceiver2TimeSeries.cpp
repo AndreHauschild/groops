@@ -18,6 +18,7 @@ For each epoch the first data column contains the PRN, the second the satellite 
 followed by a column for each GNSS \configClass{type}{gnssType}.
 As normally more than one GNSS transmitter is tracked per epoch, the output file
 has several lines per observed epoch (epochs with the same time, one for each transmitter).
+If no observation is available for a selected GNSS \configClass{type}{gnssType}, NAN is inserted.
 
 The second data column of the output contains a number representing the system
 \begin{itemize}
