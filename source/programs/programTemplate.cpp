@@ -26,6 +26,8 @@ Describe elements with \config{factor}.
 Description of config elements with links with \configClass{configElement}{gravityfieldType}
 contains the name of config element and name of the class.
 
+To describe variables with link-symbol in cookbooks use \configVar{variableName}.
+
 Description of file formats: The \configFile{outputfileEOP}{matrix} is a matrix \ldots
 or alternatively: The \config{outputfileEOP} is a \file{matrix}{matrix}  \ldots
 (file types: admittance, arcList, doodsonEarthOrientationParameter, doodsonHarmonic, earthOrientationParameter, earthTide,

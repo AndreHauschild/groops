@@ -178,27 +178,14 @@ TreeElement *TreeElementGlobal::addChild(TreeElement *targetElement, const QStri
     }
 
     // check label
-    if(newLabel.isEmpty())
+    QRegularExpression regex("^[a-zA-Z]([a-zA-Z0-9])*$");
+    if(!regex.match(newLabel).hasMatch())
     {
       if(xmlNode)
         newLabel = xmlNode->getName(); // default name
-      bool ok = true;
-      newLabel = QInputDialog::getText(tree, tr("Add global element - GROOPS"), tr("Name of global element:"), QLineEdit::Normal, newLabel, &ok);
-      if(!ok)
+      if(!tree->getValidLabelDialog(tr("Add global element - GROOPS"), newLabel))
         return nullptr;
     }
-
-    // check label
-    QStringList existingNames;
-    for(auto child : children())
-      if(!child->label().isEmpty())
-        existingNames.push_back(child->label());
-    QRegularExpression regex("^[a-zA-Z]([a-zA-Z0-9])*$");
-    bool ok = true;
-    while(ok && (newLabel.isEmpty() || existingNames.contains(newLabel) || !regex.match(newLabel).hasMatch()))
-      newLabel = QInputDialog::getText(tree, tr("Add global element - GROOPS"), tr("Name already exists or is invalid (only letters and digits allowed)!\nChoose another name:"), QLineEdit::Normal, newLabel, &ok);
-    if(!ok)
-      return nullptr;
 
     if(xmlNode)
     {
