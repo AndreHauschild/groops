@@ -279,13 +279,6 @@ void GnssResiduals2AccuracyDefinition::run(Config &config, Parallel::Communicato
       writeFileGnssAntennaDefinition(fileNameAntennaMean, antennaList);
     }
 
-    for(auto &antenna : antennaList)
-      for(auto &pattern : antenna->patterns)
-      {
-        pattern.offset   = Vector3d();
-        pattern.pattern *= NAN_EXPR;
-      }
-
     if(!fileNameAntennaRedundancy.empty())
     {
       logStatus<<"write redundancy <"<<fileNameAntennaRedundancy<<">"<<Log::endl;
