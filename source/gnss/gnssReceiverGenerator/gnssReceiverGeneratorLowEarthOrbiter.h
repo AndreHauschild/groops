@@ -46,7 +46,7 @@ class GnssReceiverGeneratorLowEarthOrbiter : public GnssReceiverGeneratorBase
   Bool                  integerAmbiguities;
   Double                wavelengthFactor;
   Angle                 elevationCutOff;
-  std::vector<GnssType> useType, ignoreType, extraType;
+  std::vector<GnssType> useType, ignoreType;
   GnssAntennaDefinition::NoPatternFoundAction noPatternFoundAction;
   Bool                  printInfo;
   Double                huber, huberPower;
