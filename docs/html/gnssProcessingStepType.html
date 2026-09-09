@@ -242,7 +242,19 @@ is set only the selected parameters are written.
 Writes the <a class="groops-file" href="fileFormat_instrument.html">observation residuals</a> for all
 <a class="groops-class" href="platformSelectorType.html">selectReceivers</a>.
 For each station a file is written. The file name is interpreted as
-a template with the variable <code>{station}</code> being replaced by the station name.
+a template with the variable <code>{station}</code> being replaced by the station name.</p><p>A <a class="groops-file" href="fileFormat_instrument.html">GNSS residual file</a> includes additional information
+besides the residuals
+<ul>
+
+<li><code>A1*</code>, <code>E1*</code>: azimuth and elevation at receiver
+</li><li>
+<code>A2*</code>, <code>E2*</code>: azimuth and elevation at transmitter
+</li><li>
+<code>I**</code>: Estimated slant total electron content (STEC)
+</li></ul>
+</p><p>Furthermore these files include for each residual information about
+the redundancy and the estimated accuracy $\sigma$ from the least squares adjustment.
+The 3 values (residuals, redundancy, $\sigma$) are coded with the same type.
 </p>
 <table class="table table-hover">
 <tr class="table-primary"><th>Name</th><th>Type</th><th>Annotation</th></tr>

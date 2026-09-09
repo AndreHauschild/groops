@@ -29,9 +29,8 @@ besides the residuals, which can also be selected with \configClass{type}{gnssTy
 \end{itemize}
 
 Furthermore these files may include for each residual \configClass{type}{gnssType}
-information about the redundancy and the accuracy relation $\sigma/\sigma_0$
-of the estimated $\sigma$ versus the apriori $\sigma_0$ from the least squares adjustment.
-The 3 values (residuals, redundancy, $\sigma/\sigma_0$) are coded with the same type.
+information about the redundancy and the accuracy $\sigma$ from the least squares adjustment.
+The 3 values (residuals, redundancy, $\sigma$) are coded with the same type.
 To get access to all values the corresponding type must be repeated in \configClass{type}{gnssType}.
 
 \fig{!hb}{0.5}{gnssResiduals2Skyplot}{fig:gnssResiduals2Skyplot}{GPS C2W residuals of GRAZ station at 2012-01-01}
@@ -92,62 +91,53 @@ void GnssResiduals2Skyplot::run(Config &config, Parallel::CommunicatorPtr /*comm
         continue;
       }
 
-      InstrumentFile fileReceiver(fileName);
-      for(UInt arcNo=0; arcNo<fileReceiver.arcCount(); arcNo++)
+      for(auto &epoch : GnssReceiverArc(InstrumentFile::read(fileName)))
       {
-        GnssReceiverArc arc = fileReceiver.readArc(arcNo);
-        for(auto &epoch : arc)
+        UInt idObs = 0;
+        for(GnssType satType : epoch.satellite)
         {
-          UInt idObs = 0;
-          for(GnssType satType : epoch.satellite)
+          Bool                  found = FALSE;
+          Double                azimuth=NAN_EXPR, elevation=NAN_EXPR;
+          std::vector<GnssType> typesTmp = types;
+          std::vector<Double>   valuesPerPoint(types.size(), NAN_EXPR);
+
+          // find type for the satellite system, loop over all obs for this satellite
+          UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), satType));
+          for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType)==satType); idType++, idObs++)
           {
-            // find type for the satellite system
-            UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), satType));
+            const GnssType type  = epoch.obsType.at(idType) + satType;
+            const Double   value = epoch.observation.at(idObs);
 
-            // azimuth and elevation
-            if((epoch.obsType.at(idType+0) != (GnssType::AZIMUT    + GnssType::L1)) ||
-               (epoch.obsType.at(idType+1) != (GnssType::ELEVATION + GnssType::L1)) ||
-               (epoch.obsType.at(idType+2) != (GnssType::AZIMUT    + GnssType::L2)) ||
-               (epoch.obsType.at(idType+3) != (GnssType::ELEVATION + GnssType::L2)))
-              throw(Exception("azimuth and elevation expected"));
-
-            Double azimuth   = epoch.observation.at(idObs+0);
-            Double elevation = epoch.observation.at(idObs+1);
             if(!typeTransmitter.hasWildcard(GnssType::PRN)) // isTransmitter
             {
-              azimuth   = epoch.observation.at(idObs+2);
-              elevation = epoch.observation.at(idObs+3);
+              if(type == (GnssType::AZIMUT    + GnssType::L2)) azimuth   = value;
+              if(type == (GnssType::ELEVATION + GnssType::L2)) elevation = value;
             }
-            const Vector3d point = ellipsoid(Angle(azimuth), Angle(elevation), 0);
-
-            idObs  += 4;  // skip azimuth and elevation
-            idType += 4;
-
-            Bool                  found = FALSE;
-            std::vector<Double>   valuesPerPoint(types.size(), NAN_EXPR);
-            std::vector<GnssType> typesTmp = types;
-            while((idType<epoch.obsType.size()) && (idObs<epoch.observation.size()) && (epoch.obsType.at(idType) == satType))
+            else
             {
-              const GnssType type  = epoch.obsType.at(idType++) + satType;
-              const Double   value = epoch.observation.at(idObs++);
-              const UInt     idx   = GnssType::index(typesTmp, type);
-              if((idx != NULLINDEX) && (type == typeTransmitter) && value)
-              {
-                valuesPerPoint.at(idx) = value;
-                typesTmp.at(idx) = GnssType(static_cast<UInt64>(-1));
-                found = TRUE;
-              }
-            } // while()
-
-            if(found)
-            {
-              points.push_back(point);
-              for(UInt i=0; i<values.size(); i++)
-                values.at(i).push_back(valuesPerPoint.at(i));
+              if(type == (GnssType::AZIMUT    + GnssType::L1)) azimuth   = value;
+              if(type == (GnssType::ELEVATION + GnssType::L1)) elevation = value;
             }
-          } // for(satType)
-        } // for(epoch)
-      } // for(arcNo)
+
+            UInt idx;
+            if(type.isInList(typesTmp, idx) && (type == typeTransmitter) && value && !std::isnan(value))
+            {
+              valuesPerPoint.at(idx) = value;
+              typesTmp.at(idx) = GnssType(static_cast<UInt64>(-1)); // disable types already found
+              found = TRUE;
+            }
+          } // for(idObs)
+
+          if(found)
+          {
+            if(std::isnan(azimuth) || std::isnan(elevation))
+              throw(Exception("file must contain azimuth and elevation."));
+            points.push_back(ellipsoid(Angle(azimuth), Angle(elevation), 0));
+            for(UInt i=0; i<values.size(); i++)
+              values.at(i).push_back(valuesPerPoint.at(i));
+          }
+        } // for(satType)
+      } // for(epoch)
     } // for(idFile)
 
     // ============================
