@@ -127,15 +127,11 @@ void InstrumentEstimateHelmertTransformation::run(Config &config, Parallel::Comm
       UInt epochCount = 0;
       for(const auto &d : data)
         epochCount += d.intervalBoundaries.at(idInterval+1) - d.intervalBoundaries.at(idInterval);
-      if(epochCount == 0)
+      if(3*epochCount < paramCount*trendCount)
       {
-        logWarning<<"No data found in interval "+intervals.at(idInterval).dateTimeStr()+" -> "+intervals.at(idInterval+1).dateTimeStr()+". continue with next interval"<<Log::endl;
+        logWarning<<"Not enough data found in interval "+intervals.at(idInterval).dateTimeStr()+" -> "+intervals.at(idInterval+1).dateTimeStr()+". continue with next interval"<<Log::endl;
         return;
       }
-
-      // check if interval is solvable
-      if(3*static_cast<UInt>(std::count_if(data.begin(), data.end(), [&](const Data &d){ return ((d.intervalBoundaries.at(idInterval+1)-d.intervalBoundaries.at(idInterval)) >= trendCount); })) < paramCount)
-        throw(Exception("interval "+intervals.at(idInterval).dateTimeStr()+" -> "+intervals.at(idInterval+1).dateTimeStr()+" not solvable"));
 
       // set up observation vector and design matrix
       UInt idRow = 0;

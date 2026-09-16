@@ -74,6 +74,7 @@ void GraceAod2TimeSplines::run(Config &config, Parallel::CommunicatorPtr /*comm*
       {
         logStatus<<"read file <"<<fileNameIn.at(idFile)<<">"<<Log::endl;
         InFile file(fileNameIn.at(idFile));
+        file.exceptions(std::ios::badbit|std::ios::failbit);
 
         // Header
         std::string line;
@@ -105,6 +106,7 @@ void GraceAod2TimeSplines::run(Config &config, Parallel::CommunicatorPtr /*comm*
         for(UInt k=0; k<dataCount; k++)
         {
           // Data Header
+          std::string line;
           std::getline(file, line);
 
           Int year, month, day, hour;

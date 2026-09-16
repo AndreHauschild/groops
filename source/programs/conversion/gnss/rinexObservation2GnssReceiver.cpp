@@ -196,12 +196,12 @@ void RinexObservation2GnssReceiver::run(Config &config, Parallel::CommunicatorPt
       }
       catch(std::exception &e)
       {
-        logWarning<<e.what()<<"; continue..."<<Log::endl;
+        logWarning<<e.what()<<"in <"<<fileName<<">; continue..."<<Log::endl;
       }
     }
 
     if(receiverArc.size() == 0)
-      throw(Exception("empty arc"));
+      throw(Exception("no data found"));
 
     receiverArc.sort();
     receiverArc.removeDuplicateEpochs(/*keepFirst*/FALSE);
@@ -898,7 +898,7 @@ Bool RinexObservation2GnssReceiver::testLabel(const std::string &labelInLine, co
     return TRUE;
   if(optional)
     return FALSE;
-  throw(Exception(std::string("In line '")+labelInLine+"' label '"+label+"' expected\n"));
+  throw(Exception(std::string("In line '")+labelInLine+"' label '"+label+"' expected"));
 }
 
 /***********************************************/
