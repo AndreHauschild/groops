@@ -289,7 +289,8 @@ void GnssResiduals2AccuracyDefinition::run(Config &config, Parallel::Communicato
           if(pattern.count.size())
             for(UInt i=0; i<pattern.pattern.rows(); i++)
               for(UInt k=0; k<pattern.pattern.columns(); k++)
-                pattern.pattern(i, k) = pattern.redundancy(i, k);
+                if(pattern.redundancy(i, k) >= minRedundancy)
+                  pattern.pattern(i, k) = pattern.redundancy(i, k);
         }
       writeFileGnssAntennaDefinition(fileNameAntennaRedundancy, antennaList);
     }
