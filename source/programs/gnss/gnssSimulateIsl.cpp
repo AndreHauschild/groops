@@ -120,10 +120,15 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
         {
           readFile(fileNameSchedule(fileNameVariableList),gnss.times,seconds2time(marginSeconds),scheduleIsl);
         }
-        catch(std::exception &/*e*/)
+        catch(std::exception &e)
         {
-          logWarning<<"Unable to read ISL schedule <"<<fileNameSchedule(fileNameVariableList)<<">, skipping satellite."<<Log::endl;
-          continue;
+          if (std::string(e.what()).find("error by opening file") != std::string::npos)
+          {
+            logWarning<<"Unable to read ISL schedule <"<<fileNameSchedule(fileNameVariableList)<<">, skipping satellite."<<Log::endl;
+            continue;
+          }
+          else
+            GROOPS_RETHROW_EXTRA("In scheduler file <"+fileNameSchedule(fileNameVariableList).str()+"> : ",e)
         }
         if(!scheduleIsl.size())
         {
@@ -274,7 +279,8 @@ void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time>
       Time   time   = Time(mjdInt,mjdMod);
 
       std::stringstream ss(line.substr(27));
-      ss>>prn_>>chaTx_>>chaRx_;
+      if(!(ss>>prn_>>chaTx_>>chaRx_))
+        throw(Exception("corrupt line"));
 
       if(arc.size() && (time<arc.back().time))
         throw(Exception("epochs not in increasing order"));
