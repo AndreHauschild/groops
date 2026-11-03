@@ -1104,12 +1104,11 @@ These simulated observations can then be used in \program{GnssProcessing}, for e
 
 One or more GNSS constellations must be defined via \configClass{transmitter}{gnssTransmitterGeneratorType}.
 
+Noise can be added to the observations via \configClass{noiseObervation}{noiseGeneratorType}. Observation noise is
+interpreted as a factor that is multiplied to the sigma specified for the ISL terminal in the \file{Platform file}{platform}.
+
 The \configClass{parametrization}{gnssParametrizationType} are used to simulate a-priori models (e.g. ISL biases).
 Parameter settings and output files are ignored.
-
-The option \config{noiseObservation} specifies the sigma of the noise which is applied to the simulated observations.
-
-The option \config{sigmaObservation} sets the expected sigma of the observations used as weights in the parameter estimation.
 
 The output is written as a \file{GNSS receiver file}{instrument} file with the following GnssTypes:
 
@@ -1135,8 +1134,7 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~islSchedule & \hfuzz=500pt filename & \hfuzz=500pt variable \{prn\} available, schedule with ISL connections\\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~earthRotation & \hfuzz=500pt \hyperref[earthRotationType]{earthRotation} & \hfuzz=500pt apriori earth rotation\\
 \hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~parametrization & \hfuzz=500pt \hyperref[gnssParametrizationType]{gnssParametrization} & \hfuzz=500pt models and parameters\\
-\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~noiseObservation & \hfuzz=500pt \hyperref[noiseGeneratorType]{noiseGenerator} & \hfuzz=500pt [m] ISL observation noise (simulated)\\
-\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~sigmaObservation & \hfuzz=500pt double & \hfuzz=500pt [m] ISL observation sigma (for observation weighting)\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~noiseObservation & \hfuzz=500pt \hyperref[noiseGeneratorType]{noiseGenerator} & \hfuzz=500pt [-] noise is multiplied with ISL terminal sigma\\
 \hline
 \end{tabularx}
 
@@ -4940,7 +4938,8 @@ Name & Type & Annotation\\
 \hfuzz=500pt\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~islTerminal & \hfuzz=500pt sequence & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~name & \hfuzz=500pt string & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~serial & \hfuzz=500pt string & \hfuzz=500pt \\
-\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~terminalId & \hfuzz=500pt string & \hfuzz=500pt Terminal identifier (unsigned integer number)\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~terminalId & \hfuzz=500pt string & \hfuzz=500pt terminal identifier (unsigned integer number)\\
+\hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element-mustset.pdf}~sigma & \hfuzz=500pt double & \hfuzz=500pt  [m] terminal observation sigma\\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~comment & \hfuzz=500pt string & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~timeStart & \hfuzz=500pt time & \hfuzz=500pt \\
 \hfuzz=500pt\quad\includegraphics[width=1em]{connector.pdf}\includegraphics[width=1em]{element.pdf}~timeEnd & \hfuzz=500pt time & \hfuzz=500pt \\

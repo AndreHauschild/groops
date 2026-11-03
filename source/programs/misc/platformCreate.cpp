@@ -259,7 +259,8 @@ static PlatformEquipmentPtr createEquipmentIslTerminal(Config &config)
 
     readConfig(config, "name",      var->name,         Config::MUSTSET,  "",  "");
     readConfig(config, "serial",    var->serial,       Config::MUSTSET,  "",  "");
-    readConfig(config, "terminalId",var->terminalId,   Config::MUSTSET,  "",  "Terminal identifier (unsigned integer number)");
+    readConfig(config, "terminalId",var->terminalId,   Config::MUSTSET,  "",  "terminal identifier (unsigned integer number)");
+    readConfig(config, "sigma",     var->sigma,        Config::MUSTSET,  "",  " [m] terminal observation sigma");
     readConfig(config, "comment",   var->comment,      Config::OPTIONAL, "",  "");
     readConfig(config, "timeStart", var->timeStart,    Config::OPTIONAL, "",  "");
     readConfig(config, "timeEnd",   var->timeEnd,      Config::OPTIONAL, "",  "");

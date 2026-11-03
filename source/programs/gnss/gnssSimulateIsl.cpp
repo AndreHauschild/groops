@@ -17,12 +17,11 @@ These simulated observations can then be used in \program{GnssProcessing}, for e
 
 One or more GNSS constellations must be defined via \configClass{transmitter}{gnssTransmitterGeneratorType}.
 
+Noise can be added to the observations via \configClass{noiseObervation}{noiseGeneratorType}. Observation noise is
+interpreted as a factor that is multiplied to the sigma specified for the ISL terminal in the \file{Platform file}{platform}.
+
 The \configClass{parametrization}{gnssParametrizationType} are used to simulate a-priori models (e.g. ISL biases).
 Parameter settings and output files are ignored.
-
-The option \config{noiseObservation} specifies the sigma of the noise which is applied to the simulated observations.
-
-The option \config{sigmaObservation} sets the expected sigma of the observations used as weights in the parameter estimation.
 
 The output is written as a \file{GNSS receiver file}{instrument} file with the following GnssTypes:
 
@@ -75,7 +74,6 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     GnssParametrizationPtr      gnssParametrization;
     EarthRotationPtr            earthRotation;
     NoiseGeneratorPtr           noiseObs;
-    Double                      sigmaObs;
 
     readConfig(config, "outputfileGnssIsl", fileNameIsl,          Config::MUSTSET,  "gnssIsl_{loopTime:%D}.{prn}.dat.gz", "variable {prn} available, simulated observations");
     readConfig(config, "timeSeries",        timeSeries,           Config::MUSTSET,  "",    "defines observation epochs");
@@ -84,8 +82,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     readConfig(config, "islSchedule",       fileNameSchedule,     Config::MUSTSET,  "islSchedule_{loopTime:%D}.{prn}.txt", "variable {prn} available, schedule with ISL connections");
     readConfig(config, "earthRotation",     earthRotation,        Config::MUSTSET,  "",    "apriori earth rotation");
     readConfig(config, "parametrization",   gnssParametrization,  Config::DEFAULT,  R"(["signalBiasesIsl"])", "models and parameters");
-    readConfig(config, "noiseObservation",  noiseObs,             Config::DEFAULT,  "",    "[m] ISL observation noise (simulated)");
-    readConfig(config, "sigmaObservation",  sigmaObs,             Config::MUSTSET,  "0.01","[m] ISL observation sigma (for observation weighting)");
+    readConfig(config, "noiseObservation",  noiseObs,             Config::DEFAULT,  "",    "[-] noise is multiplied with ISL terminal sigma");
     if(isCreateSchema(config)) return;
 
     // ============================
@@ -220,7 +217,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                   {
                     epoch.observation.push_back(NAN_EXPR);
                     if(epoch.obsType.at(idType) == islSigma)
-                      epoch.observation.back() = sigmaObs;
+                      epoch.observation.back() = obs.sigma;
                     else if(epoch.obsType.at(idType) == islTxTerm)
                       epoch.observation.back() = obs.terminalSend;
                     else if(epoch.obsType.at(idType) == islRxTerm)

@@ -207,6 +207,7 @@ void PlatformIslTerminal::save(OutArchive &ar) const
 {
   ar<<nameValue("local2terminalFrame", local2terminalFrame);
   ar<<nameValue("termialId",           terminalId);
+  ar<<nameValue("sigma",               sigma);
 }
 
 /***********************************************/
@@ -215,6 +216,7 @@ void PlatformIslTerminal::load(InArchive &ar)
 {
   ar>>nameValue("local2terminalFrame", local2terminalFrame);
   ar>>nameValue("termialId",           terminalId);
+  ar>>nameValue("sigma",               sigma);
 }
 
 /***********************************************/

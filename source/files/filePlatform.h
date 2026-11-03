@@ -204,6 +204,7 @@ public:
   static constexpr Type TYPE = ISLTERMINAL;
   Transform3d              local2terminalFrame;  // north, east, up or vehicle system -> terminal system
   std::string              terminalId;
+  double                   sigma;                // ISL observation sigma of receiving terminal
 
   Type getType() const override {return TYPE;}
   void save(OutArchive &oa) const override;

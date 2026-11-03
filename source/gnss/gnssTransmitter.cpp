@@ -259,8 +259,9 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
         }
 
         GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, idEpoch, FALSE);
-
-        obs->observation = -eqn->l(0) + eps.at(idEpoch);
+		
+		// TODO: set the ISL observation sigma properly!
+        obs->observation = -eqn->l(0) + eqn.sigma() * eps.at(idEpoch);
         obs->sigma0 = sqrt(noiseObs->covarianceFunction(1)(0,1));
 
         if(observations_.size() <= idEpoch)
