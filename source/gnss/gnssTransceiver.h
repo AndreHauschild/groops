@@ -76,6 +76,10 @@ public:
   * @a azimuth and @a elevation must be given in the antenna frame (left-handed). */
   Vector accuracy(const Time &time, Angle azimut, Angle elevation, const std::vector<GnssType> &type) const;
 
+  /** @brief ISL observation standard deviation.
+  * @a terminal ID is the receiving terminal. */
+  Double accuracyISL(const Time &time, const UInt terminalId) const;
+
   /** @brief ISL terminal bias corrections.
   * observed range = range + bias. */
   Double sendIslBias(UInt terminal) const;
@@ -178,6 +182,32 @@ inline Vector GnssTransceiver::accuracy(const Time &time, Angle azimut, Angle el
     if(!antenna->accuracyDef)
       throw(Exception("no accuracy definition for "+antenna->str()));
     return antenna->accuracyDef->antennaVariations(azimut, elevation, types, noPatternFoundAction);
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
+// NOTE: Using findEquipment() as in accuracy() above does not work because it only returns iterator to first equipment!
+inline double GnssTransceiver::accuracyISL(const Time &time, const UInt terminalId) const
+{
+  try
+  {
+    // Loop over all (!) equipment types and find ISL terminal with matching ID for specified time
+    for(const auto &instrument : platform.equipments)
+    {
+      auto islTerminal = std::dynamic_pointer_cast<PlatformIslTerminal>(instrument);
+      if(islTerminal && islTerminal->timeStart <= time && time < islTerminal->timeEnd && \
+         terminalId==atoi(islTerminal->terminalId.c_str()))
+      {
+        return islTerminal->sigma;
+      }
+    }
+    // If the above loop does not return, not terminal is found -> throw an exception
+    throw(Exception(platform.markerName+"."+platform.markerNumber+": no ISL terminal found at "+time.dateTimeStr()));
   }
   catch(std::exception &e)
   {

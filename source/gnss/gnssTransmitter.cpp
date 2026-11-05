@@ -129,7 +129,7 @@ void GnssTransmitter::deleteObservationIsl(UInt idTrans, UInt idEpoch)
 // C1C  range
 // X1A  terminalSend
 // X1B  terminalRecv
-// S1C  sigma, accuracy
+
 void GnssTransmitter::readObservationsIsl(const FileName &fileName, const std::vector<GnssTransmitterPtr> &transmitters, const std::vector<Time> &times, const Time &timeMargin)
 {
   try
@@ -169,13 +169,20 @@ void GnssTransmitter::readObservationsIsl(const FileName &fileName, const std::v
             GnssType type = arc.at(arcEpoch).obsType.at(idType);
             if(type == GnssType::RANGE)
               obs->observation = arc.at(arcEpoch).observation.at(idObs);
+            /*
             else if(type == GnssType::SNR)
               obs->sigma = obs->sigma0 = arc.at(arcEpoch).observation.at(idObs);
+             */
             else if(type == GnssType::CHANNEL+GnssType::B)
               obs->terminalRecv = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
             else if(type == GnssType::CHANNEL+GnssType::A)
               obs->terminalSend = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
           }
+
+        // Accuracies
+        // ----------
+        obs->sigma0 = accuracyISL(obs->time,obs->terminalRecv);
+        obs->sigma = obs->sigma0;
 
         if(observations_.size() <= idEpoch)
           observations_.resize(idEpoch+1);
@@ -248,6 +255,7 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
         obs->time = times.at(idEpoch);
         obs->terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRecv);
         obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanSend);
+        //obs->sigma = accuracyISL(obs->time,obs->terminalRecv);
 
         if(this->idTerm(idEpoch, obs->terminalRecv)==NULLINDEX || transmitters.at(idTrans)->idTerm(idEpoch, obs->terminalSend)==NULLINDEX)
         {
@@ -259,10 +267,8 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
         }
 
         GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, idEpoch, FALSE);
-		
-		// TODO: set the ISL observation sigma properly!
-        obs->observation = -eqn->l(0) + eqn.sigma() * eps.at(idEpoch);
-        obs->sigma0 = sqrt(noiseObs->covarianceFunction(1)(0,1));
+
+        obs->observation = -eqn->l(0) + eqn->sigma(0) * eps.at(idEpoch);
 
         if(observations_.size() <= idEpoch)
           observations_.resize(idEpoch+1);

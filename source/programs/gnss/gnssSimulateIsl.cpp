@@ -199,7 +199,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                   if(!islRange.isInList(epoch.obsType))  epoch.obsType.push_back(islRange);
                   if(!islTxTerm.isInList(epoch.obsType)) epoch.obsType.push_back(islTxTerm);
                   if(!islRxTerm.isInList(epoch.obsType)) epoch.obsType.push_back(islRxTerm);
-                  if(!islSigma.isInList(epoch.obsType))  epoch.obsType.push_back(islSigma);
+                  //if(!islSigma.isInList(epoch.obsType))  epoch.obsType.push_back(islSigma);
                 }
               std::sort(epoch.obsType.begin(), epoch.obsType.end());
               if(!epoch.obsType.size())
@@ -251,7 +251,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 // C1C  range
 // X1A  terminalSend
 // X1B  terminalRecv
-// S1C  sigma, accuracy
+
 void GnssSimulateIsl::readFile(const FileName &fileName, const std::vector<Time> &times, const Time &timeMargin, GnssReceiverArc &scheduleIsl) const
 {
   try
