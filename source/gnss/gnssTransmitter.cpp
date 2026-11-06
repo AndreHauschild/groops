@@ -162,27 +162,24 @@ void GnssTransmitter::readObservationsIsl(const FileName &fileName, const std::v
                                                                               [&](auto t) {return t->PRN() == satType;}));
 
         GnssObservationIsl *obs = new GnssObservationIsl();
-        obs->time = arc.at(arcEpoch).time;
+
         for(; (idType<arc.at(arcEpoch).obsType.size()) && (arc.at(arcEpoch).obsType.at(idType)==satType); idType++, idObs++)
           if((idTrans < transmitters.size()) && arc.at(arcEpoch).observation.at(idObs)  && !std::isnan(arc.at(arcEpoch).observation.at(idObs)))
           {
             GnssType type = arc.at(arcEpoch).obsType.at(idType);
             if(type == GnssType::RANGE)
               obs->observation = arc.at(arcEpoch).observation.at(idObs);
-            /*
-            else if(type == GnssType::SNR)
-              obs->sigma = obs->sigma0 = arc.at(arcEpoch).observation.at(idObs);
-             */
             else if(type == GnssType::CHANNEL+GnssType::B)
               obs->terminalRecv = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
             else if(type == GnssType::CHANNEL+GnssType::A)
               obs->terminalSend = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
           }
 
-        // Accuracies
-        // ----------
-        obs->sigma0 = accuracyISL(obs->time,obs->terminalRecv);
-        obs->sigma = obs->sigma0;
+        if(!obs->init(*this, *transmitters.at(idTrans), times.at(idEpoch), idEpoch, obs->terminalRecv, obs->terminalSend))
+        {
+          delete obs;
+          continue;
+        }
 
         if(observations_.size() <= idEpoch)
           observations_.resize(idEpoch+1);
@@ -251,23 +248,27 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
         UInt idChanRecv = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
                                         typeRecv + transmitters.at(idTrans)->PRN()));
 
-        GnssObservationIsl *obs = new GnssObservationIsl();
-        obs->time = times.at(idEpoch);
-        obs->terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRecv);
-        obs->terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanSend);
-        //obs->sigma = accuracyISL(obs->time,obs->terminalRecv);
+        UInt terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRecv);
+        UInt terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanSend);
 
-        if(this->idTerm(idEpoch, obs->terminalRecv)==NULLINDEX || transmitters.at(idTrans)->idTerm(idEpoch, obs->terminalSend)==NULLINDEX)
+        if(this->idTerm(idEpoch, terminalRecv)==NULLINDEX || transmitters.at(idTrans)->idTerm(idEpoch, terminalSend)==NULLINDEX)
         {
           logError<<"Missing terminal for ISL observation of PRN(terminal):"
-                    <<transmitters.at(idTrans)->name()<<obs->terminalSend%"(%i)-> "s
-                    <<this->name()<<obs->terminalRecv%"(%i)"s
+                    <<transmitters.at(idTrans)->name()<<terminalSend%"(%i) -> "s
+                    <<this->name()<<terminalRecv%"(%i)"s
                     <<Log::endl;
           continue;
         }
 
-        GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, idEpoch, FALSE);
+        GnssObservationIsl *obs = new GnssObservationIsl();
+        if(!obs->init(*this, *transmitters.at(idTrans), times.at(idEpoch), idEpoch, terminalRecv, terminalSend))
+        {
+          delete obs;
+          continue;
+        }
 
+        GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, times.at(idEpoch), idEpoch, FALSE);
+        
         obs->observation = -eqn->l(0) + eqn->sigma(0) * eps.at(idEpoch);
 
         if(observations_.size() <= idEpoch)

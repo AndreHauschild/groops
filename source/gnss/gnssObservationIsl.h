@@ -29,7 +29,6 @@ class GnssTransmitter;
 class GnssObservationIsl
 {
 public:
-  Time     time;
   Double   observation; ///< original observations
   Double   residual;    ///< estimated postfit residuals
   Double   redundancy;  ///< partial redundancies of the least squares adjustment
@@ -38,6 +37,8 @@ public:
   UInt     terminalRecv, terminalSend;
 
   GnssObservationIsl() : observation(0), residual(0), redundancy(0), sigma0(1), sigma(1), terminalRecv(0), terminalSend(0) {}
+
+  Bool init(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time, UInt idEpoch, UInt terminalRecv , UInt terminalSend);
 
   void setHomogenizedResiduals(Double residual, Double redundancy);
 };
@@ -75,16 +76,16 @@ public:
   Angle    azimutRecvAnt,   elevationRecvAnt;
   Angle    azimutTrans,     elevationTrans;
 
-  GnssObservationEquationIsl() : idEpoch(NULLINDEX), receiver(nullptr), transmitter(nullptr) {}
+  GnssObservationEquationIsl() : idEpoch(NULLINDEX), receiver(nullptr), transmitter(nullptr), terminalRecv(0), terminalSend(0) {}
 
   GnssObservationEquationIsl(const GnssObservationIsl &observation, const GnssTransmitter &receiver, const GnssTransmitter &transmitter,
                              const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,
-                             UInt idEpoch, Bool homogenize)
-          {compute(observation, receiver, transmitter, reduceModels, idEpoch, homogenize);}
+                             Time time, UInt idEpoch, Bool homogenize)
+          {compute(observation, receiver, transmitter, reduceModels, time, idEpoch, homogenize);}
 
   void compute(const GnssObservationIsl &observation, const GnssTransmitter &receiver, const GnssTransmitter &transmitter,
                const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,
-               UInt idEpoch, Bool homogenize);
+               Time time, UInt idEpoch, Bool homogenize);
 };
 
 /***********************************************/

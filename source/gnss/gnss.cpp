@@ -719,7 +719,7 @@ Bool Gnss::basicObservationEquationsIsl(const GnssNormalEquationInfo &/*normalEq
     if(!transmitters.at(idRecv)->observationIsl(idTrans, idEpoch))
       return FALSE;
     eqn.compute(*transmitters.at(idRecv)->observationIsl(idTrans, idEpoch), *transmitters.at(idRecv), *transmitters.at(idTrans),
-                funcReduceModelsIsl, idEpoch, TRUE);
+                funcReduceModelsIsl, times.at(idEpoch), idEpoch, TRUE);
     return TRUE;
   }
   catch(std::exception &e)

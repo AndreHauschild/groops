@@ -29,7 +29,6 @@ The output is written as a \file{GNSS receiver file}{instrument} file with the f
 \item \verb|C1C|: Inter-satellite link pseudorange
 \item \verb|X1A|: Transmitting terminal ID
 \item \verb|X1B|: Receiving terminal ID
-\item \verb|S1C|: Standard-deviation of inter-satellite link pseudorange
 \end{itemize}
 
 
@@ -153,7 +152,6 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
     const GnssType islRange   = GnssType::RANGE   + GnssType::E1 + GnssType::C;
     const GnssType islTxTerm  = GnssType::CHANNEL + GnssType::E1 + GnssType::A;
     const GnssType islRxTerm  = GnssType::CHANNEL + GnssType::E1 + GnssType::B;
-    const GnssType islSigma   = GnssType::SNR     + GnssType::E1 + GnssType::C;
 
     // Count ISL observations
     // ----------------------
@@ -199,7 +197,6 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                   if(!islRange.isInList(epoch.obsType))  epoch.obsType.push_back(islRange);
                   if(!islTxTerm.isInList(epoch.obsType)) epoch.obsType.push_back(islTxTerm);
                   if(!islRxTerm.isInList(epoch.obsType)) epoch.obsType.push_back(islRxTerm);
-                  //if(!islSigma.isInList(epoch.obsType))  epoch.obsType.push_back(islSigma);
                 }
               std::sort(epoch.obsType.begin(), epoch.obsType.end());
               if(!epoch.obsType.size())
@@ -216,9 +213,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                   for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType++)
                   {
                     epoch.observation.push_back(NAN_EXPR);
-                    if(epoch.obsType.at(idType) == islSigma)
-                      epoch.observation.back() = obs.sigma;
-                    else if(epoch.obsType.at(idType) == islTxTerm)
+                    if(epoch.obsType.at(idType) == islTxTerm)
                       epoch.observation.back() = obs.terminalSend;
                     else if(epoch.obsType.at(idType) == islRxTerm)
                       epoch.observation.back() = obs.terminalRecv;

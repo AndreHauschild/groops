@@ -207,7 +207,7 @@ inline double GnssTransceiver::accuracyISL(const Time &time, const UInt terminal
       }
     }
     // If the above loop does not return, not terminal is found -> throw an exception
-    throw(Exception(platform.markerName+"."+platform.markerNumber+": no ISL terminal found at "+time.dateTimeStr()));
+    throw(Exception(platform.markerName+"."+platform.markerNumber+": no ISL terminal ID"+terminalId%"%i"s+"found at "+time.dateTimeStr()));
   }
   catch(std::exception &e)
   {

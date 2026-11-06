@@ -111,7 +111,7 @@ inline void GnssProcessingStepWriteResidualsIsl::process(GnssProcessingStep::Sta
               {
                 const GnssObservationIsl &obs = *recv->observationIsl(idTrans, idEpoch);
                 const GnssObservationEquationIsl eqn(obs, *recv, *state.gnss->transmitters.at(idTrans),
-                                                     state.gnss->funcReduceModelsIsl, idEpoch, FALSE);
+                                                     state.gnss->funcReduceModelsIsl, state.gnss->times.at(idEpoch), idEpoch, FALSE);
                 const GnssType prn = state.gnss->transmitters.at(idTrans)->PRN();
                 UInt idType = std::distance(epoch.obsType.begin(), std::find(epoch.obsType.begin(), epoch.obsType.end(), prn));
                 if(idType >= epoch.obsType.size())

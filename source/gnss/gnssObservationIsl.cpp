@@ -18,9 +18,9 @@
 
 /***********************************************/
 
-static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time, UInt idEpoch,
-                                 Time &timeRecv,  Vector3d &posRecv,  Vector3d &velRecv,  Angle &azimutRecv,  Angle &elevationRecv, UInt termRecv,
-                                 Time &timeTrans, Vector3d &posTrans, Vector3d &velTrans, Angle &azimutTrans, Angle &elevationTrans, UInt termTrans,
+static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time, UInt idEpoch, UInt termRecv, UInt termTrans,
+                                 Time &timeRecv,  Vector3d &posRecv,  Vector3d &velRecv,  Angle &azimutRecv,  Angle &elevationRecv,
+                                 Time &timeTrans, Vector3d &posTrans, Vector3d &velTrans, Angle &azimutTrans, Angle &elevationTrans,
                                  Vector3d &k, Vector3d &kRecv, Vector3d &kTrans)
 {
   try
@@ -58,6 +58,47 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 
 /***********************************************/
 
+Bool GnssObservationIsl::init(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time,
+                              UInt idEpoch, UInt terminalRecv , UInt terminalSend)
+{
+  try
+  {
+    if((!receiver.useable(idEpoch)) || (!transmitter.useable(idEpoch)))
+      return FALSE;
+
+    // Signal reception time
+    // ---------------------
+    Time     timeRecv;
+    timeRecv = time - seconds2time(receiver.clockError(idEpoch));
+
+    // position, time of transmitter & receiver
+    // ----------------------------------------
+    /*
+    Time     timeRecv, timeTrans;
+    Vector3d posRecv,  velRecv, posTrans, velTrans, k, kRecv, kTrans;
+    Angle    azimutRecv, elevationRecv, azimutTrans, elevationTrans;
+
+    positionVelocityTime(receiver, transmitter, time, idEpoch, terminalRecv, terminalSend,
+                         timeRecv,  posRecv,  velRecv,  azimutRecv,  elevationRecv,
+                         timeTrans, posTrans, velTrans, azimutTrans, elevationTrans,
+                         k, kRecv, kTrans);
+     */
+
+    // Accuracies, residual and redundancy
+    // -----------------------------------
+    sigma0 = sigma = receiver.accuracyISL(timeRecv, terminalRecv);
+    residual = redundancy = 0.;
+
+    return TRUE;
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
+
+/***********************************************/
+
 void GnssObservationIsl::setHomogenizedResiduals(Double residual, Double redundancy)
 {
   this->residual   = residual * sigma;
@@ -69,7 +110,7 @@ void GnssObservationIsl::setHomogenizedResiduals(Double residual, Double redunda
 
 void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, const GnssTransmitter &receiver_, const GnssTransmitter &transmitter_,
                                          const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,
-                                         UInt idEpoch_, Bool homogenize)
+                                         Time time, UInt idEpoch_, Bool homogenize)
 {
   try
   {
@@ -89,9 +130,9 @@ void GnssObservationEquationIsl::compute(const GnssObservationIsl &observation, 
     // position, time of transmitter & receiver
     // ----------------------------------------
     Vector3d k, kRecvAnt, kTrans;
-    positionVelocityTime(receiver_, transmitter_, observation.time, idEpoch_,
-                         timeRecv,  posRecv,  velocityRecv,  azimutRecvAnt, elevationRecvAnt, terminalRecv,
-                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans,   terminalSend,
+    positionVelocityTime(receiver_, transmitter_, time, idEpoch_, terminalRecv, terminalSend,
+                         timeRecv,  posRecv,  velocityRecv,  azimutRecvAnt, elevationRecvAnt,
+                         timeTrans, posTrans, velocityTrans, azimutTrans,   elevationTrans,
                          k, kRecvAnt, kTrans);
     const Double rDotTrans = inner(k, velocityTrans)/LIGHT_VELOCITY;
     const Double rDotRecv  = inner(k, velocityRecv) /LIGHT_VELOCITY;
