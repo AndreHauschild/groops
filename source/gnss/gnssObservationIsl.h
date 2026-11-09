@@ -24,8 +24,8 @@ class GnssTransmitter;
 
 /***** CLASS ***********************************/
 
-/** @brief Observations.
-* Between one receiver and one transmitter at one epoch. */
+/** @brief ISL observations.
+* Between one receiver and one transmitter terminal at one epoch. */
 class GnssObservationIsl
 {
 public:
@@ -45,7 +45,7 @@ public:
 
 /***** CLASS ***********************************/
 
-/** @brief Reduced observations (obs - computed) and design matrix.
+/** @brief Reduced ISL observations (obs - computed) and design matrix.
 * Between one receiver and one transmitter terminal at one epoch. */
 class GnssObservationEquationIsl
 {
