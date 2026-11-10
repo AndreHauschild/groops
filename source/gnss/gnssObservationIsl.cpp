@@ -59,7 +59,7 @@ static void positionVelocityTime(const GnssTransmitter &receiver, const GnssTran
 /***********************************************/
 
 Bool GnssObservationIsl::init(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time,
-                              UInt idEpoch, UInt terminalRecv , UInt terminalSend)
+                              UInt idEpoch, UInt terminalRecv_, UInt terminalSend_)
 {
   try
   {
@@ -86,8 +86,13 @@ Bool GnssObservationIsl::init(const GnssTransmitter &receiver, const GnssTransmi
 
     // Accuracies, residual and redundancy
     // -----------------------------------
-    sigma0 = sigma = receiver.accuracyISL(timeRecv, terminalRecv);
+    sigma0 = sigma = receiver.accuracyISL(timeRecv, terminalRecv_);
     residual = redundancy = 0.;
+
+    // Terminal IDs
+    // -------------
+    terminalRecv = terminalRecv_;
+    terminalSend = terminalSend_;
 
     return TRUE;
   }

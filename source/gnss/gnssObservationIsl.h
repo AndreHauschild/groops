@@ -36,9 +36,9 @@ public:
   Double   sigma;       ///< modified accuracies (downweighted outliers)
   UInt     terminalRecv, terminalSend;
 
-  GnssObservationIsl() : observation(0), residual(0), redundancy(0), sigma0(1), sigma(1), terminalRecv(0), terminalSend(0) {}
+  GnssObservationIsl() : observation(0), residual(0), redundancy(0), sigma0(0), sigma(0), terminalRecv(NULLINDEX), terminalSend(NULLINDEX) {}
 
-  Bool init(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time, UInt idEpoch, UInt terminalRecv , UInt terminalSend);
+  Bool init(const GnssTransmitter &receiver, const GnssTransmitter &transmitter, const Time &time, UInt idEpoch, UInt terminalRecv_, UInt terminalSend_);
 
   void setHomogenizedResiduals(Double residual, Double redundancy);
 };
@@ -76,7 +76,7 @@ public:
   Angle    azimutRecvAnt,   elevationRecvAnt;
   Angle    azimutTrans,     elevationTrans;
 
-  GnssObservationEquationIsl() : idEpoch(NULLINDEX), receiver(nullptr), transmitter(nullptr), terminalRecv(0), terminalSend(0) {}
+  GnssObservationEquationIsl() : idEpoch(NULLINDEX), receiver(nullptr), transmitter(nullptr), terminalRecv(NULLINDEX), terminalSend(NULLINDEX) {}
 
   GnssObservationEquationIsl(const GnssObservationIsl &observation, const GnssTransmitter &receiver, const GnssTransmitter &transmitter,
                              const std::function<void(GnssObservationEquationIsl &eqn)> &reduceModels,

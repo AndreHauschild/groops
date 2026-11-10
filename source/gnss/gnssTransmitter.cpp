@@ -160,22 +160,24 @@ void GnssTransmitter::readObservationsIsl(const FileName &fileName, const std::v
         // search transmitter index for satellite number (PRN)
         const UInt idTrans = std::distance(transmitters.begin(), std::find_if(transmitters.begin(), transmitters.end(),
                                                                               [&](auto t) {return t->PRN() == satType;}));
+        UInt terminalRecv = NULLINDEX;
+        UInt terminalSend = NULLINDEX;
 
         GnssObservationIsl *obs = new GnssObservationIsl();
 
         for(; (idType<arc.at(arcEpoch).obsType.size()) && (arc.at(arcEpoch).obsType.at(idType)==satType); idType++, idObs++)
-          if((idTrans < transmitters.size()) && arc.at(arcEpoch).observation.at(idObs)  && !std::isnan(arc.at(arcEpoch).observation.at(idObs)))
+          if((idTrans < transmitters.size()) && !std::isnan(arc.at(arcEpoch).observation.at(idObs)))
           {
             GnssType type = arc.at(arcEpoch).obsType.at(idType);
-            if(type == GnssType::RANGE)
+            if(type == GnssType::RANGE+GnssType::C)
               obs->observation = arc.at(arcEpoch).observation.at(idObs);
             else if(type == GnssType::CHANNEL+GnssType::B)
-              obs->terminalRecv = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
+              terminalRecv = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
             else if(type == GnssType::CHANNEL+GnssType::A)
-              obs->terminalSend = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
+              terminalSend = static_cast<UInt>(arc.at(arcEpoch).observation.at(idObs));
           }
 
-        if(!obs->init(*this, *transmitters.at(idTrans), times.at(idEpoch), idEpoch, obs->terminalRecv, obs->terminalSend))
+        if(!obs->init(*this, *transmitters.at(idTrans), times.at(idEpoch), idEpoch, terminalRecv, terminalSend))
         {
           delete obs;
           continue;
@@ -243,11 +245,15 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
           continue;
         }
 
+        // Get index for terminal ID observable
+        // ------------------------------------
         UInt idChanSend = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
                                         typeSend + transmitters.at(idTrans)->PRN()));
         UInt idChanRecv = std::distance(epochSchedule.obsType.begin(), std::find(epochSchedule.obsType.begin(), epochSchedule.obsType.end(),
                                         typeRecv + transmitters.at(idTrans)->PRN()));
 
+        // Get terminal ID
+        // ---------------
         UInt terminalRecv = scheduleIsl.at(idEpoch).observation.at(idChanRecv);
         UInt terminalSend = scheduleIsl.at(idEpoch).observation.at(idChanSend);
 
@@ -268,7 +274,7 @@ void GnssTransmitter::simulateObservationsIsl(NoiseGeneratorPtr noiseObs,
         }
 
         GnssObservationEquationIsl *eqn = new GnssObservationEquationIsl(*obs, *this, *transmitters.at(idTrans), reduceModels, times.at(idEpoch), idEpoch, FALSE);
-        
+
         obs->observation = -eqn->l(0) + eqn->sigma(0) * eps.at(idEpoch);
 
         if(observations_.size() <= idEpoch)

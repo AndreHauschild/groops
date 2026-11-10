@@ -134,7 +134,7 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
 
         // Simulate ISL observations
         // -------------------------
-        recv->simulateObservationsIsl(noiseObs,gnss.transmitters,times,scheduleIsl,gnss.funcReduceModelsIsl);
+        recv->simulateObservationsIsl(noiseObs, gnss.transmitters, times, scheduleIsl, gnss.funcReduceModelsIsl);
       }
 
     Parallel::barrier(comm);
@@ -213,12 +213,12 @@ void GnssSimulateIsl::run(Config &config, Parallel::CommunicatorPtr comm)
                   for(; (idType<epoch.obsType.size()) && (epoch.obsType.at(idType) == prn); idType++)
                   {
                     epoch.observation.push_back(NAN_EXPR);
-                    if(epoch.obsType.at(idType) == islTxTerm)
+                    if(epoch.obsType.at(idType) == islRange)
+                      epoch.observation.back() = obs.observation;
+                    else if(epoch.obsType.at(idType) == islTxTerm)
                       epoch.observation.back() = obs.terminalSend;
                     else if(epoch.obsType.at(idType) == islRxTerm)
                       epoch.observation.back() = obs.terminalRecv;
-                    else
-                      epoch.observation.back() = obs.observation;
                   }
                 }
 
