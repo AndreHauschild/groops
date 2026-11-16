@@ -271,7 +271,7 @@ void GnssParametrizationIslBiases::aprioriParameter(const GnssNormalEquationInfo
 #if DEBUG > 1
             logInfo<<"aprioriParameter() recv ISL terminal bias "
                 <<normalEquationInfo.parameterNames().at(normalEquationInfo.index(para->index)).str()
-                <<para->trans->islBiasRecv.biases.at(idTerm)%" %6.2f m"s <<Log::endl;
+                <<para->trans->recvIslBias(para->terminal)%" %6.2f m"s <<Log::endl;
 #endif
           }
       } // end for(idTrans...
