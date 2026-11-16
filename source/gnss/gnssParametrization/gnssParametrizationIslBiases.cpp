@@ -298,7 +298,9 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 
     // transmitter terminal bias
     // -------------------------
-    if(eqn.transmitter->islBiasSend.isInList(eqn.terminalSend, idTerm))
+    if(eqn.transmitter->islBiasSend.isInList(eqn.terminalSend, idTerm) && \
+       paraSendTerminal.at(eqn.transmitter->idTrans()).size() && \
+       paraSendTerminal.at(eqn.transmitter->idTrans()).at(idTerm) )
     {
 #if DEBUG > 2
       logInfo<<"GnssParametrizationIslBiases::designMatrixIsl() send "
@@ -312,14 +314,16 @@ void GnssParametrizationIslBiases::designMatrixIsl(const GnssNormalEquationInfo 
 
     // receiver terminal bias
     // ----------------------
-    if(eqn.receiver->islBiasRecv.isInList(eqn.terminalRecv, idTerm))
+    if(eqn.receiver->islBiasRecv.isInList(eqn.terminalRecv, idTerm) && \
+       paraRecvTerminal.at(eqn.receiver->idTrans()).size() && \
+       paraRecvTerminal.at(eqn.receiver->idTrans()).at(idTerm))
     {
 #if DEBUG > 2
       logInfo<<"GnssParametrizationIslBiases::designMatrixIsl() recv "
              <<eqn.receiver->name()<<eqn.terminalRecv%"(%2i)"s<<idTerm%" (idx %i)"s
              <<Log::endl;
 #endif
-      auto para =paraRecvTerminal.at(eqn.receiver->idTrans()).at(idTerm);
+      auto para = paraRecvTerminal.at(eqn.receiver->idTrans()).at(idTerm);
       if(para && para->index)
         copy(eqn.A.column(GnssObservationEquationIsl::idxRange,1), A.column(para->index));
     }
