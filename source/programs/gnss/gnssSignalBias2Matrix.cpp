@@ -15,6 +15,8 @@ static const char *docstring = R"(
 Computes signal biases for a given list of \configClass{types}{gnssType}.
 If the type list is empty, all types contained in \configFile{inputfileSignalBias}{gnssSignalBias} are used.
 The resulting \configFile{outputfileMatrix}{matrix} contains a vector with an entry for each type.
+
+See also \program{GnssMatrix2SignalBias}.
 )";
 
 /***********************************************/
