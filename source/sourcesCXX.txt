@@ -288,11 +288,13 @@ programs/gnss/gnssBiasClockAlignment.cpp
 programs/gnss/gnssEstimateClockShift.cpp
 programs/gnss/gnssGlonassFrequencyNumberUpdate.cpp
 programs/gnss/gnssMatrix2SignalBias.cpp
+programs/gnss/gnssMatrix2IslBias.cpp
 programs/gnss/gnssProcessing.cpp
 programs/gnss/gnssReceiverDefinitionCreate.cpp
 programs/gnss/gnssResiduals2AccuracyDefinition.cpp
 programs/gnss/gnssResiduals2TransmitterAccuracyDefinition.cpp
 programs/gnss/gnssResiduals2Skyplot.cpp
+programs/gnss/gnssIslBias2Matrix.cpp
 programs/gnss/gnssSignalBias2Matrix.cpp
 programs/gnss/gnssSimulateIsl.cpp
 programs/gnss/gnssSimulateReceiver.cpp

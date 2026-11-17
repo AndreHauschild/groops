@@ -12139,6 +12139,28 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="GnssIslBias2Matrix">
+				<xs:annotation>
+					<xs:documentation>Computes ISL terminal biases for a given terminal list</xs:documentation>
+					<xs:appinfo>tag: Gnss</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileMatrix" type="filename"/>
+						<xs:element name="outputfileTerminals" type="filename" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>ASCII list of terminal IDs</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inputfileIslBias" type="filename"/>
+						<xs:element name="terminals" type="uint" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>if not set, all terminals in the file are used</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="GnssProcessing">
 				<xs:annotation>
 					<xs:documentation>GNSS/LEO satellite orbit determination, station network analysis, PPP</xs:documentation>
@@ -22410,6 +22432,29 @@
 					<xs:sequence>
 						<xs:element name="outputfileGriddedDataTimeSeries" type="filename"/>
 						<xs:element name="inputfileIonex" type="filename" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GnssMatrix2IslBias">
+				<xs:annotation>
+					<xs:documentation>Converts ISL terminal biases from  matrix format to IslBias format.</xs:documentation>
+					<xs:appinfo>tag: Conversion</xs:appinfo>
+					<xs:appinfo>tag: Gnss</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileIslBias" type="filename"/>
+						<xs:element name="inputfileMatrix" type="filename"/>
+						<xs:element name="inputfileTerminals" type="filename">
+							<xs:annotation>
+								<xs:documentation>ASCII list of terminal IDs</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="terminals" type="uint" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>if not set, all terminals in the file are used</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>

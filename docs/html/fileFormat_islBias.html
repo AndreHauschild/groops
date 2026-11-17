@@ -80,13 +80,14 @@
         <div id="content" class="container">
             <h1>IslBias (file format)</h1><p>
 
-Biases of ISL terminals on GNSS satellites.</p><p><pre>
-groops IslBias version=20200123
-          1 # number of terminals/biases
-# terminal   bias [m]
-# ====================================
-  0          -1.752461109688110974e-01
- </pre></p><p>NOTE: currently only one bias per satellite is supported. It must have terminal ID 0. </p><p>See also <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>, <a class="groops-program" href="GnssSimulateIsl.html">GnssSimulateIsl</a>.
+Biases of ISL terminals.</p><p><pre>
+groops islBias version=20200123
+          2
+#  terminal  bias [m]
+# ===================================
+          0  -1.75246110968811097e-01
+          1  +3.07948295584894516e-01
+ </pre></p><p>See also <a class="groops-program" href="GnssProcessing.html">GnssProcessing</a>, <a class="groops-program" href="GnssSimulateIsl.html">GnssSimulateIsl</a>, <a class="groops-program" href="GnssIslBias2Matrix.html">GnssIslBias2Matrix</a>, , <a class="groops-program" href="GnssMatrix2IslBias.html">GnssMatrix2IslBias</a>.
 </p>
 
         </div>

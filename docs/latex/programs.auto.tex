@@ -868,6 +868,28 @@ Name & Type & Annotation\\
 
 \clearpage
 %==================================
+\subsection{GnssIslBias2Matrix}\label{GnssIslBias2Matrix}
+Computes ISL terminal biases for a given list of terminal IDs.
+If the terminal list is empty, all terminals contained in \configFile{inputfileIslBias}{islBias} are used.
+The resulting \configFile{outputfileMatrix}{matrix} contains a vector with an entry for each terminal.
+
+See also \program{GnssMatrix2IslBias}.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileMatrix & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element.pdf}~outputfileTerminals & \hfuzz=500pt filename & \hfuzz=500pt ASCII list of terminal IDs\\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileIslBias & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~terminals & \hfuzz=500pt uint & \hfuzz=500pt if not set, all terminals in the file are used\\
+\hline
+\end{tabularx}
+
+\clearpage
+%==================================
 \subsection{GnssProcessing}\label{GnssProcessing}
 This program processes GNSS observations. It calculates the linearized observation equations,
 accumulates them into a system of normal equations and solves it.
@@ -1082,6 +1104,8 @@ Name & Type & Annotation\\
 Computes signal biases for a given list of \configClass{types}{gnssType}.
 If the type list is empty, all types contained in \configFile{inputfileSignalBias}{gnssSignalBias} are used.
 The resulting \configFile{outputfileMatrix}{matrix} contains a vector with an entry for each type.
+
+See also \program{GnssMatrix2SignalBias}.
 
 
 \keepXColumns
@@ -8090,6 +8114,26 @@ Name & Type & Annotation\\
 \hline
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileGriddedDataTimeSeries & \hfuzz=500pt filename & \hfuzz=500pt \\
 \hfuzz=500pt\includegraphics[width=1em]{element-mustset-unbounded.pdf}~inputfileIonex & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hline
+\end{tabularx}
+
+\clearpage
+%==================================
+\subsection{GnssMatrix2IslBias}\label{GnssMatrix2IslBias}
+Converts values for ISL terminal biases from matrix format to \file{IslBias format}{islBias}.
+
+See also \program{GnssIslBias2Matrix}.
+
+
+\keepXColumns
+\begin{tabularx}{\textwidth}{N T A}
+\hline
+Name & Type & Annotation\\
+\hline
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~outputfileIslBias & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileMatrix & \hfuzz=500pt filename & \hfuzz=500pt \\
+\hfuzz=500pt\includegraphics[width=1em]{element-mustset.pdf}~inputfileTerminals & \hfuzz=500pt filename & \hfuzz=500pt ASCII list of terminal IDs\\
+\hfuzz=500pt\includegraphics[width=1em]{element-unbounded.pdf}~terminals & \hfuzz=500pt uint & \hfuzz=500pt if not set, all terminals in the file are used\\
 \hline
 \end{tabularx}
 

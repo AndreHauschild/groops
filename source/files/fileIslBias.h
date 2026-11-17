@@ -16,19 +16,18 @@
 // Latex documentation
 #ifdef DOCSTRING_FILEFORMAT_IslBias
 static const char *docstringIslBias = R"(
-Biases of ISL terminals on GNSS satellites.
+Biases of ISL terminals.
 
 \begin{verbatim}
-groops IslBias version=20200123
-          1 # number of terminals/biases
-# terminal   bias [m]
-# ====================================
-  0          -1.752461109688110974e-01
+groops islBias version=20200123
+          2
+#  terminal  bias [m]
+# ===================================
+          0  -1.75246110968811097e-01
+          1  +3.07948295584894516e-01
  \end{verbatim}
 
-NOTE: currently only one bias per satellite is supported. It must have terminal ID 0. 
-
-See also \program{GnssProcessing}, \program{GnssSimulateIsl}.
+See also \program{GnssProcessing}, \program{GnssSimulateIsl}, \program{GnssIslBias2Matrix}, , \program{GnssMatrix2IslBias}.
 )";
 #endif
 
