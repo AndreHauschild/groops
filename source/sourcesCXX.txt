@@ -287,6 +287,7 @@ programs/gnss/gnssAttitudeInfoCreate.cpp
 programs/gnss/gnssBiasClockAlignment.cpp
 programs/gnss/gnssEstimateClockShift.cpp
 programs/gnss/gnssGlonassFrequencyNumberUpdate.cpp
+programs/gnss/gnssMatrix2SignalBias.cpp
 programs/gnss/gnssProcessing.cpp
 programs/gnss/gnssReceiverDefinitionCreate.cpp
 programs/gnss/gnssResiduals2AccuracyDefinition.cpp

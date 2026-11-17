@@ -22413,6 +22413,29 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="GnssMatrix2SignalBias">
+				<xs:annotation>
+					<xs:documentation>Converts GNSS signal biases from  matrix format to GnssSignalBias format.</xs:documentation>
+					<xs:appinfo>tag: Conversion</xs:appinfo>
+					<xs:appinfo>tag: Gnss</xs:appinfo>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="outputfileSignalBias" type="filename"/>
+						<xs:element name="inputfileMatrix" type="filename"/>
+						<xs:element name="inputfileTypes" type="filename">
+							<xs:annotation>
+								<xs:documentation>ASCII list of types</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="types" type="gnssType" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>if not set, all types in the file are used</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="GnssNormals2Sinex">
 				<xs:annotation>
 					<xs:documentation>Write GNSS data/metadata and normal equations to SINEX format.</xs:documentation>
