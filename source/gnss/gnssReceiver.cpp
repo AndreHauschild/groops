@@ -514,8 +514,8 @@ void GnssReceiver::simulateZeroObservations(const std::vector<GnssType> &types,
             if(use && transmitterTypes.size())
             {
               GnssType typeComposed = type;
-              if(typeComposed == GnssType::PHASE) // phase can only be measured, if RANGE with is available
-                typeComposed = (typeComposed & ~GnssType::TYPE) + GnssType::RANGE; // replace PHASE by RANGE (to preserve ATTRIBUTE)
+              if((typeComposed == GnssType::PHASE) && !(typeComposed == GnssType::UNKNOWN_ATTRIBUTE)) // phase can only be measured, if RANGE with ATTRIBUTE is available
+                typeComposed = (typeComposed & ~GnssType::TYPE) + GnssType::RANGE;                    // replace PHASE by RANGE (to preserve ATTRIBUTE)
               for(const GnssType &typeTrans : GnssType::replaceCompositeSignals({typeComposed}))
                 if(!typeTrans.isInList(transmitterTypes))
                   use = FALSE;
