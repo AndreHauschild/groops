@@ -43,6 +43,7 @@ See also \program{FunctionsCalculate}, \program{MatrixCalculate}.
 #include "parser/dataVariables.h"
 #include "files/fileMatrix.h"
 #include "files/fileInstrument.h"
+#include "classes/instrumentType/instrumentType.h"
 
 /***********************************************/
 

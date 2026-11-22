@@ -12,10 +12,10 @@
 
 #define DOCSTRING_AutoregressiveModelSequence
 
-#include "kalmanProcessing.h"
 #include "config/config.h"
 #include "config/configRegister.h"
 #include "files/fileMatrix.h"
+#include "kalmanProcessing.h"
 
 /***********************************************/
 
