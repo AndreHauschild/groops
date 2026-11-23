@@ -38,8 +38,9 @@ public:
   enum ComplexType     {CHOICE, SEQUENCE, COMPLEXTYPE};
 
   /** @brief Creates a Configuration from an XML file.
+  * The first @filesNames contain the file to be read, the others the parent files from inputfileVariables.
   * Elements from @a Config can be read with @a readConfig. */
-  Config(FileName &fileName, const std::map<std::string, std::string> &commandlineGlobals = std::map<std::string, std::string>());
+  Config(const std::list<FileName> &fileNames, const std::map<std::string, std::string> &commandlineGlobals = std::map<std::string, std::string>());
 
   Config(Config &&)                 = default; //!< Move is allowed
   Config(const Config &)            = delete;  //!< Copy constructor not allowed
@@ -66,6 +67,9 @@ public:
 
   /** @brief Gets the current variable list. */
   VariableList &getVarList() {return stack.top().varList;}
+
+  /** @brief Gets the current link list. */
+  std::map<std::string, XmlNodePtr> &getLinks() {return stack.top().links;}
 
   // --- Schema mode ----
 
@@ -101,6 +105,7 @@ protected:
     VariableList loopVarListOld; // varList without loop variables
     VariableList varList;
     std::map<std::string, XmlNodePtr> links;
+    std::list<FileName> parentFileNames;
 
     StackNode(XmlNodePtr _xmlNode, ComplexType _type, const std::string &_name) : name(_name), type(_type), xmlNode(_xmlNode) {}
   };
@@ -113,6 +118,7 @@ protected:
   void         pop();
 
   // normal mode
+  Bool         inputfileVariables(XmlNodePtr xmlNode, XmlAttrPtr label);
   Bool         hasName(const std::string &name);
   XmlNodePtr   getChild(const std::string &name);
   void         notEmptyWarning();

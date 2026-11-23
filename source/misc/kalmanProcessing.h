@@ -187,7 +187,7 @@ public:
 };
 
 /** @brief Creates an instance of the class AutoregressiveModelSequence. */
-template<> Bool readConfig(Config &config, const std::string &name, AutoregressiveModelSequence &arModelSequence, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation);
+template<> Bool readConfig(Config &config, const std::string &name, AutoregressiveModelSequencePtr &arModelSequence, Config::Appearance mustSet, const std::string &defaultValue, const std::string &annotation);
 
 /***********************************************/
 

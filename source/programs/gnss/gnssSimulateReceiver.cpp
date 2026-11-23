@@ -43,6 +43,7 @@ If the program is run on multiple processes the \configClass{receiver}{gnssRecei
 #include "classes/timeSeries/timeSeries.h"
 #include "gnss/gnss.h"
 #include "gnss/gnssObservation.h"
+#include "gnss/gnssParametrization/gnssParametrization.h"
 #include "gnss/gnssTransmitterGenerator/gnssTransmitterGenerator.h"
 #include "gnss/gnssReceiverGenerator/gnssReceiverGenerator.h"
 

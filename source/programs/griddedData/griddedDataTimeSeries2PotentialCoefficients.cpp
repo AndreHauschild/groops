@@ -135,7 +135,7 @@ void GriddedDataTimeSeries2PotentialCoefficients::run(Config &config, Parallel::
     Parallel::broadCast(grid.ellipsoid, 0, comm);
     Parallel::broadCast(grid.points,    0, comm);
     Parallel::broadCast(grid.areas,     0, comm);
-    grid.values.resize(exprValue.size());
+    grid.values.resize(exprValue.size()*times.size());
     for(UInt k=0; k<grid.values.size(); k++)
       Parallel::broadCast(grid.values.at(k), 0, comm);
 
