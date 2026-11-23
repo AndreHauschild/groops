@@ -21,6 +21,7 @@ The selected number of data columns must agree with the \configClass{type}{instr
 #include "programs/program.h"
 #include "files/fileMatrix.h"
 #include "files/fileInstrument.h"
+#include "classes/instrumentType/instrumentType.h"
 
 /***** CLASS ***********************************/
 

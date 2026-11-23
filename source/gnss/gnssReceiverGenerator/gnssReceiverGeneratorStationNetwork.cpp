@@ -181,7 +181,10 @@ void GnssReceiverGeneratorStationNetwork::init(std::vector<GnssType> simulationT
 
     // read observations at single nodes
     // ---------------------------------
-    logStatus<<"read observations"<<Log::endl;
+    if(isSimulation)
+      logStatus<<"simulate zero observations"<<Log::endl;
+    else
+      logStatus<<"read observations"<<Log::endl;
     Vector receiverAlternative(receiversWithAlternatives.size());
     Log::Timer timer(receiversWithAlternatives.size());
     for(UInt i=0; i<receiversWithAlternatives.size(); i++)

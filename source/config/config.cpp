@@ -10,6 +10,7 @@
 */
 /***********************************************/
 
+#include <filesystem>
 #include "base/import.h"
 #include "config/configRegister.h"
 #include "base/doodson.h"
@@ -64,26 +65,39 @@ std::string Config::currentNodeName() const
 /*** Normal mode (readConfig) ******************/
 /***********************************************/
 
-Config::Config(FileName &fileName, const std::map<std::string, std::string> &commandlineGlobals)
+Config::Config(const std::list<FileName> &fileNames, const std::map<std::string, std::string> &commandlineGlobals)
 {
   try
   {
     createSchema = FALSE;
 
-    InFile stream(fileName);
+    InFile stream(fileNames.front());
     XmlNodePtr root = XmlNode::read(stream);
 
     push(root, SEQUENCE, "groops");
+    stack.top().parentFileNames = fileNames;
+
+    auto setVariable = [this](XmlNodePtr xmlNode)
+    {
+      stack.top().links[xmlNode->getName()] = xmlNode;
+      if(xmlNode->hasChildren())  // complex type?
+        return;
+      XmlAttrPtr link = xmlNode->findAttribute("link");
+      stack.top().varList.setVariable(xmlNode->getName(), ((link) ? "{"+link->getText()+"}" : xmlNode->getText()));
+    };
 
     // local variables before global?
     // ------------------------------
-    XmlNodePtr xmlNode = XmlNode::create("groopsConfigFile");
-    xmlNode->setText(fileName.str());
-    stack.top().links["groopsConfigFile"] = xmlNode;
+    if(fileNames.size() == 1)
+    {
+      XmlNodePtr xmlNode = XmlNode::create("groopsConfigFile");
+      xmlNode->setText(fileNames.front().str());
+      setVariable(xmlNode);
+    }
 
-    xmlNode = XmlNode::create("workingDir");
+    XmlNodePtr xmlNode = XmlNode::create("workingDir");
     xmlNode->setText(System::currentWorkingDirectory());
-    stack.top().links["workingDir"] = xmlNode;
+    setVariable(xmlNode);
 
     while((xmlNode = root->findNextChild()))
     {
@@ -91,8 +105,10 @@ Config::Config(FileName &fileName, const std::map<std::string, std::string> &com
       if(!label)                           // is not local variable?
         break;
       xmlNode = root->getNextChild();      // remove
+      if(inputfileVariables(xmlNode, label))
+        continue;
       xmlNode->setName(label->getText());  // replace typename with label
-      stack.top().links[xmlNode->getName()] = xmlNode;
+      setVariable(xmlNode);
     }
 
     // global: replace typename with label
@@ -104,8 +120,10 @@ Config::Config(FileName &fileName, const std::map<std::string, std::string> &com
         XmlAttrPtr label = child->getAttribute("label");
         if(!label)
           throw(Exception("elements in global must have attribute 'label'"));
+        if(inputfileVariables(child, label))
+          continue;
         child->setName(label->getText());
-        stack.top().links[child->getName()] = child;
+        setVariable(child);
       }
 
     // add global elements from command line
@@ -115,16 +133,45 @@ Config::Config(FileName &fileName, const std::map<std::string, std::string> &com
       XmlNodePtr xmlNode = XmlNode::create(command.first);
       xmlNode->setText(command.second);
       stack.top().links[command.first] = xmlNode;
+      setVariable(xmlNode);
     }
+  }
+  catch(std::exception &e)
+  {
+    GROOPS_RETHROW(e)
+  }
+}
 
-    // set global variables
-    // --------------------
-    for(auto &pair : stack.top().links)
-      if(!pair.second->hasChildren())  // not complex type?
-      {
-        XmlAttrPtr link = pair.second->findAttribute("link");
-        stack.top().varList.setVariable(pair.second->getName(), ((link) ? "{"+link->getText()+"}" : pair.second->getText()));
-      }
+/***********************************************/
+
+Bool Config::inputfileVariables(XmlNodePtr xmlNode, XmlAttrPtr label)
+{
+  try
+  {
+    if(xmlNode->getName() != "inputfileVariables")
+      return FALSE;
+
+    // parse config file name
+    XmlAttrPtr link  = xmlNode->findAttribute("link");
+    std::string fileName = ((link) ? "{"+link->getText()+"}" : xmlNode->getText());
+    Bool resolved = TRUE;
+    fileName = StringParser::parse(label->getText(), fileName, stack.top().varList, resolved);
+    if(!resolved)
+      throw(Exception("In readConfig("+currentNodeName()+"."+label->getText()+", type=inputfileVariables)='"+fileName+"': unresolved variables"));
+
+    // check parentFileNames (infinite circular read?)
+    for(const std::string &parentFileName : stack.top().parentFileNames)
+      if(std::filesystem::equivalent(std::filesystem::path(parentFileName), std::filesystem::path(fileName)))
+        throw(Exception("In readConfig("+currentNodeName()+"."+label->getText()+", type=inputfileVariables)='"+fileName+"': infinite loop"));
+
+    // read config and add variables and links
+    auto fileNames = stack.top().parentFileNames;
+    fileNames.push_front(fileName);
+    Config config(fileNames);
+    stack.top().varList += config.getVarList();
+    for(auto link : config.getLinks())
+      stack.top().links[link.first] = link.second;
+    return TRUE;
   }
   catch(std::exception &e)
   {
@@ -156,6 +203,9 @@ Bool Config::hasName(const std::string &name)
       XmlAttrPtr label = xmlNode->getAttribute("label");
       if(label) // xmlNode is local variable
       {
+        if(inputfileVariables(xmlNode, label))
+          continue;
+        // local variables
         xmlNode->setName(label->getText());  // replace typename with label
         stack.top().links[xmlNode->getName()] = xmlNode;
         if(!xmlNode->hasChildren())          // not complex type? -> variable
@@ -177,14 +227,12 @@ Bool Config::hasName(const std::string &name)
     // -----------------------
     std::function<void(XmlNodePtr&)> resolveLink = [&](XmlNodePtr &xmlNode)
     {
-
       XmlAttrPtr link = xmlNode->getAttribute("link");
       if(link)
       {
         XmlNodePtr xmlNodeLink = stack.top().links[link->getText()];
         if(!xmlNodeLink || xmlNodeLink->getAttribute("resolving"))
           throw(Exception(std::string("cannot resolve link: ")+xmlNode->getName()+" -> "+link->getText()+"'"));
-
 
         // add temporary resolving attribute to prevent link loops
         writeAttribute(xmlNodeLink, "resolving", 1);
@@ -466,17 +514,17 @@ void Config::writeSchema(const std::string &fileName)
     config.stack.top().type = Config::COMPLEXTYPE;
 
     // all types are string types as they can contain expressions
-    config.xssimpleType("int",        "xs:string"); //"xs:int");
-    config.xssimpleType("uint",       "xs:string"); //"xs:nonNegativeInteger");
-    config.xssimpleType("double",     "xs:string"); //"xs:double");
-    config.xssimpleType("angle",      "xs:string"); //"xs:double");
-    config.xssimpleType("boolean",    "xs:string"); //"xs:boolean");
-    config.xssimpleType("time",       "xs:string"); //"xs:double");
-    config.xssimpleType("doodson",    "xs:string");
-    config.xssimpleType("string",     "xs:string");
-    config.xssimpleType("filename",   "xs:string");
-    config.xssimpleType("expression", "xs:string");
-    config.xssimpleType("gnssType",   "xs:string");
+    config.xssimpleType("int",                "xs:string");
+    config.xssimpleType("uint",               "xs:string");
+    config.xssimpleType("double",             "xs:string");
+    config.xssimpleType("angle",              "xs:string");
+    config.xssimpleType("expression",         "xs:string");
+    config.xssimpleType("time",               "xs:string");
+    config.xssimpleType("boolean",            "xs:string");
+    config.xssimpleType("string",             "xs:string");
+    config.xssimpleType("filename",           "xs:string");
+    config.xssimpleType("gnssType",           "xs:string");
+    config.xssimpleType("doodson",            "xs:string");
 
     std::vector<SchemaClass*> classList = SchemaClass::classList();
     SchemaClass::sort(classList);

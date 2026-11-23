@@ -12,13 +12,13 @@
 	<xs:simpleType name="angle">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
-	<xs:simpleType name="boolean">
+	<xs:simpleType name="expression">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
 	<xs:simpleType name="time">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
-	<xs:simpleType name="doodson">
+	<xs:simpleType name="boolean">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
 	<xs:simpleType name="string">
@@ -27,10 +27,10 @@
 	<xs:simpleType name="filename">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
-	<xs:simpleType name="expression">
+	<xs:simpleType name="gnssType">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
-	<xs:simpleType name="gnssType">
+	<xs:simpleType name="doodson">
 		<xs:restriction base="xs:string"/>
 	</xs:simpleType>
 	<xs:complexType name="autoregressiveModelSequenceType">
@@ -26203,13 +26203,13 @@
 							<xs:element name="uint" type="uint" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="double" type="double" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="angle" type="angle" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="boolean" type="boolean" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="expression" type="expression" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="time" type="time" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="doodson" type="doodson" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="boolean" type="boolean" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="string" type="string" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="filename" type="filename" minOccurs="0" maxOccurs="unbounded"/>
-							<xs:element name="expression" type="expression" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="gnssType" type="gnssType" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="doodson" type="doodson" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="autoregressiveModelSequenceType" type="autoregressiveModelSequenceType" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="borderType" type="borderType" minOccurs="0" maxOccurs="unbounded"/>
 							<xs:element name="conditionType" type="conditionType" minOccurs="0" maxOccurs="unbounded"/>

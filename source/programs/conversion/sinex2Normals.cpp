@@ -72,20 +72,19 @@ void Sinex2Normals::run(Config &config, Parallel::CommunicatorPtr /*comm*/)
     Vector x0 = readVector(sinex, dimension, info.parameterName, "SOLUTION/APRIORI");
     Matrix N0 = readMatrix(sinex, dimension, "SOLUTION/MATRIX_APRIORI");
     Matrix N  = readMatrix(sinex, dimension, "SOLUTION/NORMAL_EQUATION_MATRIX");
-
-    // try reconstruct missing information
-    if(!x.size())
-      x = Vector(dimension);
-    if(!x0.size())
-      x0 = Vector(dimension);
     if(!N.size())
     {
       N = readMatrix(sinex, dimension, "SOLUTION/MATRIX_ESTIMATE");
       if(N0.size())
         N -= N0;
     }
-    if(!n.size() && N.size())
-      n = N * (x-x0);
+
+    // try reconstruct missing information
+    Vector dx = x;
+    if(dx.size() && x0.size())
+      dx -= x0;
+    if(!n.size() && N.size() && dx.size())
+      n = N * dx;
 
     // SOLUTION/STATISTICS
     auto iter = std::find_if(sinex.blocks.begin(), sinex.blocks.end(), [&](const auto &b) {return b->label == "SOLUTION/STATISTICS";});
@@ -98,9 +97,9 @@ void Sinex2Normals::run(Config &config, Parallel::CommunicatorPtr /*comm*/)
       }
 
     if(!info.observationCount)
-      info.observationCount = x.size();
-    if(!info.lPl(0))
-      info.lPl = (x-x0).trans()*(N*(x-x0));
+      info.observationCount = N.rows();
+    if(!info.lPl(0) && N.size() && dx.size())
+      info.lPl = dx.trans()*(N*dx);
 
     // write output files
     // ------------------
