@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         }
 
         logInfo<<"Config file: <"<<configFileName<<">"<<Log::endl;
-        Config config(configFileName, commandlineGlobals);
+        Config config({configFileName}, commandlineGlobals);
         ProgramConfig programs;
         readConfig(config, "program", programs, Config::OPTIONAL, "", "");
         VariableList varList;

@@ -42,6 +42,7 @@ The covariance matrix of the reduced observations is given by
 #include "files/fileInstrument.h"
 #include "files/fileParameterName.h"
 #include "classes/parametrizationGravity/parametrizationGravity.h"
+#include "classes/parameterSelector/parameterSelector.h"
 #include "misc/observation/observationMiscDualSstVariational.h"
 #include "misc/varianceComponentEstimation.h"
 #include "misc/kalmanProcessing.h"
